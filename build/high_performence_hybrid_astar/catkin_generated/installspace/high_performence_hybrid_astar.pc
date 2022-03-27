@@ -1,0 +1,8 @@
+prefix=/home/ros/fantasyplus/xtcar/install
+
+Name: high_performence_hybrid_astar
+Description: Description of high_performence_hybrid_astar
+Version: 0.1.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lhigh_performence_hybrid_astar
+Requires: 

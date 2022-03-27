@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>high_performence_hybrid_astar</name>
+  <version>0.1.0</version>
+  <description>The high_performence_hybrid_astar package</description>
+
+  <maintainer email="530925206@qq.com">fantasyplus</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>tf_conversions</build_depend>
+
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>tf</build_export_depend>
+  <build_export_depend>tf_conversions</build_export_depend>
+  
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>tf_conversions</exec_depend>
+
+</package>
