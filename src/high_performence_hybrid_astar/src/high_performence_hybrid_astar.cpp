@@ -34,7 +34,7 @@ std::vector<std::vector<NodeUpdate>> HybridAstar::createTransitionTable(const do
                                                                         const bool use_back)
 {
     //遍历每一个角度
-    std::vector<std::vector<NodeUpdate>> transition_table;
+    std::vector<std::vector<NodeUpdate>> transition_table; 
     transition_table.resize(theta_size);
 
     const double dtheta = 2.0 * M_PI / static_cast<double>(theta_size);
