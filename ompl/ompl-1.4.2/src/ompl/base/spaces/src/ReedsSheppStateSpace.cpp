@@ -1,36 +1,36 @@
 /*********************************************************************
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2010, Rice University
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of the Rice University nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*********************************************************************/
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2010, Rice University
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the Rice University nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
 
 /* Author: Mark Moll */
 
@@ -475,7 +475,7 @@ namespace
         //经过这五个函数之后，返回的就是最短的path
         return path;
     }
-}
+}  // namespace
 
 const ompl::base::ReedsSheppStateSpace::ReedsSheppPathSegmentType
     ompl::base::ReedsSheppStateSpace::reedsSheppPathType[18][5] = {
@@ -503,6 +503,7 @@ ompl::base::ReedsSheppStateSpace::ReedsSheppPath::ReedsSheppPath(const ReedsShep
                                                                  double u, double v, double w, double x)
   : type_(type)
 {
+    // tuvwx代表5种（最少3种最多5种）曲线组合的圆心角，正负代表前进和后退
     length_[0] = t;
     length_[1] = u;
     length_[2] = v;
@@ -513,7 +514,128 @@ ompl::base::ReedsSheppStateSpace::ReedsSheppPath::ReedsSheppPath(const ReedsShep
 
 double ompl::base::ReedsSheppStateSpace::distance(const State *state1, const State *state2) const
 {
-    return rho_ * reedsShepp(state1, state2).length();
+    return rho_ * reedsShepp(state1, state2).length();  //每一段弧度的绝对值之和*半径等于总弧长
+}
+
+//类的静态成员变量需要在类外分配内存空间
+unsigned int ompl::base::ReedsSheppStateSpace::prev_i = 0;
+
+//发生碰撞的时候，程序并不会结束，但是解析扩张会重来，
+//所以如果不重置prev_i的话，下次解析扩张开始时prev_i还是之前的值并不一定为0
+void ompl::base::ReedsSheppStateSpace::clearStaticIndexPrev()
+{
+    prev_i = 0;
+    std::cout << "collision clear prev_i" << std::endl;
+}
+
+void ompl::base::ReedsSheppStateSpace::interpolateByXt(const State *from, const State *to, const double t, State *state,
+                                                       bool &is_back) const
+{
+    std::cout << "t:" << t << std::endl;
+    ReedsSheppPath path;
+    if (t >= 1.)
+    {
+        //成功到达终点后，重置prev_i，
+        prev_i = 0;
+        if (to != state)
+            copyState(state, to);
+        return;
+    }
+    if (t <= 0.)
+    {
+        if (from != state)
+            copyState(state, from);
+        return;
+    }
+    //已经获得了最短的路径，接下来就是对它插值
+    path = reedsShepp(from, to);
+
+    auto *s = allocState()->as<StateType>();
+    double seg = t * path.length();  //这一小段路径的圆心角，正负代表前进和后退
+    double phi, v;
+    double last_length = 0;
+
+    s->setXY(0., 0.);
+    s->setYaw(from->as<StateType>()->getYaw());
+
+    std::cout << "length: ";
+    for (auto c : path.length_)
+    {
+        std::cout << c << " ";
+    }
+    std::cout << "~~~~~~" << std::endl;
+    std::cout << "seg:" << seg << std::endl;
+
+    for (unsigned int i = 0; i < 5 && seg > 0; ++i)
+    {
+        std::cout << " i:" << i << " " << path.length_[i];  //倒车的话看负值，而且最后不包括终点(存疑)
+        if (prev_i < i)
+        {
+            //记录转折点，跳过这一次seg插值的点
+            v = 0;
+            seg = 0;
+            last_length = path.length_[prev_i];
+            std::cout << std::endl;
+            std::cout << " in----prev_i------:" << prev_i;
+            prev_i = i;
+        }
+        else
+        {
+            std::cout << " out---prev_i------:" << prev_i;
+            if (path.length_[i] < 0)
+            {
+                v = std::max(-seg, path.length_[i]);
+                seg += v;
+                last_length = path.length_[i];
+            }
+            else
+            {
+                v = std::min(seg, path.length_[i]);
+                seg -= v;
+                last_length = path.length_[i];
+            }
+        }
+        std::cout << " seg remain:" << seg;
+        phi = s->getYaw();
+        switch (path.type_[i])
+        {
+            case RS_LEFT:
+                std::cout << " GO lEFT--";
+                s->setXY(s->getX() + sin(phi + v) - sin(phi), s->getY() - cos(phi + v) + cos(phi));
+                s->setYaw(phi + v);
+                break;
+            case RS_RIGHT:
+                std::cout << " GO RIGHT--";
+                s->setXY(s->getX() - sin(phi - v) + sin(phi), s->getY() + cos(phi - v) - cos(phi));
+                s->setYaw(phi - v);
+                break;
+            case RS_STRAIGHT:
+                std::cout << " GO STRAIGHT--";
+                s->setXY(s->getX() + v * cos(phi), s->getY() + v * sin(phi));
+                break;
+            case RS_NOP:
+                std::cout << " NOP--";
+                break;
+        }
+    }
+
+    if (last_length > 0)
+    {
+        is_back = false;
+        std::cout << " is_back:" << is_back;
+    }
+    else if (last_length < 0)
+    {
+        is_back = true;
+        std::cout << " is_back:" << is_back;
+    }
+    std::cout << std::endl;
+    std::cout << std::endl;
+    state->as<StateType>()->setX(s->getX() * rho_ + from->as<StateType>()->getX());
+    state->as<StateType>()->setY(s->getY() * rho_ + from->as<StateType>()->getY());
+    getSubspace(1)->enforceBounds(s->as<SO2StateSpace::StateType>(1));
+    state->as<StateType>()->setYaw(s->getYaw());
+    freeState(s);
 }
 
 void ompl::base::ReedsSheppStateSpace::interpolate(const State *from, const State *to, const double t,
@@ -552,15 +674,13 @@ void ompl::base::ReedsSheppStateSpace::interpolate(const State *from, const Reed
                                                    State *state) const
 {
     auto *s = allocState()->as<StateType>();
-    double seg = t * path.length();//这一小段路径的长度
+    double seg = t * path.length();
     double phi, v;
 
     s->setXY(0., 0.);
     s->setYaw(from->as<StateType>()->getYaw());
-    std::cout<<"seg:"<<seg<<" ";
     for (unsigned int i = 0; i < 5 && seg > 0; ++i)
     {
-        std::cout<<" i:"<<i<<" "<<path.length_[i];//倒车的话看负值，而且最后不包括终点(存疑)
         if (path.length_[i] < 0)
         {
             v = std::max(-seg, path.length_[i]);
@@ -589,7 +709,6 @@ void ompl::base::ReedsSheppStateSpace::interpolate(const State *from, const Reed
                 break;
         }
     }
-    std::cout<<std::endl;
     state->as<StateType>()->setX(s->getX() * rho_ + from->as<StateType>()->getX());
     state->as<StateType>()->setY(s->getY() * rho_ + from->as<StateType>()->getY());
     getSubspace(1)->enforceBounds(s->as<SO2StateSpace::StateType>(1));

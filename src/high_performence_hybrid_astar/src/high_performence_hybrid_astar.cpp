@@ -34,7 +34,7 @@ std::vector<std::vector<NodeUpdate>> HybridAstar::createTransitionTable(const do
                                                                         const bool use_back)
 {
     //遍历每一个角度
-    std::vector<std::vector<NodeUpdate>> transition_table; 
+    std::vector<std::vector<NodeUpdate>> transition_table;
     transition_table.resize(theta_size);
 
     const double dtheta = 2.0 * M_PI / static_cast<double>(theta_size);
@@ -686,7 +686,6 @@ void HybridAstar::reset()
     std::priority_queue<AstarNodePtr, std::vector<AstarNodePtr>, NodeComparison> empty_list;
     std::swap(_open_list, empty_list);
 
-
     //初始化A*节点表
     for (int i = 0; i < _cost_map.info.height; i++)
     {
@@ -934,7 +933,7 @@ Vector2D HybridAstar::curvatureTerm(Vector2D xim1, Vector2D xi, Vector2D xip1)
     // return gradient of 0
     else
     {
-        std::cout << "abs values not larger than 0" << std::endl;
+        // std::cout << "abs values not larger than 0" << std::endl;
         Vector2D zeros;
         return zeros;
     }
@@ -984,13 +983,13 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
 
         //根号2倍的地图分辨率，保证每一次都会到一个新的格子
         const float min_step = std::sqrt(_cost_map.info.resolution);
-        const unsigned int num_intervals = std::floor(rs_distance / min_step);
+        const unsigned int num_intervals = std::ceil(rs_distance / min_step);
 
         //生成除了终点的曲线中间点
         std::vector<AstarNodePtr> analytic_candidate_nodes;
         std::vector<double> reals;
 
-        ompl::base::StateSpacePtr state = std::make_shared<ompl::base::ReedsSheppStateSpace>(_planner_common_param.min_turning_radius);
+        static ompl::base::StateSpacePtr state = std::make_shared<ompl::base::ReedsSheppStateSpace>(_planner_common_param.min_turning_radius);
         ompl::base::ScopedState<> from(state), to(state), s(state);
         from[0] = current_node->x;
         from[1] = current_node->y;
@@ -1000,13 +999,14 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
         to[2] = goal_node->theta;
 
         int vis_collision_coount = 0;
-        
+        bool is_back;
+
         //除了起点的插值
+        rs_state.clearStaticIndexPrev();
         for (unsigned int i = 1; i <= num_intervals; i++)
         {
             //开始插值
-
-            rs_state.interpolate(from(), to(), (double)i / num_intervals, s());
+            rs_state.interpolateByXt(from(), to(), (double)i / num_intervals, s(), is_back);
             reals = s.reals();
 
             //检测该点是否有碰撞
@@ -1022,6 +1022,9 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
             //如果有碰撞的话，直接返回空指针。因为本次解析扩张已经失败了
             if (detectCollision(index_2_collision))
             {
+                //发生碰撞的时候，程序并不会结束，但是解析扩张会重来，
+                //所以如果不重置prev_i的话，下次解析扩张开始时prev_i还是之前的值并不一定为0
+                rs_state.clearStaticIndexPrev();
                 ROS_INFO("-------collision-------");
                 return nullptr;
             }
@@ -1031,6 +1034,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
                 candidate_node->x = reals[0];
                 candidate_node->y = reals[1];
                 candidate_node->theta = normalizeRadian(reals[2], 0.0);
+                candidate_node->is_back = is_back;
 
                 analytic_candidate_nodes.push_back(candidate_node);
             }
@@ -1040,6 +1044,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
         AstarNodePtr prev = current_node;
         for (auto node : analytic_candidate_nodes)
         {
+            ROS_INFO("node back status is: %d", node->is_back);
             node->parent = prev;
 
             //可视化路径
@@ -1053,7 +1058,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
 
             prev = node;
         }
-        ROS_INFO("successful analytic node is %d",num_intervals-1);
+        ROS_INFO("successful analytic node is %d", (int)analytic_candidate_nodes.size());
         return prev;
     }
 
