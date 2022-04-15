@@ -96,8 +96,8 @@ std::vector<std::vector<NodeUpdate>> HybridAstar::createTransitionTable(const do
 
 SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const geometry_msgs::Pose &goal_pose)
 {
-    _start_pose = start_pose;
-    _goal_pose = goal_pose;
+    _start_pose = global2local(_cost_map, start_pose);
+    _goal_pose = global2local(_cost_map, goal_pose);
 
     if (!setStartNode())
     {
@@ -133,6 +133,18 @@ SearchStatus HybridAstar::search()
 
         //选择代价值最小的节点作为扩张节点
         AstarNodePtr current_node = _open_list.top();
+
+        //也放入记忆set，用于reset（以防万一,估计就是起点和终点）
+        _memory_open_nodes.insert(current_node);
+
+        //判断是否已经为Close（比如倒车的情况）
+        if (current_node->status == NodeStatus::Close)
+        {
+            // ROS_INFO("current_node has closed");
+            _open_list.pop();
+            continue;
+        }
+
         _open_list.pop();
         current_node->status = NodeStatus::Close;
 
@@ -232,6 +244,7 @@ SearchStatus HybridAstar::search()
                 next_node->is_turning = transition.is_turning;
                 next_node->parent = current_node;
                 _open_list.push(next_node);
+                _memory_open_nodes.insert(next_node);
 
                 continue;
             }
@@ -324,26 +337,32 @@ void HybridAstar::setPath(AstarNodePtr goal_node)
     }
 }
 
+double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
+{
+    ompl::base::ReedsSheppStateSpace reedsSheppPath(_planner_common_param.min_turning_radius);
+
+    State *rsStart = (State *)reedsSheppPath.allocState();
+    State *rsEnd = (State *)reedsSheppPath.allocState();
+
+    rsStart->setXY(start.position.x, start.position.y);
+    rsStart->setYaw(tf2::getYaw(start.orientation));
+
+    rsEnd->setXY(goal.position.x, goal.position.y);
+    rsEnd->setYaw(tf2::getYaw(goal.orientation));
+
+    return reedsSheppPath.distance(rsStart, rsEnd);
+}
+
+double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
+{
+}
+
 double HybridAstar::estimateCost(const geometry_msgs::Pose &start)
 {
     double total_cost = 0.0;
     if (_planner_common_param.use_reeds_shepp)
     {
-        TimerClock t0;
-        ompl::base::ReedsSheppStateSpace reedsSheppPath(_planner_common_param.min_turning_radius);
-
-        State *rsStart = (State *)reedsSheppPath.allocState();
-        State *rsEnd = (State *)reedsSheppPath.allocState();
-
-        rsStart->setXY(start.position.x, start.position.y);
-        rsStart->setYaw(tf2::getYaw(start.orientation));
-
-        rsEnd->setXY(_goal_pose.position.x, _goal_pose.position.y);
-        rsEnd->setYaw(tf2::getYaw(_goal_pose.orientation));
-
-        total_cost += reedsSheppPath.distance(rsStart, rsEnd);
-
-        // ROS_INFO("calculated Reed-Sheep Heuristic in ms:%f", t0.getTimerMilliSec());
+        total_cost += getDistanceHeuristic(start, _goal_pose);
     }
     else
     {
@@ -427,7 +446,7 @@ void HybridAstar::computeCollisionIndexes(const int theta_index, std::vector<Ind
 {
     const auto vehicle_shape = _planner_common_param.vehiche_shape;
 
-    //将车体定义为一个矩形，以重心为原点，右手坐标系，front为x轴正方形，left为y轴正方形
+    //将车体定义为一个矩形，以重心为原点，右手坐标系，front为x轴正方向，left为y轴正方向
     const double back = -1.0 * vehicle_shape.cg2back;
     const double front = vehicle_shape.length - vehicle_shape.cg2back;
     const double right = -1.0 * vehicle_shape.width / 2;
@@ -494,7 +513,7 @@ void HybridAstar::visualCollisionClear()
     _pub_vis_collision.publish(clear_cubes);
 }
 
-void HybridAstar::visual()
+void HybridAstar::visualAnalyticPath()
 {
     // _pub_vis_collision.publish(_collision_cubes);
 
@@ -588,8 +607,8 @@ geometry_msgs::Pose HybridAstar::index2pose(const IndexXYT &index, const float &
     geometry_msgs::Pose pose_local;
 
     //如果当前位置为（1，1），分辨率为1，那么index等于1。如果分辨率为0.2，那么index等于5。分辨率越小，index越大。
-    pose_local.position.x = static_cast<float>(index.x_index) * _cost_mapresolution;
-    pose_local.position.y = static_cast<float>(index.y_index) * _cost_mapresolution;
+    pose_local.position.x = static_cast<float>(index.x_index + 0.5) * _cost_mapresolution;
+    pose_local.position.y = static_cast<float>(index.y_index + 0.5) * _cost_mapresolution;
 
     const double angle_increment_rad = 2.0 * M_PI / static_cast<double>(theta_size);
     const double yaw = index.theta_index * angle_increment_rad;
@@ -687,18 +706,29 @@ void HybridAstar::reset()
     std::swap(_open_list, empty_list);
 
     //初始化A*节点表
-    for (int i = 0; i < _cost_map.info.height; i++)
+    //遍历所有点
+    // for (int i = 0; i < _cost_map.info.height; i++)
+    // {
+    //     for (int j = 0; j < _cost_map.info.width; j++)
+    //     {
+    //         for (int t = 0; t < _planner_common_param.theta_size; t++)
+    //         {
+    //             if (_nodes[i][j][t]->status != NodeStatus::None)
+    //             {
+    //                 _nodes[i][j][t]->g_cost = 0.0;
+    //                 _nodes[i][j][t]->status = NodeStatus::None;
+    //                 _nodes[i][j][t]->h_cost = 0.0;
+    //             }
+    //         }
+    //     }
+    // }
+
+    //遍历这次OPEN或者CLOSE过的点
+    for (auto it : _memory_open_nodes)
     {
-        for (int j = 0; j < _cost_map.info.width; j++)
-        {
-            for (int t = 0; t < _planner_common_param.theta_size; t++)
-            {
-                _nodes[i][j][t]->g_cost = 0.0;
-                _nodes[i][j][t]->status = NodeStatus::None;
-                _nodes[i][j][t]->h_cost = 0.0;
-                // _nodes[i][j][t].reset();
-            }
-        }
+        it->g_cost = 0.0;
+        it->status = NodeStatus::None;
+        it->h_cost = 0.0;
     }
 }
 
@@ -1025,7 +1055,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
                 //发生碰撞的时候，程序并不会结束，但是解析扩张会重来，
                 //所以如果不重置prev_i的话，下次解析扩张开始时prev_i还是之前的值并不一定为0
                 rs_state.clearStaticIndexPrev();
-                ROS_INFO("-------collision-------");
+                // ROS_INFO("-------collision-------");
                 return nullptr;
             }
             else
@@ -1044,7 +1074,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
         AstarNodePtr prev = current_node;
         for (auto node : analytic_candidate_nodes)
         {
-            ROS_INFO("node back status is: %d", node->is_back);
+            // ROS_INFO("node back status is: %d", node->is_back);
             node->parent = prev;
 
             //可视化路径
@@ -1058,7 +1088,7 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
 
             prev = node;
         }
-        ROS_INFO("successful analytic node is %d", (int)analytic_candidate_nodes.size());
+        // ROS_INFO("successful analytic node is %d", (int)analytic_candidate_nodes.size());
         return prev;
     }
 

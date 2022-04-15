@@ -16,6 +16,7 @@
 #include <tuple>
 #include <chrono>
 #include <cmath>
+#include <unordered_set>
 
 // ros
 #include <ros/ros.h>
@@ -64,8 +65,8 @@ public:
     //初始化参数并生成_transition_table
     void initParam(const PlannerCommonParam &planner_common_param);
 
-    //可视化各种点
-    void visual();
+    //可视化解析扩张路径
+    void visualAnalyticPath();
 
     //清空可视化
     void visualCollisionClear();
@@ -179,6 +180,12 @@ private:
     //计算启发式值，即h值
     double estimateCost(const geometry_msgs::Pose &start);
 
+    //计算距离启发值
+    double getDistanceHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal);
+
+    //计算障碍物启发值
+    double getObstacleHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal);
+
     //是否为终点
     bool isGoal(const AstarNode &node);
 
@@ -206,13 +213,11 @@ private:
 private:
     /*---------------------解析扩张函数---------------------*/
     AstarNodePtr tryAnalyticExpansion(AstarNodePtr current_node,
-                                    AstarNodePtr goal_node,
-                                    int &analytic_iterations,
-                                    float &closest_distance);
+                                      AstarNodePtr goal_node,
+                                      int &analytic_iterations,
+                                      float &closest_distance);
 
 private:
-    
-
     //规划参数结构体
     PlannerCommonParam _planner_common_param;
 
@@ -227,6 +232,9 @@ private:
     //障碍物表
     std::vector<std::vector<bool>> _is_obstacle_table;
 
+    //存储这次搜索OPEN过的点
+    std::unordered_set<AstarNodePtr> _memory_open_nodes;
+
     /*
     扩张时的状态转移表
     第一维是theta_size个角度，
@@ -234,9 +242,9 @@ private:
     */
     std::vector<std::vector<NodeUpdate>> _transition_table;
     // A*节点表（x,y,theta）
-    std::vector<std::vector<std::vector<AstarNodePtr >>> _nodes;
+    std::vector<std::vector<std::vector<AstarNodePtr>>> _nodes;
     //用于A*搜索时的优先队列
-    std::priority_queue<AstarNodePtr , std::vector<AstarNodePtr >, NodeComparison> _open_list;
+    std::priority_queue<AstarNodePtr, std::vector<AstarNodePtr>, NodeComparison> _open_list;
 
     //起始位置
     geometry_msgs::Pose _start_pose;
