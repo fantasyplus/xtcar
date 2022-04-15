@@ -103,15 +103,15 @@
 
   <arg name="max_turning_radius" default="20.0" />
   <arg name="min_turning_radius" default="4.36" />
-  <arg name="turning_radius_size" default="1" />
+  <arg name="turning_radius_size" default="10" />
   <arg name="theta_size" default="48" />
 
-  <arg name="reverse_weight" default="4.0" />
-  <arg name="turning_weight" default="2.2" />
+  <arg name="reverse_weight" default="100.0" />
+  <arg name="turning_weight" default="2.0" />
 
-  <arg name="goal_lateral_tolerance" default="1.0" />
-  <arg name="goal_longitudinal_tolerance" default="1.0" />
-  <arg name="goal_angular_tolerance" default="0.15708" />
+  <arg name="goal_lateral_tolerance" default="0.5" />
+  <arg name="goal_longitudinal_tolerance" default="0.5" />
+  <arg name="goal_angular_tolerance" default="0.015708" />
   <arg name="obstacle_threshold" default="100" />
 
   <arg name="use_back" default="true" />
@@ -119,13 +119,13 @@
   <arg name="use_smoother" default="true" />
 
   <arg name="alpha" default="0.1" />
-  <arg name="obstacle_weight" default="0.2" />
+  <arg name="obstacle_weight" default="0.5" />
   <arg name="curvature_weight" default="0.0" />
   <arg name="smoothness_weight" default="0.0" />
   <arg name="obstacle_distance_max" default="1.0" />
 
   <arg name="analytic_expansion_ratio" default="3.5" />
-  <arg name="analytic_expansion_max_length" default="100" />
+  <arg name="analytic_expansion_max_length" default="30" />
 
 
   <node pkg="hp_hybrid_astr_node" type="hp_hybrid_astr_node" name="hp_hybrid_astr_node" output="screen" required="true">

@@ -16,22 +16,6 @@
 
 #include "hp_hybrid_astr_node/astar_navi.h"
 
-inline geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const tf::Transform &tf)
-{
-  // Convert ROS pose to TF pose
-  tf::Pose tf_pose;
-  tf::poseMsgToTF(pose, tf_pose);
-
-  // Transform pose
-  tf_pose = tf * tf_pose;
-
-  // Convert TF pose to ROS pose
-  geometry_msgs::Pose ros_pose;
-  tf::poseTFToMsg(tf_pose, ros_pose);
-
-  return ros_pose;
-}
-
 AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 {
   // node param
@@ -74,14 +58,13 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 
   _hybrid_astar.initParam(_hybrid_astar_param);
 
-  lane_pub_ = nh_.advertise<autoware_msgs::LaneArray>("lane_waypoints_array", 1, true);
   costmap_sub_ = nh_.subscribe(_costmap_topic, 1, &AstarNavi::costmapCallback, this);
   current_pose_sub_ = nh_.subscribe("current_pose", 1, &AstarNavi::currentPoseCallback, this);
   goal_pose_sub_ = nh_.subscribe("move_base_simple/goal", 1, &AstarNavi::goalPoseCallback, this);
 
-  pub_PathsRviz = nh_.advertise<visualization_msgs::MarkerArray>("global_waypoints_rviz", 1, true);
   _pub_initial_path = nh_.advertise<nav_msgs::Path>("initial_path", 1, true);
   _pub_smoothed_path = nh_.advertise<nav_msgs::Path>("smoothed_path", 1, true);
+  _pub_path_vehicles = nh_.advertise<visualization_msgs::MarkerArray>("path_vehicle", 1, true);
 
   costmap_initialized_ = false;
   current_pose_initialized_ = false;
@@ -110,9 +93,9 @@ void AstarNavi::currentPoseCallback(const geometry_msgs::PoseStamped &msg)
   }
 
   current_pose_global_ = msg;
-  current_pose_local_.pose = transformPose(current_pose_global_.pose, getTransform(costmap_.header.frame_id, current_pose_global_.header.frame_id));
-  current_pose_local_.header.frame_id = costmap_.header.frame_id;
-  current_pose_local_.header.stamp = current_pose_global_.header.stamp;
+  // current_pose_local_.pose = transformPose(current_pose_global_.pose, getTransform(costmap_.header.frame_id, current_pose_global_.header.frame_id));
+  // current_pose_local_.header.frame_id = costmap_.header.frame_id;
+  // current_pose_local_.header.stamp = current_pose_global_.header.stamp;
 
   current_pose_initialized_ = true;
 }
@@ -125,25 +108,11 @@ void AstarNavi::goalPoseCallback(const geometry_msgs::PoseStamped &msg)
   }
 
   goal_pose_global_ = msg;
-  goal_pose_local_.pose = transformPose(goal_pose_global_.pose, getTransform(costmap_.header.frame_id, goal_pose_global_.header.frame_id));
-  goal_pose_local_.header.frame_id = costmap_.header.frame_id;
-  goal_pose_local_.header.stamp = goal_pose_global_.header.stamp;
+  // goal_pose_local_.pose = transformPose(goal_pose_global_.pose, getTransform(costmap_.header.frame_id, goal_pose_global_.header.frame_id));
+  // goal_pose_local_.header.frame_id = costmap_.header.frame_id;
+  // goal_pose_local_.header.stamp = goal_pose_global_.header.stamp;
 
   goal_pose_initialized_ = true;
-}
-
-tf::Transform AstarNavi::getTransform(const std::string &from, const std::string &to)
-{
-  tf::StampedTransform stf;
-  try
-  { // from是target，to是source，他这个写的有误导性
-    tf_listener_.lookupTransform(from, to, ros::Time(0), stf);
-  }
-  catch (tf::TransformException ex)
-  {
-    ROS_ERROR("%s", ex.what());
-  }
-  return stf;
 }
 
 inline bool isSuccess(const SearchStatus &status)
@@ -168,7 +137,7 @@ void AstarNavi::run()
     goalPoseCallback(goal_pose_global_);
 
     TimerClock t0;
-    SearchStatus result = _hybrid_astar.makePlan(current_pose_local_.pose, goal_pose_local_.pose);
+    SearchStatus result = _hybrid_astar.makePlan(current_pose_global_.pose, goal_pose_global_.pose);
     ROS_INFO("Hybrid Astar planning: %f [ms]", t0.getTimerMilliSec());
 
     if (isSuccess(result))
@@ -179,11 +148,13 @@ void AstarNavi::run()
       if (is_visual)
       {
         // _hybrid_astar.visualCollisionClear();
-        _hybrid_astar.visual();
+        _hybrid_astar.visualAnalyticPath();
+
+        visualPathVehicle(waypoints);
       }
 
       //初始路径
-      nav_msgs::Path initial_traj = transferTrajectory(current_pose_local_.pose, waypoints);
+      nav_msgs::Path initial_traj = transferTrajectory(current_pose_global_.pose, waypoints);
       _pub_initial_path.publish(initial_traj);
 
       //平滑后的路径
@@ -193,7 +164,7 @@ void AstarNavi::run()
         _hybrid_astar.smoothPath(waypoints);
         ROS_INFO("smooth path cost: %f [ms]", t1.getTimerMilliSec());
 
-        nav_msgs::Path smooth_traj = transferTrajectory(current_pose_local_.pose, waypoints);
+        nav_msgs::Path smooth_traj = transferTrajectory(current_pose_global_.pose, waypoints);
         _pub_smoothed_path.publish(smooth_traj);
       }
     }
@@ -251,36 +222,50 @@ nav_msgs::Path AstarNavi::transferTrajectory(const geometry_msgs::Pose &current_
   return ros_traj;
 }
 
-void AstarNavi::publishWaypoints(const nav_msgs::Path &path, const double &velocity)
+void AstarNavi::visualPathVehicle(const TrajectoryWaypoints &visual_waypoints)
 {
-  autoware_msgs::Lane lane;
-  lane.header.frame_id = "map";
-  lane.header.stamp = path.header.stamp;
-  lane.increment = 0;
+  int clear_index = 0;
 
-  for (const auto &pose : path.poses)
+  for (int i = 0; i < visual_waypoints.trajectory.size(); i++)
   {
-    autoware_msgs::Waypoint wp;
-    wp.pose.header = lane.header;
-    wp.pose.pose = transformPose(pose.pose, getTransform(lane.header.frame_id, pose.header.frame_id));
-    wp.pose.pose.position.z = current_pose_global_.pose.position.z; // height = const
-    wp.twist.twist.linear.x = velocity / 3.6;                       // velocity = const
-    lane.waypoints.push_back(wp);
+    visualization_msgs::Marker vehicle_marker;
+
+    if (clear_index == 0)
+    {
+      vehicle_marker.action = 3;
+      clear_index = 1;
+    }
+
+    vehicle_marker.header.frame_id = costmap_.header.frame_id;
+    vehicle_marker.header.stamp = ros::Time::now();
+    vehicle_marker.id = i;
+    vehicle_marker.type = visualization_msgs::Marker::CUBE;
+
+    vehicle_marker.scale.x = _hybrid_astar_param.vehiche_shape.length;
+    vehicle_marker.scale.y = _hybrid_astar_param.vehiche_shape.width;
+    vehicle_marker.scale.z = 1.0;
+
+    vehicle_marker.color.a = 0.1;
+
+    if (visual_waypoints.trajectory[i].is_back == false)
+    {
+      vehicle_marker.color.r = green.red;
+      vehicle_marker.color.g = green.green;
+      vehicle_marker.color.b = green.blue;
+    }
+    else if (visual_waypoints.trajectory[i].is_back == true)
+    {
+      vehicle_marker.color.r = pink.red;
+      vehicle_marker.color.g = pink.green;
+      vehicle_marker.color.b = pink.blue;
+    }
+
+    vehicle_marker.pose.position.x = visual_waypoints.trajectory[i].pose.pose.position.x * costmap_.info.resolution;
+    vehicle_marker.pose.position.y = visual_waypoints.trajectory[i].pose.pose.position.y * costmap_.info.resolution;
+    vehicle_marker.pose.orientation = visual_waypoints.trajectory[i].pose.pose.orientation;
+
+    _path_vehicles.markers.push_back(vehicle_marker);
   }
 
-  autoware_msgs::LaneArray lane_array;
-  lane_array.lanes.push_back(lane);
-  lane_pub_.publish(lane_array);
-
-  visualization_msgs::MarkerArray pathsToVisualize;
-
-  std_msgs::ColorRGBA total_color;
-  total_color.r = 0;
-  total_color.g = 0.7;
-  total_color.b = 1.0;
-  total_color.a = 0.9;
-  PlannerHNS::ROSHelpers::createGlobalLaneArrayMarker(total_color, lane_array, pathsToVisualize);
-  PlannerHNS::ROSHelpers::createGlobalLaneArrayOrientationMarker(lane_array, pathsToVisualize);
-  PlannerHNS::ROSHelpers::createGlobalLaneArrayVelocityMarker(lane_array, pathsToVisualize);
-  pub_PathsRviz.publish(pathsToVisualize);
+  _pub_path_vehicles.publish(_path_vehicles);
 }

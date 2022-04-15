@@ -525,13 +525,13 @@ unsigned int ompl::base::ReedsSheppStateSpace::prev_i = 0;
 void ompl::base::ReedsSheppStateSpace::clearStaticIndexPrev()
 {
     prev_i = 0;
-    std::cout << "collision clear prev_i" << std::endl;
+    // std::cout << "collision clear prev_i" << std::endl;
 }
 
 void ompl::base::ReedsSheppStateSpace::interpolateByXt(const State *from, const State *to, const double t, State *state,
                                                        bool &is_back) const
 {
-    std::cout << "t:" << t << std::endl;
+    // std::cout << "t:" << t << std::endl;
     ReedsSheppPath path;
     if (t >= 1.)
     {
@@ -558,30 +558,30 @@ void ompl::base::ReedsSheppStateSpace::interpolateByXt(const State *from, const 
     s->setXY(0., 0.);
     s->setYaw(from->as<StateType>()->getYaw());
 
-    std::cout << "length: ";
-    for (auto c : path.length_)
-    {
-        std::cout << c << " ";
-    }
-    std::cout << "~~~~~~" << std::endl;
-    std::cout << "seg:" << seg << std::endl;
+    // std::cout << "length: ";
+    // for (auto c : path.length_)
+    // {
+    //     std::cout << c << " ";
+    // }
+    // std::cout << "~~~~~~" << std::endl;
+    // std::cout << "seg:" << seg << std::endl;
 
     for (unsigned int i = 0; i < 5 && seg > 0; ++i)
     {
-        std::cout << " i:" << i << " " << path.length_[i];  //倒车的话看负值，而且最后不包括终点(存疑)
+        // std::cout << " i:" << i << " " << path.length_[i];  //倒车的话看负值，而且最后不包括终点(存疑)
         if (prev_i < i)
         {
             //记录转折点，跳过这一次seg插值的点
             v = 0;
             seg = 0;
             last_length = path.length_[prev_i];
-            std::cout << std::endl;
-            std::cout << " in----prev_i------:" << prev_i;
+            // std::cout << std::endl;
+            // std::cout << " in----prev_i------:" << prev_i;
             prev_i = i;
         }
         else
         {
-            std::cout << " out---prev_i------:" << prev_i;
+            // std::cout << " out---prev_i------:" << prev_i;
             if (path.length_[i] < 0)
             {
                 v = std::max(-seg, path.length_[i]);
@@ -595,26 +595,26 @@ void ompl::base::ReedsSheppStateSpace::interpolateByXt(const State *from, const 
                 last_length = path.length_[i];
             }
         }
-        std::cout << " seg remain:" << seg;
+        // std::cout << " seg remain:" << seg;
         phi = s->getYaw();
         switch (path.type_[i])
         {
             case RS_LEFT:
-                std::cout << " GO lEFT--";
+                // std::cout << " GO lEFT--";
                 s->setXY(s->getX() + sin(phi + v) - sin(phi), s->getY() - cos(phi + v) + cos(phi));
                 s->setYaw(phi + v);
                 break;
             case RS_RIGHT:
-                std::cout << " GO RIGHT--";
+                // std::cout << " GO RIGHT--";
                 s->setXY(s->getX() - sin(phi - v) + sin(phi), s->getY() + cos(phi - v) - cos(phi));
                 s->setYaw(phi - v);
                 break;
             case RS_STRAIGHT:
-                std::cout << " GO STRAIGHT--";
+                // std::cout << " GO STRAIGHT--";
                 s->setXY(s->getX() + v * cos(phi), s->getY() + v * sin(phi));
                 break;
             case RS_NOP:
-                std::cout << " NOP--";
+                // std::cout << " NOP--";
                 break;
         }
     }
@@ -622,15 +622,15 @@ void ompl::base::ReedsSheppStateSpace::interpolateByXt(const State *from, const 
     if (last_length > 0)
     {
         is_back = false;
-        std::cout << " is_back:" << is_back;
+        // std::cout << " is_back:" << is_back;
     }
     else if (last_length < 0)
     {
         is_back = true;
-        std::cout << " is_back:" << is_back;
+        // std::cout << " is_back:" << is_back;
     }
-    std::cout << std::endl;
-    std::cout << std::endl;
+    // std::cout << std::endl;
+    // std::cout << std::endl;
     state->as<StateType>()->setX(s->getX() * rho_ + from->as<StateType>()->getX());
     state->as<StateType>()->setY(s->getY() * rho_ + from->as<StateType>()->getY());
     getSubspace(1)->enforceBounds(s->as<SO2StateSpace::StateType>(1));

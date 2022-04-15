@@ -42,18 +42,14 @@ public:
 private:
   // ros
   ros::NodeHandle nh_, private_nh_;
-  ros::Publisher lane_pub_;
-  ros::Publisher pub_PathsRviz;
+
   ros::Publisher _pub_initial_path;
   ros::Publisher _pub_smoothed_path;
-  
+
   ros::Subscriber costmap_sub_;
   ros::Subscriber current_pose_sub_;
   ros::Subscriber goal_pose_sub_;
 
-  tf::TransformListener tf_listener_;
-
-  // params
   double waypoints_velocity_; // constant velocity on planned waypoints [km/h]
   double update_rate_;        // replanning and publishing rate [Hz]
   bool is_visual;
@@ -66,24 +62,43 @@ private:
 
   // variables
   nav_msgs::OccupancyGrid costmap_;
-  geometry_msgs::PoseStamped current_pose_local_, current_pose_global_;
-  geometry_msgs::PoseStamped goal_pose_local_, goal_pose_global_;
+  geometry_msgs::PoseStamped current_pose_global_;
+  geometry_msgs::PoseStamped goal_pose_global_;
   tf::Transform local2costmap_; // local frame (e.g. velodyne) -> costmap origin
 
   bool costmap_initialized_;
   bool current_pose_initialized_;
   bool goal_pose_initialized_;
 
-  // functions, callback
   void costmapCallback(const nav_msgs::OccupancyGrid &msg);
   void currentPoseCallback(const geometry_msgs::PoseStamped &msg);
   void goalPoseCallback(const geometry_msgs::PoseStamped &msg);
-  // fucntions
-  tf::Transform getTransform(const std::string &from, const std::string &to);
-  void publishWaypoints(const nav_msgs::Path &path, const double &velocity);
 
   nav_msgs::Path transferTrajectory(const geometry_msgs::Pose &current_pose,
                                     const TrajectoryWaypoints &trajectory_waypoints);
+
+private:
+  ros::Publisher _pub_path_vehicles;
+  visualization_msgs::MarkerArray _path_vehicles; //车子数据结构，用于可视化
+
+  struct color
+  {
+    float red;
+    float green;
+    float blue;
+  };
+
+  static constexpr color teal = {102.f / 255.f, 217.f / 255.f, 239.f / 255.f};
+
+  static constexpr color green = {166.f / 255.f, 226.f / 255.f, 46.f / 255.f};
+
+  static constexpr color orange = {253.f / 255.f, 151.f / 255.f, 31.f / 255.f};
+
+  static constexpr color pink = {249.f / 255.f, 38.f / 255.f, 114.f / 255.f};
+
+  static constexpr color purple = {174.f / 255.f, 129.f / 255.f, 255.f / 255.f};
+
+  void visualPathVehicle(const TrajectoryWaypoints &visual_waypoints);
 };
 
 #endif
