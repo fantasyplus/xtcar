@@ -138,6 +138,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/ros/fantasyplus/xtcar/build/gtest/cmake_install.cmake")
   include("/home/ros/fantasyplus/xtcar/build/high_performence_hybrid_astar/cmake_install.cmake")
   include("/home/ros/fantasyplus/xtcar/build/hp_hybrid_astr_node/cmake_install.cmake")
+  include("/home/ros/fantasyplus/xtcar/build/car_simulator/cmake_install.cmake")
 
 endif()
 

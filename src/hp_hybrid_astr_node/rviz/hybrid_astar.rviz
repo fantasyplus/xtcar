@@ -5,7 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - //vector_map_center_lines_rviz1/Namespaces1
         - //path_vehicle1
       Splitter Ratio: 0.5636703968048096
     Tree Height: 577
@@ -37,34 +36,30 @@ Visualization Manager:
   Class: ""
   Displays:
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_link:
+          Value: true
+        map:
+          Value: true
+        velodyne:
+          Value: true
+        world:
+          Value: true
       Marker Scale: 5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        world:
+          map:
+            base_link:
+              velodyne:
+                {}
       Update Interval: 0
-      Value: false
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /vector_map
-      Name: /vector_map
-      Namespaces:
-        road_edge: true
-      Queue Size: 100
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /vector_map_center_lines_rviz
-      Name: /vector_map_center_lines_rviz
-      Namespaces:
-        {}
-      Queue Size: 100
       Value: true
     - Alpha: 0.699999988079071
       Class: rviz/Map
@@ -195,7 +190,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -219,25 +214,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 84.01625061035156
+      Distance: 73.73429870605469
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 22.215179443359375
-        Y: -5.642169952392578
+        X: 25.607912063598633
+        Y: 3.671088218688965
         Z: -4.4943109969608486e-5
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5397963523864746
+      Pitch: 1.5647963285446167
       Target Frame: base_link
       Value: XYOrbit (rviz)
-      Yaw: 4.745444297790527
+      Yaw: 4.720443248748779
     Saved: ~
 Window Geometry:
   Displays:

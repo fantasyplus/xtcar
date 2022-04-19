@@ -1,2 +1,2 @@
-high_performence_hybrid_astar:hp_hybrid_astr_node
+car_simulator:high_performence_hybrid_astar:hp_hybrid_astr_node
 -DCATKIN_DEVEL_PREFIX=/home/ros/fantasyplus/xtcar/devel -DCMAKE_INSTALL_PREFIX=/home/ros/fantasyplus/xtcar/install -G Unix Makefiles
