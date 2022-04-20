@@ -7,3 +7,4 @@
 subdirs("gtest")
 subdirs("high_performence_hybrid_astar")
 subdirs("hp_hybrid_astr_node")
+subdirs("car_simulator")

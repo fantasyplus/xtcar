@@ -354,6 +354,12 @@ bond_DIR:PATH=/opt/ros/melodic/share/bond/cmake
 //The directory containing a CMake configuration file for bondcpp.
 bondcpp_DIR:PATH=/opt/ros/melodic/share/bondcpp/cmake
 
+//Value Computed by CMake
+car_simulator_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/car_simulator
+
+//Value Computed by CMake
+car_simulator_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/car_simulator
+
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/melodic/share/catkin/cmake
 
@@ -464,7 +470,7 @@ jsk_recognition_msgs_DIR:PATH=/opt/ros/melodic/share/jsk_recognition_msgs/cmake
 kdl_conversions_DIR:PATH=/opt/ros/melodic/share/kdl_conversions/cmake
 
 //Path to a library.
-lib:FILEPATH=/opt/ros/melodic/lib/libtopic_tools.so
+lib:FILEPATH=/home/ros/autoware.ai/install/vehicle_sim_model/lib/libvehicle_sim_model.so
 
 //The directory containing a CMake configuration file for libwaypoint_follower.
 libwaypoint_follower_DIR:PATH=/home/ros/autoware.ai/install/libwaypoint_follower/share/libwaypoint_follower/cmake
@@ -538,6 +544,9 @@ rosgraph_msgs_DIR:PATH=/opt/ros/melodic/share/rosgraph_msgs/cmake
 //The directory containing a CMake configuration file for roslib.
 roslib_DIR:PATH=/opt/ros/melodic/share/roslib/cmake
 
+//The directory containing a CMake configuration file for roslint.
+roslint_DIR:PATH=/opt/ros/melodic/share/roslint/cmake
+
 //The directory containing a CMake configuration file for roslz4.
 roslz4_DIR:PATH=/opt/ros/melodic/share/roslz4/cmake
 
@@ -594,6 +603,9 @@ vector_map_msgs_DIR:PATH=/home/ros/autoware.ai/install/vector_map_msgs/share/vec
 
 //The directory containing a CMake configuration file for vector_map_server.
 vector_map_server_DIR:PATH=/home/ros/autoware.ai/install/vector_map_server/share/vector_map_server/cmake
+
+//The directory containing a CMake configuration file for vehicle_sim_model.
+vehicle_sim_model_DIR:PATH=/home/ros/autoware.ai/install/vehicle_sim_model/share/vehicle_sim_model/cmake
 
 //The directory containing a CMake configuration file for visualization_msgs.
 visualization_msgs_DIR:PATH=/opt/ros/melodic/share/visualization_msgs/cmake
@@ -717,7 +729,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=6
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=7
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

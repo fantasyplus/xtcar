@@ -165,3 +165,13 @@
 /home/ros/fantasyplus/xtcar/build/hp_hybrid_astr_node/CMakeFiles/vector_map_server_generate_messages_cpp.dir
 /home/ros/fantasyplus/xtcar/build/hp_hybrid_astr_node/CMakeFiles/vector_map_server_generate_messages_nodejs.dir
 /home/ros/fantasyplus/xtcar/build/hp_hybrid_astr_node/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/install/strip.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/install/local.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/rebuild_cache.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/edit_cache.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/install.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/list_install_components.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/car_simulator.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/test.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/roslint_car_simulator.dir
+/home/ros/fantasyplus/xtcar/build/car_simulator/CMakeFiles/roslint.dir

@@ -1811,6 +1811,45 @@ dynamic_reconfigure_generate_messages_eus/fast:
 	$(MAKE) $(MAKESILENT) -f hp_hybrid_astr_node/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/build.make hp_hybrid_astr_node/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/build
 .PHONY : dynamic_reconfigure_generate_messages_eus/fast
 
+#=============================================================================
+# Target rules for targets named car_simulator
+
+# Build rule for target.
+car_simulator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 car_simulator
+.PHONY : car_simulator
+
+# fast build rule for target.
+car_simulator/fast:
+	$(MAKE) $(MAKESILENT) -f car_simulator/CMakeFiles/car_simulator.dir/build.make car_simulator/CMakeFiles/car_simulator.dir/build
+.PHONY : car_simulator/fast
+
+#=============================================================================
+# Target rules for targets named roslint_car_simulator
+
+# Build rule for target.
+roslint_car_simulator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 roslint_car_simulator
+.PHONY : roslint_car_simulator
+
+# fast build rule for target.
+roslint_car_simulator/fast:
+	$(MAKE) $(MAKESILENT) -f car_simulator/CMakeFiles/roslint_car_simulator.dir/build.make car_simulator/CMakeFiles/roslint_car_simulator.dir/build
+.PHONY : roslint_car_simulator/fast
+
+#=============================================================================
+# Target rules for targets named roslint
+
+# Build rule for target.
+roslint: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 roslint
+.PHONY : roslint
+
+# fast build rule for target.
+roslint/fast:
+	$(MAKE) $(MAKESILENT) -f car_simulator/CMakeFiles/roslint.dir/build.make car_simulator/CMakeFiles/roslint.dir/build
+.PHONY : roslint/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1896,6 +1935,8 @@ help:
 	@echo "... rosgraph_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
 	@echo "... rosgraph_msgs_generate_messages_py"
+	@echo "... roslint"
+	@echo "... roslint_car_simulator"
 	@echo "... run_tests"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_eus"
@@ -1943,6 +1984,7 @@ help:
 	@echo "... visualization_msgs_generate_messages_lisp"
 	@echo "... visualization_msgs_generate_messages_nodejs"
 	@echo "... visualization_msgs_generate_messages_py"
+	@echo "... car_simulator"
 	@echo "... gmock"
 	@echo "... gmock_main"
 	@echo "... gtest"
