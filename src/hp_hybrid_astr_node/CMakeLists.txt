@@ -8,27 +8,17 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2")
 find_package(autoware_build_flags REQUIRED)
 find_package(
   catkin REQUIRED COMPONENTS
-    # astar_search
-    autoware_msgs
     geometry_msgs
     nav_msgs
     roscpp
     tf
     visualization_msgs
-
-    #for visualization
-    op_ros_helpers
-    op_simu
-    op_utility
-    op_planner
-    vector_map_msgs
-    pcl_conversions
     pcl_ros
-    jsk_recognition_msgs
 
     #insert by xt
     high_performence_hybrid_astar
 )
+
 
 catkin_package()
 

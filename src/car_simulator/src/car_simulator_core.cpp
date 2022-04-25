@@ -26,24 +26,21 @@ WFSimulatorCore::WFSimulatorCore() : nh_(""), pnh_("~"), vehicle_sim_model_(nh_,
   pnh_.param<double>("lidar_height", lidar_height_, 0.6);
   pnh_.param<std::string>("simulation_frame_id", simulation_frame_id_, "base_link");
   pnh_.param<std::string>("map_frame_id", map_frame_id_, "map");
-  pnh_.param<std::string>("lidar_frame_id", lidar_frame_id_, "velodyne");
+  pnh_.param<std::string>("lidar_frame_id", lidar_frame_id_, "rslidar");
   const double dt = 1.0 / loop_rate;
 
   /* set pub sub topic name */
   std::string sim_pose_name, sim_lidar_pose_name, sim_velocity_name, sim_vehicle_status_name;
   pnh_.param<std::string>("sim_pose_name", sim_pose_name, "current_pose");
-  pnh_.param<std::string>("sim_lidar_pose_name", sim_lidar_pose_name, "localizer_pose");
   pnh_.param<std::string>("sim_velocity_name", sim_velocity_name, "current_velocity");
   pnh_.param<std::string>("sim_vehicle_status_name", sim_vehicle_status_name, "vehicle_status");
+
   pub_pose_ = nh_.advertise<geometry_msgs::PoseStamped>(sim_pose_name, 1);
-  pub_lidar_pose_ = nh_.advertise<geometry_msgs::PoseStamped>(sim_lidar_pose_name, 1);
   pub_twist_ = nh_.advertise<geometry_msgs::TwistStamped>(sim_velocity_name, 1);
   pub_vehicle_status_ = nh_.advertise<autoware_msgs::VehicleStatus>(sim_vehicle_status_name, 1);
+  
   sub_vehicle_cmd_ = nh_.subscribe("vehicle_cmd", 1, &WFSimulatorCore::callbackVehicleCmd, this);
   timer_simulation_ = nh_.createTimer(ros::Duration(dt), &WFSimulatorCore::timerCallbackSimulation, this);
-
-  //insert by xt
-  // nh_.createTimer(ros::Duration(dt*10), &WFSimulatorCore::timerCallbackSimulation2, this);
 
   timer_tf_ = nh_.createTimer(ros::Duration(0.1), &WFSimulatorCore::timerCallbackPublishTF, this);
 
@@ -195,16 +192,12 @@ void WFSimulatorCore::publishPoseTwist(const geometry_msgs::Pose& pose, const ge
 {
   ros::Time current_time = ros::Time::now();
 
-  // simulatied pose
+  // simulatied current_pose
   geometry_msgs::PoseStamped ps;
   ps.header.frame_id = map_frame_id_;
   ps.header.stamp = current_time;
   ps.pose = pose;
   pub_pose_.publish(ps);
-
-  // lidar pose
-  ps.pose.position.z += lidar_height_;
-  pub_lidar_pose_.publish(ps);
 
   geometry_msgs::TwistStamped ts;
   ts.header.frame_id = simulation_frame_id_;

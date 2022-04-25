@@ -20,22 +20,10 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/include"
   "/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/include"
-  "/home/ros/autoware.ai/install/op_ros_helpers/include"
-  "/home/ros/autoware.ai/install/op_simu/include"
-  "/home/ros/autoware.ai/install/op_planner/include"
-  "/home/ros/autoware.ai/install/op_utility/include"
-  "/home/ros/autoware.ai/install/vector_map_server/include"
-  "/home/ros/autoware.ai/install/vector_map/include"
-  "/home/ros/autoware.ai/install/vector_map_msgs/include"
-  "/home/ros/autoware.ai/install/libwaypoint_follower/include"
-  "/home/ros/autoware.ai/install/amathutils_lib/include"
-  "/home/ros/autoware.ai/install/autoware_msgs/include"
   "/opt/ros/melodic/include"
   "/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/usr/include/eigen3"
   "/usr/include/pcl-1.8"
-  "/usr/include/ni"
-  "/usr/include/openni2"
   "/usr/include/vtk-6.3"
   "/usr/include/freetype2"
   "/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"
@@ -47,6 +35,8 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/libxml2"
   "/usr/include/jsoncpp"
   "/usr/include/tcl"
+  "/usr/include/ni"
+  "/usr/include/openni2"
   )
 
 # Targets to which this target links.
