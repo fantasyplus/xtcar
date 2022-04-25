@@ -34,7 +34,7 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
   private_nh_.param<double>("max_turning_radius", _hybrid_astar_param.max_turning_radius, 20.0);
   private_nh_.param<double>("min_turning_radius", _hybrid_astar_param.min_turning_radius, 4.36); // wheel_base/max_turning_ras
   private_nh_.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 11);
-  private_nh_.param<int>("theta_size", _hybrid_astar_param.theta_size, 72);
+  private_nh_.param<int>("theta_size", _hybrid_astar_param.theta_size, 48);
 
   private_nh_.param<double>("reverse_weight", _hybrid_astar_param.reverse_weight, 4.0);
   private_nh_.param<double>("turning_weight", _hybrid_astar_param.turning_weight, 2.2);
@@ -45,7 +45,7 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 
   private_nh_.param<bool>("use_back", _hybrid_astar_param.use_back, true);
   private_nh_.param<bool>("use_reeds_shepp", _hybrid_astar_param.use_reeds_shepp, true);
-  private_nh_.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, true);
+  private_nh_.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, false);
 
   private_nh_.param<float>("alpha", _hybrid_astar_param.alpha, 0.1);
   private_nh_.param<float>("obstacle_weight", _hybrid_astar_param.obstacle_weight, 0.1);
@@ -60,6 +60,7 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 
   costmap_sub_ = nh_.subscribe(_costmap_topic, 1, &AstarNavi::costmapCallback, this);
   current_pose_sub_ = nh_.subscribe("current_pose", 1, &AstarNavi::currentPoseCallback, this);
+  rviz_start_sub_ = nh_.subscribe("initialpose", 1, &AstarNavi::currentRvizPoseCallback, this);
   goal_pose_sub_ = nh_.subscribe("move_base_simple/goal", 1, &AstarNavi::goalPoseCallback, this);
 
   _pub_initial_path = nh_.advertise<nav_msgs::Path>("initial_path", 1, true);
@@ -85,18 +86,26 @@ void AstarNavi::costmapCallback(const nav_msgs::OccupancyGrid &msg)
   _hybrid_astar.SetOccupancyGrid(costmap_);
 }
 
+void AstarNavi::currentRvizPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
+{
+  if (!costmap_initialized_)
+  {
+    return;
+  }
+  geometry_msgs::PoseStamped start_pose;
+  start_pose.pose = msg->pose.pose;
+  start_pose.header = msg->header;
+  current_pose_global_ = start_pose;
+  current_pose_initialized_ = true;
+}
+
 void AstarNavi::currentPoseCallback(const geometry_msgs::PoseStamped &msg)
 {
   if (!costmap_initialized_)
   {
     return;
   }
-
   current_pose_global_ = msg;
-  // current_pose_local_.pose = transformPose(current_pose_global_.pose, getTransform(costmap_.header.frame_id, current_pose_global_.header.frame_id));
-  // current_pose_local_.header.frame_id = costmap_.header.frame_id;
-  // current_pose_local_.header.stamp = current_pose_global_.header.stamp;
-
   current_pose_initialized_ = true;
 }
 
@@ -106,12 +115,7 @@ void AstarNavi::goalPoseCallback(const geometry_msgs::PoseStamped &msg)
   {
     return;
   }
-
   goal_pose_global_ = msg;
-  // goal_pose_local_.pose = transformPose(goal_pose_global_.pose, getTransform(costmap_.header.frame_id, goal_pose_global_.header.frame_id));
-  // goal_pose_local_.header.frame_id = costmap_.header.frame_id;
-  // goal_pose_local_.header.stamp = goal_pose_global_.header.stamp;
-
   goal_pose_initialized_ = true;
 }
 
@@ -145,11 +149,10 @@ void AstarNavi::run()
       ROS_INFO("Plan found.");
       TrajectoryWaypoints waypoints = _hybrid_astar.getTrajectory();
 
+      _hybrid_astar.visualAnalyticPath();
       if (is_visual)
       {
         // _hybrid_astar.visualCollisionClear();
-        _hybrid_astar.visualAnalyticPath();
-
         visualPathVehicle(waypoints);
       }
 
@@ -260,8 +263,8 @@ void AstarNavi::visualPathVehicle(const TrajectoryWaypoints &visual_waypoints)
       vehicle_marker.color.b = pink.blue;
     }
 
-    vehicle_marker.pose.position.x = visual_waypoints.trajectory[i].pose.pose.position.x * costmap_.info.resolution;
-    vehicle_marker.pose.position.y = visual_waypoints.trajectory[i].pose.pose.position.y * costmap_.info.resolution;
+    vehicle_marker.pose.position.x = visual_waypoints.trajectory[i].pose.pose.position.x /** costmap_.info.resolution*/;
+    vehicle_marker.pose.position.y = visual_waypoints.trajectory[i].pose.pose.position.y /** costmap_.info.resolution*/;
     vehicle_marker.pose.orientation = visual_waypoints.trajectory[i].pose.pose.orientation;
 
     _path_vehicles.markers.push_back(vehicle_marker);

@@ -96,11 +96,16 @@ std::vector<std::vector<NodeUpdate>> HybridAstar::createTransitionTable(const do
 
 SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const geometry_msgs::Pose &goal_pose)
 {
+
     _start_pose = global2local(_cost_map, start_pose);
     _goal_pose = global2local(_cost_map, goal_pose);
 
+    ROS_INFO("get start pose:%f,%f", _start_pose.position.x, _start_pose.position.y);
+    ROS_INFO("get goal pose:%f,%f", _goal_pose.position.x, _goal_pose.position.y);
+
     if (!setStartNode())
     {
+        // ROS_INFO("start_pose is:%f,%f", start_pose.position.x, start_pose.position.y);
         return SearchStatus::FAILURE_COLLISION_AT_START;
     }
 
@@ -134,7 +139,7 @@ SearchStatus HybridAstar::search()
         //选择代价值最小的节点作为扩张节点
         AstarNodePtr current_node = _open_list.top();
 
-        //也放入记忆set，用于reset（以防万一,估计就是起点和终点）
+        //也放入记忆set，用于最后的reset（以防万一,估计就是起点和终点）
         _memory_open_nodes.insert(current_node);
 
         //判断是否已经为Close（比如倒车的情况）
@@ -459,9 +464,9 @@ void HybridAstar::computeCollisionIndexes(const int theta_index, std::vector<Ind
     const float _cost_mapresolution = static_cast<double>(_cost_map.info.resolution);
 
     //用一个一维数组保存车体大小范围内的格点索引
-    for (int x = back; x <= front; x += _cost_mapresolution)
+    for (double x = back; x <= front; x += _cost_mapresolution)
     {
-        for (int y = right; y <= left; y += _cost_mapresolution)
+        for (double y = right; y <= left; y += _cost_mapresolution)
         {
             //直角坐标系下逆时针的旋转公式
             //计算不同转向角下的车体坐标（如果base_theta为0，也就不变）

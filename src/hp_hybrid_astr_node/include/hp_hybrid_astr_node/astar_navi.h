@@ -24,14 +24,14 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+// #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include <autoware_msgs/LaneArray.h>
+// #include <autoware_msgs/LaneArray.h>
 
 // #include "astar_search/astar_search.h"
 #include "high_performence_hybrid_astar.hpp"
 
-#include "op_ros_helpers/op_ROSHelpers.h"
+// #include "op_ros_helpers/op_ROSHelpers.h"
 class AstarNavi
 {
 public:
@@ -49,6 +49,7 @@ private:
   ros::Subscriber costmap_sub_;
   ros::Subscriber current_pose_sub_;
   ros::Subscriber goal_pose_sub_;
+  ros::Subscriber rviz_start_sub_;
 
   double waypoints_velocity_; // constant velocity on planned waypoints [km/h]
   double update_rate_;        // replanning and publishing rate [Hz]
@@ -72,6 +73,7 @@ private:
 
   void costmapCallback(const nav_msgs::OccupancyGrid &msg);
   void currentPoseCallback(const geometry_msgs::PoseStamped &msg);
+  void currentRvizPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg);
   void goalPoseCallback(const geometry_msgs::PoseStamped &msg);
 
   nav_msgs::Path transferTrajectory(const geometry_msgs::Pose &current_pose,

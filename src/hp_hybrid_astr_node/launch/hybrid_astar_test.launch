@@ -8,11 +8,11 @@
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_simulator node -->
-    <arg name="loop_rate_wf" default="50.0" />
+    <!-- <arg name="loop_rate_wf" default="50.0" />
     <arg name="lidar_height" default="1.0" />
     <arg name="simulation_frame_id" default="base_link" />
     <arg name="map_frame_id" default="map" />
-    <arg name="lidar_frame_id" default="velodyne" />
+    <arg name="lidar_frame_id" default="rslidar" />
     <arg name="initialize_source" default="RVIZ" />
     <arg name="use_waypoints_for_z_position_source" default="false" />
     <arg name="sim_pose_name" default="current_pose" />
@@ -69,10 +69,10 @@
         <param name="rpy_noise_stddev" value="$(arg rpy_noise_stddev)" />
         <param name="angvel_noise_stddev" value="$(arg angvel_noise_stddev)" />
         <param name="steer_noise_stddev" value="$(arg steer_noise_stddev)" />
-    </node>
+    </node> -->
 
     <!-- Costmap Server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find hp_hybrid_astr_node)/map/map.yaml">
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find hp_hybrid_astr_node)/map/map_maze.yaml">
         <remap from="/map" to="/global_cost_map" />
     </node>
 
@@ -106,7 +106,7 @@
 
     <arg name="use_back" default="true" />
     <arg name="use_reeds_shepp" default="true" />
-    <arg name="use_smoother" default="true" />
+    <arg name="use_smoother" default="false" />
 
     <arg name="alpha" default="0.1" />
     <arg name="obstacle_weight" default="0.5" />
