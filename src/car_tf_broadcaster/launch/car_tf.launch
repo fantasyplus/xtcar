@@ -1,0 +1,28 @@
+<launch>
+    <arg name="lidar_trans_x" default="0.0" />
+    <arg name="lidar_trans_y" default="0.0" />
+    <arg name="lidar_trans_z" default="0.0" />
+
+    <arg name="lidar_rotation_roll" default="0.0" />
+    <arg name="lidar_rotation_pitch" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="0.0" />
+
+    <arg name="map_frame" default="map" />
+    <arg name="base_link_frame" default="base_link" />
+    <arg name="lidar_frame_id" default="rslidar" />
+
+    <node name="car_tf" pkg="car_tf_broadcaster" type="car_tf_broadcaster" output="screen">
+        <param name="lidar_trans_x" type="float" value="$(arg lidar_trans_x)" />
+        <param name="lidar_trans_y" type="float" value="$(arg lidar_trans_y)" />
+        <param name="lidar_trans_z" type="float" value="$(arg lidar_trans_z)" />
+
+        <param name="lidar_rotation_roll" type="float" value="$(arg lidar_rotation_roll)" />
+        <param name="lidar_rotation_pitch" type="float" value="$(arg lidar_rotation_pitch)" />
+        <param name="lidar_rotation_yaw" type="float" value="$(arg lidar_rotation_yaw)" />
+        
+        <param name="map_frame" type="float" value="$(arg map_frame)" />
+        <param name="base_link_frame" type="float" value="$(arg base_link_frame)" />
+        <param name="lidar_frame_id" type="float" value="$(arg lidar_frame_id)" />
+
+    </node>
+</launch>

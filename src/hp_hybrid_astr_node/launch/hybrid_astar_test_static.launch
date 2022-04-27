@@ -1,21 +1,19 @@
 <launch>
-    <!-- <param name="use_sim_time" value="true"/> -->
-
     <!-- run rviz -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d /home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/rviz/hybrid_astar.rviz" required="true"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d /home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/rviz/hybrid_astar_static.rviz" required="true"/>
 
     <!-- run tf-->
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_simulator node -->
-    <!-- <arg name="loop_rate_wf" default="50.0" />
+    <arg name="loop_rate_wf" default="50.0" />
     <arg name="lidar_height" default="1.0" />
     <arg name="simulation_frame_id" default="base_link" />
     <arg name="map_frame_id" default="map" />
     <arg name="lidar_frame_id" default="rslidar" />
     <arg name="initialize_source" default="RVIZ" />
     <arg name="use_waypoints_for_z_position_source" default="false" />
-    <arg name="sim_pose_name" default="current_pose" />
+    <arg name="sim_pose_name" default="gnss_pose" />
     <arg name="sim_lidar_pose_name" default="localizer_pose" />
     <arg name="sim_velocity_name" default="current_velocity" />
     <arg name="sim_vehicle_status_name" default="vehicle_status" />
@@ -69,7 +67,7 @@
         <param name="rpy_noise_stddev" value="$(arg rpy_noise_stddev)" />
         <param name="angvel_noise_stddev" value="$(arg angvel_noise_stddev)" />
         <param name="steer_noise_stddev" value="$(arg steer_noise_stddev)" />
-    </node> -->
+    </node>
 
     <!-- Costmap Server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find hp_hybrid_astr_node)/map/map_maze.yaml">
@@ -80,9 +78,13 @@
     <!-- Hybrid A* node -->
     <!-- common configurations -->
     <arg name="costmap_topic" default="global_cost_map" />
+    <arg name="pose_topic" default="gnss_pose" />
+    
     <arg name="waypoints_velocity" default="5.0" />
-    <arg name="update_rate" default="1" />
-    <arg name="is_visual" default="true" />
+    <arg name="update_rate" default="10" />
+    
+    <arg name="is_visual" default="false" />
+    <arg name="use_rviz_start" default="false" />
 
     <!-- Hybrid A* search configurations -->
     <arg name="time_limit" default="10000.0" />
@@ -96,7 +98,7 @@
     <arg name="turning_radius_size" default="10" />
     <arg name="theta_size" default="48" />
 
-    <arg name="reverse_weight" default="100.0" />
+    <arg name="reverse_weight" default="10.0" />
     <arg name="turning_weight" default="2.0" />
 
     <arg name="goal_lateral_tolerance" default="0.5" />
@@ -120,10 +122,13 @@
 
     <node pkg="hp_hybrid_astr_node" type="hp_hybrid_astr_node" name="hp_hybrid_astr_node" output="screen" required="true">
 
+      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="pose_topic" value="$(arg pose_topic)"/>
       <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
       <param name="update_rate" value="$(arg update_rate)" />
       <param name="is_visual" value="$(arg is_visual)" />
-      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      
 
       <param name="time_limit" value="$(arg time_limit)" />
 

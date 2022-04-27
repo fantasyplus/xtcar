@@ -16,15 +16,42 @@
 
 #include "hp_hybrid_astr_node/astar_navi.h"
 
+geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const geometry_msgs::TransformStamped &transform)
+{
+  geometry_msgs::PoseStamped transformed_pose;
+  geometry_msgs::PoseStamped orig_pose;
+  orig_pose.pose = pose;
+  tf2::doTransform(orig_pose, transformed_pose, transform);
+
+  return transformed_pose.pose;
+}
+
+geometry_msgs::TransformStamped AstarNavi::getTransform(const string &from, const string &to)
+{
+  geometry_msgs::TransformStamped tf;
+  try
+  {
+    // tf_buffer_->setUsingDedicatedThread(true);
+    tf = tf_buffer_->lookupTransform(from, to, ros::Time(0), ros::Duration(1));
+  }
+  catch (const tf2::TransformException &ex)
+  {
+    ROS_ERROR("%s", ex.what());
+  }
+  return tf;
+}
+
 AstarNavi::AstarNavi() : nh_(), private_nh_("~")
 {
-  // node param
+  //节点参数
   private_nh_.param<std::string>("costmap_topic", _costmap_topic, "global_cost_map");
+  private_nh_.param<std::string>("pose_topic", _pose_topic, "current_pose");
   private_nh_.param<double>("waypoints_velocity", waypoints_velocity_, 5.0);
   private_nh_.param<double>("update_rate", update_rate_, 10.0);
   private_nh_.param<bool>("is_visual", is_visual, false);
+  private_nh_.param<bool>("use_rviz_start", use_rviz_start, false);
 
-  /*-----hybrid astar param-----*/
+  //混合A*参数
   private_nh_.param<double>("time_limit", _hybrid_astar_param.time_limit, 10000.0);
 
   private_nh_.param<double>("vehicle_length", _hybrid_astar_param.vehiche_shape.length, 4.788);
@@ -32,7 +59,7 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
   private_nh_.param<double>("vehicle_cg2back", _hybrid_astar_param.vehiche_shape.cg2back, 1.367);
 
   private_nh_.param<double>("max_turning_radius", _hybrid_astar_param.max_turning_radius, 20.0);
-  private_nh_.param<double>("min_turning_radius", _hybrid_astar_param.min_turning_radius, 4.36); // wheel_base/max_turning_ras
+  private_nh_.param<double>("min_turning_radius", _hybrid_astar_param.min_turning_radius, 4.36);
   private_nh_.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 11);
   private_nh_.param<int>("theta_size", _hybrid_astar_param.theta_size, 48);
 
@@ -59,8 +86,9 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
   _hybrid_astar.initParam(_hybrid_astar_param);
 
   costmap_sub_ = nh_.subscribe(_costmap_topic, 1, &AstarNavi::costmapCallback, this);
-  current_pose_sub_ = nh_.subscribe("current_pose", 1, &AstarNavi::currentPoseCallback, this);
-  rviz_start_sub_ = nh_.subscribe("initialpose", 1, &AstarNavi::currentRvizPoseCallback, this);
+  current_pose_sub_ = nh_.subscribe(_pose_topic, 1, &AstarNavi::currentPoseCallback, this);
+  if (use_rviz_start)
+    rviz_start_sub_ = nh_.subscribe("initialpose", 1, &AstarNavi::currentRvizPoseCallback, this);
   goal_pose_sub_ = nh_.subscribe("move_base_simple/goal", 1, &AstarNavi::goalPoseCallback, this);
 
   _pub_initial_path = nh_.advertise<nav_msgs::Path>("initial_path", 1, true);
@@ -70,6 +98,9 @@ AstarNavi::AstarNavi() : nh_(), private_nh_("~")
   costmap_initialized_ = false;
   current_pose_initialized_ = false;
   goal_pose_initialized_ = false;
+
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>();
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 }
 
 AstarNavi::~AstarNavi()
@@ -79,7 +110,6 @@ AstarNavi::~AstarNavi()
 void AstarNavi::costmapCallback(const nav_msgs::OccupancyGrid &msg)
 {
   costmap_ = msg;
-  tf::poseMsgToTF(costmap_.info.origin, local2costmap_);
 
   costmap_initialized_ = true;
 
@@ -138,10 +168,18 @@ void AstarNavi::run()
       continue;
     }
 
-    goalPoseCallback(goal_pose_global_);
+    // goalPoseCallback(goal_pose_global_);
+
+    const auto start_pose_in_costmap_frame = transformPose(
+        current_pose_global_.pose,
+        getTransform(costmap_.header.frame_id, current_pose_global_.header.frame_id));
+
+    const auto goal_pose_in_costmap_frame = transformPose(
+        goal_pose_global_.pose,
+        getTransform(costmap_.header.frame_id, goal_pose_global_.header.frame_id));
 
     TimerClock t0;
-    SearchStatus result = _hybrid_astar.makePlan(current_pose_global_.pose, goal_pose_global_.pose);
+    SearchStatus result = _hybrid_astar.makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
     ROS_INFO("Hybrid Astar planning: %f [ms]", t0.getTimerMilliSec());
 
     if (isSuccess(result))
