@@ -109,18 +109,6 @@ private:
     geometry_msgs::Pose index2pose(const IndexXYT &index,
                                    const float &costmap_resolution,
                                    const int theta_size);
-
-    //用指定变换矩阵变换位姿
-    geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
-                                      const geometry_msgs::TransformStamped &transform);
-
-    //将位姿变换到costmap frame下
-    geometry_msgs::Pose global2local(const nav_msgs::OccupancyGrid &costmap,
-                                     const geometry_msgs::Pose &pose_global);
-
-    //将costmap frame下的位姿变换到原始frame下
-    geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap,
-                                     const geometry_msgs::Pose &pose_local);
     //角度转弧度
     constexpr double deg2rad(const double deg);
 
@@ -137,6 +125,25 @@ private:
 
     // A*节点转换为ros pose
     geometry_msgs::Pose AstarNode2Pose(const AstarNode &node);
+
+private:
+    /*---------------------tf变换相关---------------------*/
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+
+    //获取指定frame之间的变换矩阵
+    geometry_msgs::TransformStamped getTransform(const string &from, const string &to);
+
+    //用指定变换矩阵变换位姿
+    geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
+                                      const geometry_msgs::TransformStamped &transform);
+
+    //将位姿变换到costmap frame下
+    geometry_msgs::Pose global2local(const nav_msgs::OccupancyGrid &costmap,
+                                     const geometry_msgs::Pose &pose_global);
+
+    //将costmap frame下的位姿变换到原始frame下
+    geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap,
+                                     const geometry_msgs::Pose &pose_local);
 
 private:
     /*---------------------碰撞检测相关---------------------*/
@@ -253,6 +260,7 @@ private:
     //最终生成的轨迹
     TrajectoryWaypoints _final_traj;
 
+private:
     /*---------------------可视化相关定义---------------------*/
     ros::NodeHandle _nh;
 

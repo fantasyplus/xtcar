@@ -31,7 +31,7 @@ WFSimulatorCore::WFSimulatorCore() : nh_(""), pnh_("~"), vehicle_sim_model_(nh_,
 
   /* set pub sub topic name */
   std::string sim_pose_name, sim_lidar_pose_name, sim_velocity_name, sim_vehicle_status_name;
-  pnh_.param<std::string>("sim_pose_name", sim_pose_name, "current_pose");
+  pnh_.param<std::string>("sim_pose_name", sim_pose_name, "gnss_pose");
   pnh_.param<std::string>("sim_velocity_name", sim_velocity_name, "current_velocity");
   pnh_.param<std::string>("sim_vehicle_status_name", sim_vehicle_status_name, "vehicle_status");
 

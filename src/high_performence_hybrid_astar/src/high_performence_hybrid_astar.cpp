@@ -99,6 +99,8 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 
     _start_pose = global2local(_cost_map, start_pose);
     _goal_pose = global2local(_cost_map, goal_pose);
+    // _start_pose = start_pose;
+    // _goal_pose = goal_pose;
 
     ROS_INFO("get start pose:%f,%f", _start_pose.position.x, _start_pose.position.y);
     ROS_INFO("get goal pose:%f,%f", _goal_pose.position.x, _goal_pose.position.y);
@@ -510,7 +512,7 @@ void HybridAstar::visualCollisionClear()
     visualization_msgs::MarkerArray clear_cubes;
     visualization_msgs::Marker clear_cube;
 
-    clear_cube.header.frame_id = "map";
+    clear_cube.header.frame_id = _cost_map.header.frame_id;
     clear_cube.header.stamp = ros::Time::now();
     clear_cube.id = 0;
     clear_cube.action = 3;
@@ -522,7 +524,7 @@ void HybridAstar::visualAnalyticPath()
 {
     // _pub_vis_collision.publish(_collision_cubes);
 
-    _analytic_path.header.frame_id = "map";
+    _analytic_path.header.frame_id = _cost_map.header.frame_id;
     _analytic_path.header.stamp = ros::Time::now();
     _pub_vis_analytic.publish(_analytic_path);
     _analytic_path.poses.clear();
@@ -559,6 +561,21 @@ int HybridAstar::getThetaIndex(const double theta, const int theta_size)
     const double angle_increment_rad = 2.0 * M_PI / static_cast<double>(theta_size);
     return static_cast<int>(normalizeRadian(theta, 0.0) / angle_increment_rad) %
            static_cast<int>(theta_size);
+}
+
+geometry_msgs::TransformStamped HybridAstar::getTransform(const string &from, const string &to)
+{
+    geometry_msgs::TransformStamped tf;
+    try
+    {
+        // tf_buffer_->setUsingDedicatedThread(true);
+        tf = tf_buffer_->lookupTransform(from, to, ros::Time(0), ros::Duration(1));
+    }
+    catch (const tf2::TransformException &ex)
+    {
+        ROS_ERROR("%s", ex.what());
+    }
+    return tf;
 }
 
 geometry_msgs::Pose HybridAstar::transformPose(const geometry_msgs::Pose &pose, const geometry_msgs::TransformStamped &transform)
@@ -1084,11 +1101,12 @@ AstarNodePtr HybridAstar::tryAnalyticExpansion(AstarNodePtr current_node,
 
             //可视化路径
             geometry_msgs::PoseStamped vis_pose;
-            vis_pose.header.frame_id = "map";
+            vis_pose.header.frame_id = _cost_map.header.frame_id;
             vis_pose.header.stamp = ros::Time::now();
             vis_pose.pose.position.x = node->x;
             vis_pose.pose.position.y = node->y;
             vis_pose.pose.orientation = getQuaternion(node->theta);
+            vis_pose.pose = local2global(_cost_map, vis_pose.pose);
             _analytic_path.poses.push_back(vis_pose);
 
             prev = node;

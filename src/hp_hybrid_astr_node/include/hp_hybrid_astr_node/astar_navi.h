@@ -40,7 +40,7 @@ public:
   void run();
 
 private:
-  // ros
+  /*---------------------ros相关初始化---------------------*/
   ros::NodeHandle nh_, private_nh_;
 
   ros::Publisher _pub_initial_path;
@@ -51,22 +51,6 @@ private:
   ros::Subscriber goal_pose_sub_;
   ros::Subscriber rviz_start_sub_;
 
-  double waypoints_velocity_; // constant velocity on planned waypoints [km/h]
-  double update_rate_;        // replanning and publishing rate [Hz]
-  bool is_visual;
-  std::string _costmap_topic;
-
-  // classes
-  // AstarSearch astar_;
-  HybridAstar _hybrid_astar;
-  PlannerCommonParam _hybrid_astar_param;
-
-  // variables
-  nav_msgs::OccupancyGrid costmap_;
-  geometry_msgs::PoseStamped current_pose_global_;
-  geometry_msgs::PoseStamped goal_pose_global_;
-  tf::Transform local2costmap_; // local frame (e.g. velodyne) -> costmap origin
-
   bool costmap_initialized_;
   bool current_pose_initialized_;
   bool goal_pose_initialized_;
@@ -76,10 +60,34 @@ private:
   void currentRvizPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg);
   void goalPoseCallback(const geometry_msgs::PoseStamped &msg);
 
+private:
+  /*---------------------该节点的参数(不是Hybrid A*的)---------------------*/
+  double waypoints_velocity_;
+  double update_rate_;
+  bool is_visual;
+  bool use_rviz_start;
+  std::string _costmap_topic;
+  std::string _pose_topic;
+
+  HybridAstar _hybrid_astar;
+  PlannerCommonParam _hybrid_astar_param;
+
+  nav_msgs::OccupancyGrid costmap_;
+  geometry_msgs::PoseStamped current_pose_global_;
+  geometry_msgs::PoseStamped goal_pose_global_;
+
+private:
+  /*---------------------tf变换相关---------------------*/
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  geometry_msgs::TransformStamped getTransform(const string &from, const string &to);
+
   nav_msgs::Path transferTrajectory(const geometry_msgs::Pose &current_pose,
                                     const TrajectoryWaypoints &trajectory_waypoints);
 
 private:
+  /*---------------------用于可视化最终轨迹---------------------*/
   ros::Publisher _pub_path_vehicles;
   visualization_msgs::MarkerArray _path_vehicles; //车子数据结构，用于可视化
 

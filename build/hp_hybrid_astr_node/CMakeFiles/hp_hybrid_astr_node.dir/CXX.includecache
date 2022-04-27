@@ -130,6 +130,10 @@ high_performence_hybrid_astar.hpp
 hp_hybrid_astr_node/astar_navi.h
 /home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/src/astar_navi/hp_hybrid_astr_node/astar_navi.h
 
+/home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/src/astar_navi/astar_navi_node.cpp
+hp_hybrid_astr_node/astar_navi.h
+/home/ros/fantasyplus/xtcar/src/hp_hybrid_astr_node/src/astar_navi/hp_hybrid_astr_node/astar_navi.h
+
 /opt/ros/melodic/include/geometry_msgs/Point.h
 string
 -
