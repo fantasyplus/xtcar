@@ -1,0 +1,8 @@
+prefix=/home/ros/fantasyplus/xtcar/devel
+
+Name: hybrid_astar_node
+Description: Description of hybrid_astar_node
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

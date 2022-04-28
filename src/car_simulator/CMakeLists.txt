@@ -26,10 +26,16 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(car_simulator
+add_executable(${PROJECT_NAME}
   src/car_simulator_node.cpp
   src/car_simulator_core.cpp
   src/vehicle_model_ros.cpp
 )
-target_link_libraries(car_simulator ${catkin_LIBRARIES})
 
+target_link_libraries(${PROJECT_NAME} 
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(${PROJECT_NAME}
+  ${catkin_EXPORTED_TARGETS}
+)

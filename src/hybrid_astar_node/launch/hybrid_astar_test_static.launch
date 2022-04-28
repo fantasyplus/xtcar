@@ -1,0 +1,167 @@
+<launch>
+    <!-- run rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hybrid_astar_node)/rviz/hybrid_astar_static.rviz" required="true"/>
+
+    <!-- run tf-->
+    <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
+
+    <!-- car_simulator node -->
+    <arg name="loop_rate_wf" default="50.0" />
+    <arg name="lidar_height" default="1.0" />
+    <arg name="simulation_frame_id" default="base_link" />
+    <arg name="map_frame_id" default="map" />
+    <arg name="lidar_frame_id" default="rslidar" />
+    <arg name="initialize_source" default="RVIZ" />
+    <arg name="use_waypoints_for_z_position_source" default="false" />
+    <arg name="sim_pose_name" default="gnss_pose" />
+    <arg name="sim_lidar_pose_name" default="localizer_pose" />
+    <arg name="sim_velocity_name" default="current_velocity" />
+    <arg name="sim_vehicle_status_name" default="vehicle_status" />
+    <arg name="vehicle_model_type_wf" default="IDEAL_STEER" />
+    <arg name="tread_length" default="1.0" />
+    <arg name="angvel_lim" default="3.0" />
+    <arg name="vel_lim" default="30.0" />
+    <arg name="steer_lim" default="1.0" />
+    <arg name="angvel_rate" default="1.0" />
+    <arg name="steer_rate_lim" default="0.3" />
+    <arg name="vel_time_delay" default="0.25" />
+    <arg name="vel_time_constant" default="0.61" />
+    <arg name="steer_time_delay" default="0.24" />
+    <arg name="steer_time_constant" default="0.27" />
+    <arg name="angvel_time_delay" default="0.2" />
+    <arg name="angvel_time_constant" default="0.5" />
+    <arg name="add_measurement_noise" default="false" />
+    <arg name="pos_noise_stddev" default="0.01" />
+    <arg name="vel_noise_stddev" default="0.01" />
+    <arg name="rpy_noise_stddev" default="0.0001" />
+    <arg name="angvel_noise_stddev" default="0.001" />
+    <arg name="steer_noise_stddev" default="0.0001" />
+    <node pkg="car_simulator" type="car_simulator" name="car_simulator" output="log">
+        <param name="loop_rate" value="$(arg loop_rate_wf)" />
+        <param name="lidar_height" value="$(arg lidar_height)" />
+        <param name="simulation_frame_id" value="$(arg simulation_frame_id)" />
+        <param name="map_frame_id" value="$(arg map_frame_id)" />
+        <param name="lidar_frame_id" value="$(arg lidar_frame_id)" />
+        <param name="add_measurement_noise" value="$(arg add_measurement_noise)" />
+        <param name="initialize_source" value="$(arg initialize_source)" />
+        <param name="use_waypoints_for_z_position_source" value="$(arg use_waypoints_for_z_position_source)" />
+        <param name="sim_pose_name" value="$(arg sim_pose_name)" />
+        <param name="sim_lidar_pose_name" value="$(arg sim_lidar_pose_name)" />
+        <param name="sim_velocity_name" value="$(arg sim_velocity_name)" />
+        <param name="sim_vehicle_status_name" value="$(arg sim_vehicle_status_name)" />
+        <param name="tread_length" value="$(arg tread_length)" />
+        <param name="angvel_lim" value="$(arg angvel_lim)" />
+        <param name="vel_lim" value="$(arg vel_lim)" />
+        <param name="steer_lim" value="$(arg steer_lim)" />
+        <param name="angvel_rate" value="$(arg angvel_rate)" />
+        <param name="steer_rate_lim" value="$(arg steer_rate_lim)" />
+        <param name="vel_time_delay" value="$(arg vel_time_delay)" />
+        <param name="vel_time_constant" value="$(arg vel_time_constant)" />
+        <param name="steer_time_delay" value="$(arg steer_time_delay)" />
+        <param name="steer_time_constant" value="$(arg steer_time_constant)" />
+        <param name="angvel_time_delay" value="$(arg angvel_time_delay)" />
+        <param name="angvel_time_constant" value="$(arg angvel_time_constant)" />
+        <param name="vehicle_model_type" value="$(arg vehicle_model_type_wf)" />
+        <param name="pos_noise_stddev" value="$(arg pos_noise_stddev)" />
+        <param name="vel_noise_stddev" value="$(arg vel_noise_stddev)" />
+        <param name="rpy_noise_stddev" value="$(arg rpy_noise_stddev)" />
+        <param name="angvel_noise_stddev" value="$(arg angvel_noise_stddev)" />
+        <param name="steer_noise_stddev" value="$(arg steer_noise_stddev)" />
+    </node>
+
+    <!-- Costmap Server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find hp_hybrid_astr_node)/map/map.yaml">
+        <remap from="/map" to="/global_cost_map" />
+    </node>
+
+
+    <!-- Hybrid A* node -->
+    <!-- common configurations -->
+    <arg name="costmap_topic" default="global_cost_map" />
+    <arg name="pose_topic" default="gnss_pose" />
+    
+    <arg name="waypoints_velocity" default="5.0" />
+    <arg name="update_rate" default="1" />
+    
+    <arg name="is_visual" default="true" />
+    <arg name="use_rviz_start" default="false" />
+
+    <!-- Hybrid A* search configurations -->
+    <arg name="time_limit" default="10000.0" />
+
+    <arg name="vehicle_length" default="4.788" />
+    <arg name="vehicle_width" default="2.198" />
+    <arg name="vehicle_cg2back" default="1.367" />
+
+    <arg name="max_turning_radius" default="20.0" />
+    <arg name="min_turning_radius" default="4.36" />
+    <arg name="turning_radius_size" default="10" />
+    <arg name="theta_size" default="48" />
+
+    <arg name="reverse_weight" default="10.0" />
+    <arg name="turning_weight" default="2.0" />
+
+    <arg name="goal_lateral_tolerance" default="0.5" />
+    <arg name="goal_longitudinal_tolerance" default="0.5" />
+    <arg name="goal_angular_tolerance" default="0.015708" />
+    <arg name="obstacle_threshold" default="100" />
+
+    <arg name="use_back" default="true" />
+    <arg name="use_reeds_shepp" default="true" />
+    <arg name="use_smoother" default="false" />
+
+    <arg name="alpha" default="0.1" />
+    <arg name="obstacle_weight" default="0.5" />
+    <arg name="curvature_weight" default="0.0" />
+    <arg name="smoothness_weight" default="0.0" />
+    <arg name="obstacle_distance_max" default="1.0" />
+
+    <arg name="analytic_expansion_ratio" default="3.5" />
+    <arg name="analytic_expansion_max_length" default="30" />
+
+
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" required="true">
+
+      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="pose_topic" value="$(arg pose_topic)"/>
+      <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
+      <param name="update_rate" value="$(arg update_rate)" />
+      <param name="is_visual" value="$(arg is_visual)" />
+      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      
+
+      <param name="time_limit" value="$(arg time_limit)" />
+
+      <param name="vehicle_length" value="$(arg vehicle_length)" />
+      <param name="vehicle_width" value="$(arg vehicle_width)" />
+      <param name="vehicle_cg2back" value="$(arg vehicle_cg2back)" />
+
+      <param name="max_turning_radius" value="$(arg max_turning_radius)" />
+      <param name="min_turning_radius" value="$(arg min_turning_radius)" />
+      <param name="turning_radius_size" value="$(arg turning_radius_size)" />
+      <param name="theta_size" value="$(arg theta_size)" />
+
+      <param name="reverse_weight" value="$(arg reverse_weight)" />
+      <param name="turning_weight" value="$(arg turning_weight)" />
+      <param name="goal_lateral_tolerance" value="$(arg goal_lateral_tolerance)" />
+      <param name="goal_longitudinal_tolerance" value="$(arg goal_longitudinal_tolerance)" />
+      <param name="goal_angular_tolerance" value="$(arg goal_angular_tolerance)" />
+      <param name="obstacle_threshold" value="$(arg obstacle_threshold)" />
+
+      <param name="use_back" value="$(arg use_back)" />
+      <param name="use_reeds_shepp" value="$(arg use_reeds_shepp)" />
+      <param name="use_smoother" value="$(arg use_smoother)" />
+
+      <param name="alpha" value="$(arg alpha)" />
+      <param name="obstacle_weight" value="$(arg obstacle_weight)" />
+      <param name="curvature_weight" value="$(arg curvature_weight)" />
+      <param name="smoothness_weight" value="$(arg smoothness_weight)" />
+      <param name="obstacle_distance_max" value="$(arg obstacle_distance_max)" />
+
+      <param name="analytic_expansion_ratio" value="$(arg analytic_expansion_ratio)" />
+      <param name="analytic_expansion_max_length" value="$(arg analytic_expansion_max_length)" />
+
+
+    </node>
+
+</launch>
