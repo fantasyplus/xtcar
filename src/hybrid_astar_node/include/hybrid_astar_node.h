@@ -1,0 +1,97 @@
+#ifndef HYBRID_ASTAR_NODE_H
+#define HYBRID_ASTAR_NODE_H
+
+// std C++
+#include <iostream>
+#include <vector>
+#include <string>
+
+// ros
+#include <ros/ros.h>
+#include <tf/transform_listener.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/OccupancyGrid.h>
+
+//自定义
+#include "high_performence_hybrid_astar.hpp"
+#include "behaviour_state_machine/GoalPose.h"
+
+class HybridAstarNode
+{
+public:
+  HybridAstarNode();
+  void run();
+
+private:
+  /*---------------------ros相关---------------------*/
+  ros::NodeHandle nh_, private_nh_;
+
+  ros::Publisher _pub_initial_path;
+  ros::Publisher _pub_smoothed_path;
+
+  ros::Subscriber costmap_sub_;
+  ros::Subscriber current_pose_sub_;
+  ros::Subscriber goal_pose_sub_;
+  ros::Subscriber rviz_start_sub_;
+
+  bool costmap_initialized_,current_pose_initialized_,goal_pose_initialized_;
+
+  void costmapCallback(const nav_msgs::OccupancyGrid &msg);
+  void currentPoseCallback(const geometry_msgs::PoseStamped &msg);
+  void currentRvizPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg);
+  void goalPoseCallback(const geometry_msgs::PoseStamped &msg);
+
+private:
+  /*---------------------该节点的参数(不是Hybrid A*的)---------------------*/
+  double waypoints_velocity_;
+  double update_rate_;
+  bool is_visual;
+  bool use_rviz_start;
+  std::string _costmap_topic;
+  std::string _pose_topic;
+
+  HybridAstar _hybrid_astar;
+  PlannerCommonParam _hybrid_astar_param;
+
+  nav_msgs::OccupancyGrid costmap_;
+  geometry_msgs::PoseStamped current_pose_global_;
+  geometry_msgs::PoseStamped goal_pose_global_;
+
+private:
+  /*---------------------tf变换相关---------------------*/
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  geometry_msgs::TransformStamped getTransform(const string &from, const string &to);
+
+  nav_msgs::Path transferTrajectory(const geometry_msgs::Pose &current_pose,
+                                    const TrajectoryWaypoints &trajectory_waypoints);
+
+private:
+  /*---------------------用于可视化最终轨迹---------------------*/
+  ros::Publisher _pub_path_vehicles;
+  visualization_msgs::MarkerArray _path_vehicles; //车子数据结构，用于可视化
+
+  struct color
+  {
+    float red;
+    float green;
+    float blue;
+  };
+
+  static constexpr color teal = {102.f / 255.f, 217.f / 255.f, 239.f / 255.f};
+
+  static constexpr color green = {166.f / 255.f, 226.f / 255.f, 46.f / 255.f};
+
+  static constexpr color orange = {253.f / 255.f, 151.f / 255.f, 31.f / 255.f};
+
+  static constexpr color pink = {249.f / 255.f, 38.f / 255.f, 114.f / 255.f};
+
+  static constexpr color purple = {174.f / 255.f, 129.f / 255.f, 255.f / 255.f};
+
+  static constexpr color black = {0.f / 255.f, 0.f / 255.f, 0.f / 255.f};
+
+  void visualPathVehicle(const TrajectoryWaypoints &visual_waypoints);
+};
+
+#endif

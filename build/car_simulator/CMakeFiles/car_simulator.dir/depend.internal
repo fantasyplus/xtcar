@@ -145,6 +145,18 @@ car_simulator/CMakeFiles/car_simulator.dir/src/car_simulator_core.cpp.o
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcValue.h
 car_simulator/CMakeFiles/car_simulator.dir/src/car_simulator_node.cpp.o
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/AccelCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/BrakeCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/ControlCommand.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/DTLane.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/Gear.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/LampCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/Lane.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/SteerCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/VehicleCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/VehicleStatus.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/Waypoint.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/WaypointState.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_constant_acceleration.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_ideal.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_interface.h
@@ -276,6 +288,14 @@ car_simulator/CMakeFiles/car_simulator.dir/src/car_simulator_node.cpp.o
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcValue.h
 car_simulator/CMakeFiles/car_simulator.dir/src/vehicle_model_ros.cpp.o
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/AccelCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/BrakeCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/ControlCommand.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/Gear.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/LampCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/SteerCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/VehicleCmd.h
+ /home/ros/autoware.ai/install/autoware_msgs/include/autoware_msgs/VehicleStatus.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_constant_acceleration.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_ideal.h
  /home/ros/autoware.ai/install/vehicle_sim_model/include/vehicle_sim_model/vehicle_model_interface.h

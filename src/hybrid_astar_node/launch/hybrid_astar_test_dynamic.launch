@@ -1,0 +1,178 @@
+<launch>
+    <!-- 使用仿真时间 -->
+    <param name="use_sim_time" value="true"/>
+
+    <!-- 回放雷达数据包 -->
+    <node name="lidar_data_replay" pkg="rosbag" type="play" 
+          args="/home/ros/rosbag/suv/costmap_xt_4_26.bag --loop --clock --topics /points_no_ground /gnss_pose /" 
+          output="log"/>
+
+    <!-- costmap生成(暂时还是用的autoware的) -->
+    <arg name="lidar_frame" default="rslidar" />
+    <arg name="map_frame_costmap" default="map" />
+    <arg name="grid_min_value" default="0.0" />
+    <arg name="grid_max_value" default="1.0" />
+    <arg name="grid_resolution" default="0.25" />
+    <arg name="grid_length_x" default="50" />
+    <arg name="grid_length_y" default="30" />
+    <arg name="grid_position_x" default="0" />
+    <arg name="grid_position_y" default="0" />
+    <arg name="maximum_lidar_height_thres" default="0.3" />
+    <arg name="minimum_lidar_height_thres" default="-2.2" />
+    <arg name="expand_polygon_size" default="1.0" />
+    <arg name="size_of_expansion_kernel" default="9" />
+    <arg name="use_objects_box" default="false" />
+    <arg name="use_objects_convex_hull" default="false" />
+    <arg name="use_points" default="true" />
+    <arg name="use_wayarea" default="false" />
+
+    <arg name="objects_input" default="/prediction/motion_predictor/objects" />
+    <arg name="points_input" default="/points_no_ground" />
+    <node pkg="costmap_generator" type="costmap_generator" name="costmap_generator" output="screen">
+        <param name="lidar_frame" value="$(arg lidar_frame)" />
+        <param name="map_frame" value="$(arg map_frame_costmap)" />
+        <param name="grid_min_value" value="$(arg grid_min_value)" />
+        <param name="grid_max_value" value="$(arg grid_max_value)" />
+        <param name="grid_resolution" value="$(arg grid_resolution)" />
+        <param name="grid_length_x" value="$(arg grid_length_x)" />
+        <param name="grid_length_y" value="$(arg grid_length_y)" />
+        <param name="grid_position_x" value="$(arg grid_position_x)" />
+        <param name="grid_position_y" value="$(arg grid_position_y)" />
+        <param name="maximum_lidar_height_thres" value="$(arg maximum_lidar_height_thres)" />
+        <param name="minimum_lidar_height_thres" value="$(arg minimum_lidar_height_thres)" />
+        <param name="expand_polygon_size" value="$(arg expand_polygon_size)" />
+        <param name="size_of_expansion_kernel" value="$(arg size_of_expansion_kernel)" />
+        <param name="use_objects_box" value="$(arg use_objects_box)" />
+        <param name="use_objects_convex_hull" value="$(arg use_objects_convex_hull)" />
+        <param name="use_points" value="$(arg use_points)" />
+        <param name="use_wayarea" value="$(arg use_wayarea)" />
+
+        <remap from="/prediction/motion_predictor/objects"  to="$(arg objects_input)" />
+        <remap from="/points_no_ground"                     to="$(arg points_input)" />
+    </node>
+
+    <!-- run rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hybrid_astar_node)/rviz/hybrid_astar_dynamic.rviz" required="true"/>
+
+    <!-- run tf-->
+    <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
+
+    <!-- car_tf node -->
+    <arg name="lidar_trans_x" default="4.34" />
+    <arg name="lidar_trans_y" default="-0.58" />
+    <arg name="lidar_trans_z" default="0.0" />
+
+    <arg name="lidar_rotation_roll" default="0.0" />
+    <arg name="lidar_rotation_pitch" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="0.0" />
+
+    <arg name="map_frame" default="map" />
+    <arg name="base_link_frame" default="base_link" />
+    <arg name="lidar_frame_id" default="rslidar" />
+
+    <node name="car_tf" pkg="car_tf_broadcaster_xt" type="car_tf_broadcaster_xt" output="screen">
+        <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
+        <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
+        <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
+
+        <param name="lidar_rotation_roll" type="double" value="$(arg lidar_rotation_roll)" />
+        <param name="lidar_rotation_pitch" type="double" value="$(arg lidar_rotation_pitch)" />
+        <param name="lidar_rotation_yaw" type="double" value="$(arg lidar_rotation_yaw)" />
+        
+        <param name="map_frame" type="string" value="$(arg map_frame)" />
+        <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
+        <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
+
+    </node>
+
+
+    <!-- Hybrid A* node -->
+    <!-- common configurations -->
+    <arg name="costmap_topic" default="global_cost_map" />
+    <arg name="pose_topic" default="gnss_pose" />
+    
+    <arg name="waypoints_velocity" default="5.0" />
+    <arg name="update_rate" default="10" />
+    
+    <arg name="is_visual" default="true" />
+    <arg name="use_rviz_start" default="false" />
+
+    <!-- Hybrid A* search configurations -->
+    <arg name="time_limit" default="10000.0" />
+
+    <arg name="vehicle_length" default="4.788" />
+    <arg name="vehicle_width" default="2.198" />
+    <arg name="vehicle_cg2back" default="1.367" />
+
+    <arg name="max_turning_radius" default="20.0" />
+    <arg name="min_turning_radius" default="4.36" />
+    <arg name="turning_radius_size" default="10" />
+    <arg name="theta_size" default="48" />
+
+    <arg name="reverse_weight" default="10.0" />
+    <arg name="turning_weight" default="2.0" />
+
+    <arg name="goal_lateral_tolerance" default="0.5" />
+    <arg name="goal_longitudinal_tolerance" default="0.5" />
+    <arg name="goal_angular_tolerance" default="0.015708" />
+    <arg name="obstacle_threshold" default="100" />
+
+    <arg name="use_back" default="true" />
+    <arg name="use_reeds_shepp" default="true" />
+    <arg name="use_smoother" default="false" />
+
+    <arg name="alpha" default="0.1" />
+    <arg name="obstacle_weight" default="0.5" />
+    <arg name="curvature_weight" default="0.0" />
+    <arg name="smoothness_weight" default="0.0" />
+    <arg name="obstacle_distance_max" default="1.0" />
+
+    <arg name="analytic_expansion_ratio" default="3.5" />
+    <arg name="analytic_expansion_max_length" default="30" />
+
+
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" required="true">
+
+      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="pose_topic" value="$(arg pose_topic)"/>
+      <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
+      <param name="update_rate" value="$(arg update_rate)" />
+      <param name="is_visual" value="$(arg is_visual)" />
+      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      
+
+      <param name="time_limit" value="$(arg time_limit)" />
+
+      <param name="vehicle_length" value="$(arg vehicle_length)" />
+      <param name="vehicle_width" value="$(arg vehicle_width)" />
+      <param name="vehicle_cg2back" value="$(arg vehicle_cg2back)" />
+
+      <param name="max_turning_radius" value="$(arg max_turning_radius)" />
+      <param name="min_turning_radius" value="$(arg min_turning_radius)" />
+      <param name="turning_radius_size" value="$(arg turning_radius_size)" />
+      <param name="theta_size" value="$(arg theta_size)" />
+
+      <param name="reverse_weight" value="$(arg reverse_weight)" />
+      <param name="turning_weight" value="$(arg turning_weight)" />
+      <param name="goal_lateral_tolerance" value="$(arg goal_lateral_tolerance)" />
+      <param name="goal_longitudinal_tolerance" value="$(arg goal_longitudinal_tolerance)" />
+      <param name="goal_angular_tolerance" value="$(arg goal_angular_tolerance)" />
+      <param name="obstacle_threshold" value="$(arg obstacle_threshold)" />
+
+      <param name="use_back" value="$(arg use_back)" />
+      <param name="use_reeds_shepp" value="$(arg use_reeds_shepp)" />
+      <param name="use_smoother" value="$(arg use_smoother)" />
+
+      <param name="alpha" value="$(arg alpha)" />
+      <param name="obstacle_weight" value="$(arg obstacle_weight)" />
+      <param name="curvature_weight" value="$(arg curvature_weight)" />
+      <param name="smoothness_weight" value="$(arg smoothness_weight)" />
+      <param name="obstacle_distance_max" value="$(arg obstacle_distance_max)" />
+
+      <param name="analytic_expansion_ratio" value="$(arg analytic_expansion_ratio)" />
+      <param name="analytic_expansion_max_length" value="$(arg analytic_expansion_max_length)" />
+
+
+    </node>
+
+</launch>

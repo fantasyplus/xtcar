@@ -136,9 +136,10 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/ros/fantasyplus/xtcar/build/gtest/cmake_install.cmake")
+  include("/home/ros/fantasyplus/xtcar/build/behaviour_state_machine/cmake_install.cmake")
   include("/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/cmake_install.cmake")
   include("/home/ros/fantasyplus/xtcar/build/high_performence_hybrid_astar/cmake_install.cmake")
-  include("/home/ros/fantasyplus/xtcar/build/hp_hybrid_astr_node/cmake_install.cmake")
+  include("/home/ros/fantasyplus/xtcar/build/hybrid_astar_node/cmake_install.cmake")
   include("/home/ros/fantasyplus/xtcar/build/car_simulator/cmake_install.cmake")
 
 endif()

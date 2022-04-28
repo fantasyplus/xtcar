@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions
 )
 
-## OPEN MOTION PLANNING LIBRARY
+## 查找OMPL库
 find_package(OMPL REQUIRED)
 
 if(NOT OMPL_FOUND)

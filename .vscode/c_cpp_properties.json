@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/opt/ros/melodic/include",
                 "${workspaceFolder}/src/high_performence_hybrid_astar/include",
-                "${workspaceFolder}/ompl"
+                "${workspaceFolder}/ompl",
+                "${workspaceFolder}/src/behaviour_state_machine/include"
             
             ],
             "defines": [],

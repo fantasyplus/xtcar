@@ -44,6 +44,7 @@ public:
     HybridAstar()
     {
         _pub_vis_collision = _nh.advertise<visualization_msgs::MarkerArray>("/collision_cubes", 1);
+        _pub_open_node = _nh.advertise<visualization_msgs::MarkerArray>("/open_nodes", 1);
         _pub_vis_analytic = _nh.advertise<nav_msgs::Path>("analytic_path", 1);
     };
 
@@ -70,6 +71,9 @@ public:
 
     //清空可视化
     void visualCollisionClear();
+
+    //可视化open node
+    void visualOpenNode();
 
     //轨迹平滑函数
     void smoothPath(TrajectoryWaypoints &initial_traj);
@@ -270,6 +274,9 @@ private:
     //解析扩张pose可视化
     ros::Publisher _pub_vis_analytic;
     nav_msgs::Path _analytic_path;
+    // OPEN节点可视化
+    ros::Publisher _pub_open_node;
+    visualization_msgs::MarkerArray _open_nodes;
 
     struct color
     {

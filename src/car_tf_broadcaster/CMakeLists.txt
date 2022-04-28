@@ -17,7 +17,6 @@ set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(${PROJECT_NAME}
@@ -26,7 +25,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
 )
 
 add_dependencies(${PROJECT_NAME} 

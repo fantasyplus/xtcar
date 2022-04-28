@@ -45,8 +45,9 @@ std::vector<std::vector<NodeUpdate>> HybridAstar::createTransitionTable(const do
     const auto &R_max = maximum_turning_radius;
 
     //每一步更新的最小移动距离，赋给走直线的情况
-    // const double step_min = R_min * dtheta;
-    const double step_min = std::sqrt(2) * _cost_map.info.resolution; //单次步长一定会走出一个格子
+    //  const double step_min = R_min * dtheta;
+    double step_min = std::sqrt(2) * _cost_map.info.resolution; //单次步长一定会走出一个格子
+    step_min = (R_min * dtheta) < step_min ? R_min * dtheta : step_min;
 
     const double dR = (R_max - R_min) / static_cast<double>(turning_radius_size);
 
@@ -217,7 +218,7 @@ SearchStatus HybridAstar::search()
                 // collision_cube.scale.y = _cost_map.info.resolution;
                 // collision_cube.scale.z = 0.1;
 
-                // collision_cube.color.a = 1.0;
+                // collision_cube.color.a = 0.5;
                 // collision_cube.color.r = orange.red;
                 // collision_cube.color.g = orange.green;
                 // collision_cube.color.b = orange.blue;
@@ -530,6 +531,48 @@ void HybridAstar::visualAnalyticPath()
     _analytic_path.poses.clear();
 }
 
+void HybridAstar::visualOpenNode()
+{
+    int clear_index = 0;
+    static int id = 0;
+    for (auto it : _memory_open_nodes)
+    {
+        if (it->status == NodeStatus::Open)
+        {
+            visualization_msgs::Marker vehicle_marker;
+
+            if (clear_index == 0)
+            {
+                vehicle_marker.action = 3;
+                clear_index = 1;
+            }
+
+            vehicle_marker.header.frame_id = _cost_map.header.frame_id;
+            vehicle_marker.header.stamp = ros::Time::now();
+            vehicle_marker.id = id++;
+            vehicle_marker.type = visualization_msgs::Marker::ARROW;
+
+            vehicle_marker.scale.x = _cost_map.info.resolution;
+            vehicle_marker.scale.y = _cost_map.info.resolution;
+            vehicle_marker.scale.z = 0.1;
+
+            vehicle_marker.color.a = 0.1;
+            vehicle_marker.color.r = orange.red;
+            vehicle_marker.color.g = orange.green;
+            vehicle_marker.color.b = orange.blue;
+
+            geometry_msgs::PoseStamped pose;
+            pose.header = vehicle_marker.header;
+            pose.pose = local2global(_cost_map, AstarNode2Pose(*it));
+
+            vehicle_marker.pose = pose.pose;
+
+            _open_nodes.markers.push_back(vehicle_marker);
+        }
+    }
+    _pub_open_node.publish(_open_nodes);
+}
+
 inline bool HybridAstar::isOutOfRange(const IndexXYT &index) const
 {
     if (index.x_index < 0 || index.x_index >= _cost_map.info.width)
@@ -752,6 +795,8 @@ void HybridAstar::reset()
         it->status = NodeStatus::None;
         it->h_cost = 0.0;
     }
+    std::unordered_set<AstarNodePtr> empty_set;
+    std::swap(_memory_open_nodes, empty_set);
 }
 
 //判断前后共5个点是否有方向不一致的问题，即判断一段距离方向是否改变

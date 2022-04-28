@@ -14,7 +14,7 @@ void CarTF::publishTF()
 {
     //广播map->base_link和base_link->lidar_rs的tf
 
-    // map->base_link
+    // map->base_link 
     geometry_msgs::TransformStamped base_link_transform;
 
     base_link_transform.header.frame_id = map_frame;

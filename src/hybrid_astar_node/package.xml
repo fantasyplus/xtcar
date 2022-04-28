@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>hybrid_astar_node</name>
+  <version>0.1.0</version>
+  <description>The hybrid_astar_node package</description>
+  <maintainer email="530925206@qq.com">fantasyplus</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <license>MIT</license>
+
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>tf</depend>
+  <depend>visualization_msgs</depend>
+  <depend>pcl_ros</depend>
+  <!-- insert by xt -->
+  <depend>high_performence_hybrid_astar</depend>
+  <depend>behaviour_state_machine</depend>
+</package>
