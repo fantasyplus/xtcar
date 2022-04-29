@@ -24,27 +24,29 @@ public:
 
 private:
   /*---------------------ros相关---------------------*/
-  ros::NodeHandle nh_, private_nh_;
+  ros::NodeHandle _nh, _private_nh;
 
   ros::Publisher _pub_initial_path;
   ros::Publisher _pub_smoothed_path;
 
-  ros::Subscriber costmap_sub_;
-  ros::Subscriber current_pose_sub_;
-  ros::Subscriber goal_pose_sub_;
-  ros::Subscriber rviz_start_sub_;
+  ros::Subscriber _costmap_sub;
+  ros::Subscriber _current_pose_sub;
+  ros::Subscriber _goal_pose_sub_;
+  ros::Subscriber _rviz_start_sub;
 
-  bool costmap_initialized_,current_pose_initialized_,goal_pose_initialized_;
+  ros::ServiceServer _goal_pose_server;
 
   void costmapCallback(const nav_msgs::OccupancyGrid &msg);
   void currentPoseCallback(const geometry_msgs::PoseStamped &msg);
   void currentRvizPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg);
   void goalPoseCallback(const geometry_msgs::PoseStamped &msg);
 
+  bool srvHandleGoalPose(behaviour_state_machine::GoalPose::Request &req, behaviour_state_machine::GoalPose::Response &res);
+
 private:
   /*---------------------该节点的参数(不是Hybrid A*的)---------------------*/
-  double waypoints_velocity_;
-  double update_rate_;
+  double _waypoints_velocity;
+  double _update_rate;
   bool is_visual;
   bool use_rviz_start;
   std::string _costmap_topic;
@@ -53,16 +55,20 @@ private:
   HybridAstar _hybrid_astar;
   PlannerCommonParam _hybrid_astar_param;
 
-  nav_msgs::OccupancyGrid costmap_;
-  geometry_msgs::PoseStamped current_pose_global_;
-  geometry_msgs::PoseStamped goal_pose_global_;
+  nav_msgs::OccupancyGrid _costmap;
+  geometry_msgs::PoseStamped _current_pose_global;
+  geometry_msgs::PoseStamped _goal_pose_global;
+
+  bool _costmap_initialized, _current_pose_initialized, _goal_pose_initialized;
+
+  inline bool isSuccess(const SearchStatus &status);
 
 private:
   /*---------------------tf变换相关---------------------*/
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  std::shared_ptr<tf2_ros::Buffer> _tf_buffer;
+  std::shared_ptr<tf2_ros::TransformListener> _tf_listener;
 
-  geometry_msgs::TransformStamped getTransform(const string &from, const string &to);
+  geometry_msgs::TransformStamped getTransform(const string &target, const string &source);
 
   nav_msgs::Path transferTrajectory(const geometry_msgs::Pose &current_pose,
                                     const TrajectoryWaypoints &trajectory_waypoints);

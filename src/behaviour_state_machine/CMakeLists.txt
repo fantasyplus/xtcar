@@ -6,8 +6,10 @@ set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  nav_msgs
   roscpp
-  tf
+  tf2_geometry_msgs
+  tf2_ros
   std_msgs
   message_generation
 )
