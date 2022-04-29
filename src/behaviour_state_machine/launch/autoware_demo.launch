@@ -1,0 +1,83 @@
+<launch>
+    <param name="use_sim_time" value="true"/>
+
+    <node name="lidar_data_replay" pkg="rosbag" type="play" 
+          args="/home/ros/fantasyplus/rosbag/autoware/sample_moriyama_150324.bag -l --clock -s 160" 
+          output="log"/>
+
+    <!-- run rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d /home/ros/autoware.ai/src/autoware/documentation/autoware_quickstart_examples/launch/rosbag_demo/default.rviz" required="true"/>
+
+    
+    <node pkg="tf"  type="static_transform_publisher" name="world_to_map" args="14771 84757 -39 0 0 0 /world /map 10" />
+    <!-- <node pkg="tf"  type="static_transform_publisher" name="map_to_mobility" args="0 0 0 0 0 0 /map /mobility 10" /> -->
+    <!-- Setup -->
+    <include file="$(find runtime_manager)/launch_files/setup_tf.launch">
+        <arg name="x" value="1.2" />
+        <arg name="y" value="0.0" />
+        <arg name="z" value="2.0" />
+        <arg name="yaw" value="0.0" />
+        <arg name="pitch" value="0.0" />
+        <arg name="roll" value="0.0" />
+        <arg name="frame_id" value="/base_link" />
+        <arg name="child_frame_id" value="/velodyne" />
+        <arg name="period_in_ms" value="10"/>
+    </include>
+    <include file="$(find vehicle_description)/launch/vehicle_model.launch" />
+
+
+    <!-- points downsampler -->
+    <include file="$(find points_downsampler)/launch/points_downsample.launch" />
+
+    <!-- nmea2tfpose -->
+    <include file="$(find gnss_localizer)/launch/nmea2tfpose.launch"/>
+
+    <!-- ndt_matching -->
+    <arg name="method_type" default="3" /> <!-- pcl_generic=0, pcl_anh=1, pcl_a_nhgpu=2, pcl_openmp=3 -->
+    <arg name="use_gnss" default="1" />
+    <arg name="use_odom" default="false" />
+    <arg name="use_imu" default="false" />
+    <arg name="imu_upside_down" default="false" />
+    <arg name="imu_topic" default="/imu_raw" />
+    <arg name="queue_size" default="1" />
+    <arg name="offset" default="linear" />
+    <arg name="get_height" default="true" />
+    <arg name="use_local_transform" default="false" />
+    <arg name="sync" default="false" />
+    <arg name="output_log_data" default="false" />
+    <arg name="output_tf_frame_id" default="base_link"/>
+    <arg name="gnss_reinit_fitness" default="500.0" />
+
+    <node pkg="lidar_localizer" type="ndt_matching" name="ndt_matching" output="screen">
+        <param name="method_type" value="$(arg method_type)" />
+        <param name="use_gnss" value="$(arg use_gnss)" />
+        <param name="use_odom" value="$(arg use_odom)" />
+        <param name="use_imu" value="$(arg use_imu)" />
+        <param name="imu_upside_down" value="$(arg imu_upside_down)" />
+        <param name="imu_topic" value="$(arg imu_topic)" />
+        <param name="queue_size" value="$(arg queue_size)" />
+        <param name="offset" value="$(arg offset)" />
+        <param name="get_height" value="$(arg get_height)" />
+        <param name="use_local_transform" value="$(arg use_local_transform)" />
+        <param name="output_log_data" value="$(arg output_log_data)" />
+        <param name="output_tf_frame_id" value="$(arg output_tf_frame_id)" />
+        <param name="gnss_reinit_fitness" value="$(arg gnss_reinit_fitness)" />
+        <remap from="/points_raw" to="/sync_drivers/points_raw" if="$(arg sync)" />
+    </node>
+
+    <!-- Point Cloud -->
+    <arg name="scene_num" default="noupdate" />
+    <arg name="path_area_list" default='""' />
+    <arg name="pcd_paths" default="/home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/pointcloud_map" />
+    <node pkg="map_file" type="points_map_loader" name="points_map_loader" output="log">
+        <param name="area" value="$(arg scene_num)"/>
+        <param name="arealist_path" value="$(arg path_area_list"/>
+        <rosparam subst_value="true">
+            pcd_paths: [ $(arg pcd_paths) ]
+        </rosparam>
+        <!-- <remap from="/points_map" to="/map" /> -->
+    </node>    
+
+    <node pkg="map_file" type="vector_map_loader" name="vector_map_loader" args="/home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/lane.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/line.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/utilitypole.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/curb.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/node.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/gutter.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/point.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/pole.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/vector.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/zebrazone.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/streetlight.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/whiteline.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/road_surface_mark.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/area.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/idx.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/dtlane.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/signaldata.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/poledata.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/roadsign.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/roadedge.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/crosswalk.csv /home/ros/fantasyplus/rosbag/autoware/sample_moriyama_data/data/map/vector_map/stopline.csv"/>
+
+</launch>
