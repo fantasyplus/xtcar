@@ -1,6 +1,7 @@
 #include "hybrid_astar_node.h"
 
-geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const geometry_msgs::TransformStamped &transform)
+geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
+                                  const geometry_msgs::TransformStamped &transform)
 {
   geometry_msgs::PoseStamped transformed_pose;
   geometry_msgs::PoseStamped orig_pose;
@@ -10,7 +11,8 @@ geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const geometr
   return transformed_pose.pose;
 }
 
-geometry_msgs::TransformStamped HybridAstarNode::getTransform(const string &target, const string &source)
+geometry_msgs::TransformStamped HybridAstarNode::getTransform(const string &target,
+                                                              const string &source)
 {
   geometry_msgs::TransformStamped tf;
   try
@@ -29,11 +31,11 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 {
   //节点参数
   _private_nh.param<std::string>("costmap_topic", _costmap_topic, "global_cost_map");
-  _private_nh.param<std::string>("pose_topic", _pose_topic, "current_pose");
+  _private_nh.param<std::string>("pose_topic", _pose_topic, "gnss_pose");
   _private_nh.param<double>("waypoints_velocity", _waypoints_velocity, 5.0);
   _private_nh.param<double>("update_rate", _update_rate, 10.0);
   _private_nh.param<bool>("is_visual", is_visual, false);
-  _private_nh.param<bool>("use_rviz_start", use_rviz_start, false);
+  _private_nh.param<bool>("use_rviz_start", use_rviz_start, true);
 
   //混合A*参数
   _private_nh.param<double>("time_limit", _hybrid_astar_param.time_limit, 10000.0);
@@ -69,12 +71,11 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 
   /*---------------------subscribe---------------------*/
   _costmap_sub = _nh.subscribe(_costmap_topic, 1, &HybridAstarNode::costmapCallback, this);
-  //如果用rviz定起点的话，就是静态地图，不是的话就是实时定位
+  //如果用rviz定起点的话，就是静态地图，不是的话就是动态地图实时定位
   if (use_rviz_start)
     _rviz_start_sub = _nh.subscribe("initialpose", 1, &HybridAstarNode::currentRvizPoseCallback, this);
   else
     _current_pose_sub = _nh.subscribe(_pose_topic, 1, &HybridAstarNode::currentPoseCallback, this);
-  // _goal_pose_sub_ = _nh.subscribe("move_base_simple/goal", 1, &HybridAstarNode::goalPoseCallback, this);
 
   /*---------------------advertise---------------------*/
   _pub_initial_path = _nh.advertise<nav_msgs::Path>("initial_path", 1, true);
@@ -109,10 +110,9 @@ void HybridAstarNode::currentRvizPoseCallback(const geometry_msgs::PoseWithCovar
   {
     return;
   }
-  geometry_msgs::PoseStamped start_pose;
-  start_pose.pose = msg->pose.pose;
-  start_pose.header = msg->header;
-  _current_pose_global = start_pose;
+
+  _current_pose_global.pose = msg->pose.pose;
+  _current_pose_global.header = msg->header;
   _current_pose_initialized = true;
 }
 
@@ -126,17 +126,8 @@ void HybridAstarNode::currentPoseCallback(const geometry_msgs::PoseStamped &msg)
   _current_pose_initialized = true;
 }
 
-// void HybridAstarNode::goalPoseCallback(const geometry_msgs::PoseStamped &msg)
-// {
-//   if (!_costmap_initialized)
-//   {
-//     return;
-//   }
-//   _goal_pose_global = msg;
-//   _goal_pose_initialized = true;
-// }
-
-bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Request &req, behaviour_state_machine::GoalPose::Response &res)
+bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Request &req,
+                                        behaviour_state_machine::GoalPose::Response &res)
 {
   _goal_pose_global.pose = req.pose;
   _goal_pose_global.header = req.header;
@@ -185,7 +176,6 @@ bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Reque
     ROS_INFO("reset cost: %f [ms]", t2.getTimerMilliSec());
 
     res.is_success = true;
-    return true;
   }
   else
   {
@@ -209,8 +199,8 @@ bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Reque
     }
 
     res.is_success = false;
-    return false;
   }
+  return true;
 }
 
 inline bool HybridAstarNode::isSuccess(const SearchStatus &status)
@@ -268,7 +258,8 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
 
     vehicle_marker.color.a = 0.2;
 
-    if (i != visual_waypoints.trajectory.size() - 1 && visual_waypoints.trajectory[i].is_back != visual_waypoints.trajectory[i + 1].is_back)
+    if (i != visual_waypoints.trajectory.size() - 1 &&
+        visual_waypoints.trajectory[i].is_back != visual_waypoints.trajectory[i + 1].is_back)
     {
       vehicle_marker.color.r = black.red;
       vehicle_marker.color.r = black.green;

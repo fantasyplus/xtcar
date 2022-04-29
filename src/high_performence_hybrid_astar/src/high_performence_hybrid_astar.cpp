@@ -100,8 +100,6 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 
     _start_pose = global2local(_cost_map, start_pose);
     _goal_pose = global2local(_cost_map, goal_pose);
-    // _start_pose = start_pose;
-    // _goal_pose = goal_pose;
 
     ROS_INFO("get start pose:%f,%f", _start_pose.position.x, _start_pose.position.y);
     ROS_INFO("get goal pose:%f,%f", _goal_pose.position.x, _goal_pose.position.y);
@@ -383,7 +381,7 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
 {
     _cost_map = cost_map;
 
-    ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
+    // ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
 
     const auto map_height = _cost_map.info.height;
     const auto map_width = _cost_map.info.width;
@@ -446,7 +444,7 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
         }
     }
 
-    ROS_INFO("SetOccupancyGrid successfully");
+    // ROS_INFO("SetOccupancyGrid successfully");
 }
 
 //计算车辆模型的碰撞区间，就是将指定旋转角下的车体映射格点索引保存下来，以备之后用来检测碰撞

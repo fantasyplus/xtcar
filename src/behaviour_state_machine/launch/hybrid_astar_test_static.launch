@@ -9,7 +9,7 @@
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_simulator node -->
-    <arg name="loop_rate_wf" default="50.0" />
+    <!-- <arg name="loop_rate_wf" default="50.0" />
     <arg name="lidar_height" default="1.0" />
     <arg name="simulation_frame_id" default="base_link" />
     <arg name="map_frame_id" default="map" />
@@ -70,6 +70,37 @@
         <param name="rpy_noise_stddev" value="$(arg rpy_noise_stddev)" />
         <param name="angvel_noise_stddev" value="$(arg angvel_noise_stddev)" />
         <param name="steer_noise_stddev" value="$(arg steer_noise_stddev)" />
+    </node> -->
+
+    <!-- car_tf node -->
+    <arg name="lidar_trans_x" default="4.34" />
+    <arg name="lidar_trans_y" default="-0.58" />
+    <arg name="lidar_trans_z" default="0.0" />
+
+    <arg name="lidar_rotation_roll" default="0.0" />
+    <arg name="lidar_rotation_pitch" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="0.0" />
+
+    <arg name="map_frame" default="map" />
+    <arg name="base_link_frame" default="base_link" />
+    <arg name="lidar_frame_id" default="rslidar" />
+
+    <arg name="use_rviz_start_cartf" default="true" />
+
+    <node name="car_tf" pkg="car_tf_broadcaster_xt" type="car_tf_broadcaster_xt" output="screen">
+        <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
+        <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
+        <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
+
+        <param name="lidar_rotation_roll" type="double" value="$(arg lidar_rotation_roll)" />
+        <param name="lidar_rotation_pitch" type="double" value="$(arg lidar_rotation_pitch)" />
+        <param name="lidar_rotation_yaw" type="double" value="$(arg lidar_rotation_yaw)" />
+        
+        <param name="map_frame" type="string" value="$(arg map_frame)" />
+        <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
+        <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
+
+        <param name="use_rviz_start" type="bool" value="$(arg use_rviz_start_cartf)" />
     </node>
 
     <!-- Costmap Server -->
@@ -90,7 +121,7 @@
     <arg name="update_rate" default="10" />
     
     <arg name="is_visual" default="true" />
-    <arg name="use_rviz_start" default="true" />
+    <arg name="use_rviz_start_hybridastar" default="true" />
 
     <!-- Hybrid A* search configurations -->
     <arg name="time_limit" default="10000.0" />
@@ -132,7 +163,7 @@
       <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
       <param name="update_rate" value="$(arg update_rate)" />
       <param name="is_visual" value="$(arg is_visual)" />
-      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      <param name="use_rviz_start" value="$(arg use_rviz_start_hybridastar)" />
       
 
       <param name="time_limit" value="$(arg time_limit)" />

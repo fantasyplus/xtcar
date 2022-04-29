@@ -108,24 +108,6 @@ chrono
 iostream
 -
 
-/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/bucketedqueue.cpp
-bucketedqueue.h
-/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/bucketedqueue.h
-limits.h
-/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/limits.h
-stdio.h
--
-stdlib.h
--
-
-/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/dynamicvoronoi.cpp
-dynamicvoronoi.h
-/home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/dynamicvoronoi.h
-math.h
--
-iostream
--
-
 /home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/high_performence_hybrid_astar.cpp
 high_performence_hybrid_astar.hpp
 /home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/src/high_performence_hybrid_astar.hpp

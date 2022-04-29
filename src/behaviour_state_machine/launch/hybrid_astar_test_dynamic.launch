@@ -73,6 +73,8 @@
     <arg name="base_link_frame" default="base_link" />
     <arg name="lidar_frame_id" default="rslidar" />
 
+    <arg name="use_rviz_start_cartf" default="false" />
+
     <node name="car_tf" pkg="car_tf_broadcaster_xt" type="car_tf_broadcaster_xt" output="screen">
         <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
         <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
@@ -85,6 +87,8 @@
         <param name="map_frame" type="string" value="$(arg map_frame)" />
         <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
         <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
+
+        <param name="use_rviz_start" type="bool" value="$(arg use_rviz_start_cartf)" />
 
     </node>
 
