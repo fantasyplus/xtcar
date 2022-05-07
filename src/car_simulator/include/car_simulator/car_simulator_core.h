@@ -25,6 +25,7 @@
 #define CAR_SIMULATOR_CAR_SIMULATOR_CORE_H
 
 #include <string>
+#include <memory>
 #include <autoware_msgs/Lane.h>
 #include <car_simulator/vehicle_model_ros.h>
 
@@ -49,7 +50,6 @@ private:
   ros::Subscriber sub_initialpose_;       //!< @brief topic subscriber for initialpose topic
   ros::Subscriber sub_closest_waypoint_;  //!< @brief topic subscriber for closest_waypoint id for z position
   ros::Timer timer_simulation_;           //!< @brief timer for simulation
-  ros::Timer timer_tf_;                   //!< @brief timer to pubish tf
 
   /* core library */
   VehicleModelROS vehicle_sim_model_;
@@ -111,14 +111,6 @@ private:
    */
   void timerCallbackSimulation(const ros::TimerEvent& e);
 
-  //insert by xt
-  //void timerCallbackSimulation2(const ros::TimerEvent& e);
-
-  /**
-   * @brief timer callback for tf publication
-   */
-  void timerCallbackPublishTF(const ros::TimerEvent& e);
-
   /**
    * @brief set initial state of simulated vehicle with pose transformation based on frame_id
    * @param [in] pose initial position and orientation with header
@@ -140,12 +132,6 @@ private:
    * @param [in] twist twist to be published
    */
   void publishPoseTwist(const geometry_msgs::Pose& pose, const geometry_msgs::Twist& twist);
-
-  /**
-   * @brief publish tf
-   * @param [in] pose pose used for tf
-   */
-  void publishTF(const geometry_msgs::Pose& pose);
 };
 
 #endif  // CAR_SIMULATOR_CAR_SIMULATOR_CORE_H

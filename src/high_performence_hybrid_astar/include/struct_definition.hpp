@@ -76,6 +76,8 @@ struct PlannerCommonParam
     bool use_back;
     //是否使用RS代价值
     bool use_reeds_shepp;
+    //是否使用障碍物启发值
+    bool use_obstacle_heuristic;
     //是否平滑轨迹
     bool use_smoother;
 
@@ -136,9 +138,34 @@ struct AstarNode
     }
 };
 
+struct AstarNode2d
+{
+    NodeStatus status = NodeStatus::None;
+    int x_index;
+    int y_index;
+    double g_cost = 0.0;
+    double h_cost = 0.0;
+    bool is_discovered = false;
+
+    std::shared_ptr<AstarNode2d> parent = nullptr;
+
+    double getCost() const
+    {
+        return g_cost + h_cost;
+    }
+};
+
 struct NodeComparison
 {
     bool operator()(const std::shared_ptr<AstarNode> lhs, const std::shared_ptr<AstarNode> rhs)
+    {
+        return lhs->getCost() > rhs->getCost();
+    }
+};
+
+struct NodeComparison2d
+{
+    bool operator()(const std::shared_ptr<AstarNode2d> lhs, const std::shared_ptr<AstarNode2d> rhs)
     {
         return lhs->getCost() > rhs->getCost();
     }

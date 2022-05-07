@@ -93,7 +93,9 @@
     </node>
 
     <!-- 上层控制节点 -->
+    <arg name="is_static_map" default="false"/>
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen">
+        <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
     </node>
 
     <!-- Hybrid A* node -->

@@ -22,6 +22,14 @@
 //自定义
 #include "behaviour_state_machine/GoalPose.h"
 
+enum class Direction
+{
+    Left,
+    Right,
+    Straight,
+    None
+};
+
 class BehaviourStateMachine
 {
 public:
@@ -38,15 +46,17 @@ private:
     ros::Subscriber _sub_costmap;
     ros::Subscriber _sub_goal_pose;
     ros::Subscriber _sub_current_pose;
+    ros::Subscriber _sub_rviz_start_pose;
 
     ros::Publisher _pub_rviz_start_pose;
 
     ros::Timer _timer_tf;
 
 private:
-    //存储goal_pose
+    //各类pose
     geometry_msgs::PoseStamped _goal_pose_stamped;
     geometry_msgs::PoseStamped _current_pose_stamped;
+    geometry_msgs::PoseStamped _rviz_start_pose_stamped;
     // costmap的frame_id
     std::string _costmap_frame_id;
 
@@ -58,23 +68,33 @@ private:
     int id = 0;
     int pre_id = 0;
 
+    bool is_static_map;
+
 private:
     /*---------------------各类回调函数---------------------*/
 
     void callbackGoalPose(const geometry_msgs::PoseStamped &msg);
     void callbackCostMap(const nav_msgs::OccupancyGrid &msg);
     void callbackCurrentPose(const geometry_msgs::PoseStamped &msg);
+    void callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg);
+
     void callbackTimerPublishTargetTF(const ros::TimerEvent &e);
 
 private:
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
-    std::vector<geometry_msgs::PoseStamped> multipleTargetGenerator();
 
 private:
+    Direction getDirection(geometry_msgs::PoseStamped &cur, geometry_msgs::PoseStamped &goal);
+
+    std::vector<geometry_msgs::PoseStamped> multipleTargetGenerator(Direction &dir);
+
+    void experimentalUse();
+
+private:
+    /*---------------------TF相关---------------------*/
     tf::TransformBroadcaster _tf_broadcaster;
     std::shared_ptr<tf2_ros::Buffer> _tf_buffer;
     std::shared_ptr<tf2_ros::TransformListener> _tf_listener;
-    geometry_msgs::TransformStamped _target_tf;
 
     geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
                                       const geometry_msgs::TransformStamped &transform);

@@ -46,7 +46,7 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 
   _private_nh.param<double>("max_turning_radius", _hybrid_astar_param.max_turning_radius, 20.0);
   _private_nh.param<double>("min_turning_radius", _hybrid_astar_param.min_turning_radius, 4.36);
-  _private_nh.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 11);
+  _private_nh.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 1);
   _private_nh.param<int>("theta_size", _hybrid_astar_param.theta_size, 48);
 
   _private_nh.param<double>("reverse_weight", _hybrid_astar_param.reverse_weight, 4.0);
@@ -58,6 +58,7 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 
   _private_nh.param<bool>("use_back", _hybrid_astar_param.use_back, true);
   _private_nh.param<bool>("use_reeds_shepp", _hybrid_astar_param.use_reeds_shepp, true);
+  _private_nh.param<bool>("use_obstacle_heuristic", _hybrid_astar_param.use_obstacle_heuristic, true);
   _private_nh.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, false);
 
   _private_nh.param<float>("alpha", _hybrid_astar_param.alpha, 0.1);

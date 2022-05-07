@@ -42,7 +42,6 @@ WFSimulatorCore::WFSimulatorCore() : nh_(""), pnh_("~"), vehicle_sim_model_(nh_,
   sub_vehicle_cmd_ = nh_.subscribe("vehicle_cmd", 1, &WFSimulatorCore::callbackVehicleCmd, this);
   timer_simulation_ = nh_.createTimer(ros::Duration(dt), &WFSimulatorCore::timerCallbackSimulation, this);
 
-  timer_tf_ = nh_.createTimer(ros::Duration(0.1), &WFSimulatorCore::timerCallbackPublishTF, this);
 
   // bool use_waypoints_for_z_position_source;
   // pnh_.param<bool>("use_waypoints_for_z_position_source", use_waypoints_for_z_position_source, false);
@@ -99,11 +98,6 @@ void WFSimulatorCore::callbackInitialPoseStamped(const geometry_msgs::PoseStampe
 {
   geometry_msgs::Twist initial_twist;  // initialized with zero for all components
   setInitialStateWithPoseTransform(*msg, initial_twist);
-}
-
-void WFSimulatorCore::timerCallbackPublishTF(const ros::TimerEvent& e)
-{
-  publishTF(current_pose_);
 }
 
 void WFSimulatorCore::timerCallbackSimulation(const ros::TimerEvent& e)
@@ -204,38 +198,4 @@ void WFSimulatorCore::publishPoseTwist(const geometry_msgs::Pose& pose, const ge
   ts.header.stamp = current_time;
   ts.twist = twist;
   pub_twist_.publish(ts);
-}
-
-void WFSimulatorCore::publishTF(const geometry_msgs::Pose& pose)
-{
-  ros::Time current_time = ros::Time::now();
-
-  // send odom transform
-  geometry_msgs::TransformStamped odom_trans;
-  odom_trans.header.stamp = current_time;
-  odom_trans.header.frame_id = map_frame_id_;
-  odom_trans.child_frame_id = simulation_frame_id_;
-  odom_trans.transform.translation.x = pose.position.x;
-  odom_trans.transform.translation.y = pose.position.y;
-  odom_trans.transform.translation.z = pose.position.z;
-  odom_trans.transform.rotation = pose.orientation;
-  tf_broadcaster_.sendTransform(odom_trans);
-
-  // send lidar transform
-  geometry_msgs::TransformStamped lidar_trans;
-  lidar_trans.header.stamp = odom_trans.header.stamp;
-  lidar_trans.header.frame_id = simulation_frame_id_;
-  lidar_trans.child_frame_id = lidar_frame_id_;
-
-  geometry_msgs::Quaternion q;
-  double yaw=0,roll=0,pitch=0;
-  q=tf::createQuaternionMsgFromRollPitchYaw(roll,pitch,yaw);
-
-  lidar_trans.transform.translation.z += lidar_height_;
-  lidar_trans.transform.translation.x += 0.3;
-  lidar_trans.transform.rotation.w = q.w;
-  lidar_trans.transform.rotation.x = q.x;
-  lidar_trans.transform.rotation.y = q.y;
-  lidar_trans.transform.rotation.z = q.z;
-  tf_broadcaster_.sendTransform(lidar_trans);
 }

@@ -279,6 +279,8 @@ eigen3/Eigen/LU
 /home/ros/fantasyplus/xtcar/src/car_simulator/include/car_simulator/car_simulator_core.h
 string
 -
+memory
+-
 autoware_msgs/Lane.h
 -
 car_simulator/vehicle_model_ros.h
@@ -339,12 +341,6 @@ car_simulator/car_simulator_core.h
 /home/ros/fantasyplus/xtcar/src/car_simulator/src/car_simulator_node.cpp
 car_simulator/car_simulator_core.h
 /home/ros/fantasyplus/xtcar/src/car_simulator/src/car_simulator/car_simulator_core.h
-
-/home/ros/fantasyplus/xtcar/src/car_simulator/src/vehicle_model_ros.cpp
-car_simulator/vehicle_model_ros.h
--
-string
--
 
 /opt/ros/melodic/include/geometry_msgs/Point.h
 string
