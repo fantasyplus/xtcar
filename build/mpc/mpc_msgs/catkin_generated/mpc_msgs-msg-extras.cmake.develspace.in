@@ -1,0 +1,2 @@
+set(mpc_msgs_MESSAGE_FILES "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg")
+set(mpc_msgs_SERVICE_FILES "")

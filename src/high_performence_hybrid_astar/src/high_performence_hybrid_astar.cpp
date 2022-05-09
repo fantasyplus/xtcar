@@ -106,7 +106,6 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 
     if (!setStartNode())
     {
-        // ROS_INFO("start_pose is:%f,%f", start_pose.position.x, start_pose.position.y);
         return SearchStatus::FAILURE_COLLISION_AT_START;
     }
 
@@ -121,6 +120,7 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 SearchStatus HybridAstar::search()
 {
     TimerClock t0;
+    research_cnt = 0;
 
     ROS_INFO("----------start search----------");
 
@@ -370,11 +370,11 @@ double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const
     //如果该点没有被搜索过，初始化并重新开始搜索(反向2d A*的终点，就是要启发值要判断的起点)
     if (_2d_nodes[goal_2d->x_index][goal_2d->y_index]->is_discovered == true)
     {
-        // ROS_INFO("2d A* is discovered");
         return _2d_nodes[goal_2d->x_index][goal_2d->y_index]->g_cost;
     }
     else
     {
+        research_cnt++;
         // ROS_INFO("_2d_memory_open_nodes size():%d", _2d_memory_open_nodes.size());
         // ROS_INFO("_2d_open_list size():%d", _2d_open_list.size());
         for (auto it : _2d_memory_open_nodes)
@@ -476,9 +476,7 @@ double HybridAstar::estimateCost(const geometry_msgs::Pose &start)
 
     if (_planner_common_param.use_obstacle_heuristic)
     {
-        TimerClock t0;
         obs_cost = getObstacleHeuristic(start, _goal_pose);
-        // ROS_INFO("obstacle heuri cost: %fms", t0.getTimerMilliSec());
     }
 
     total_cost = max(rs_cost, obs_cost);
@@ -490,7 +488,7 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
 {
     _cost_map = cost_map;
 
-    ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
+    // ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
 
     const auto map_height = _cost_map.info.height;
     const auto map_width = _cost_map.info.width;
@@ -649,8 +647,8 @@ void HybridAstar::visualOpenNode()
 {
     int clear_index = 0;
     static int id = 0;
-    ROS_INFO("_2d_memory_open_nodes size():%d", _memory_open_nodes.size());
-    for (auto it : _2d_memory_open_nodes)
+    ROS_INFO("_memory_open_nodes size():%d", (int)_memory_open_nodes.size());
+    for (auto it : _memory_open_nodes)
     {
         if (it->status == NodeStatus::Open || it->status == NodeStatus::Close)
         {
@@ -679,12 +677,12 @@ void HybridAstar::visualOpenNode()
             geometry_msgs::PoseStamped pose;
             pose.header = vehicle_marker.header;
 
-            //2d
-            IndexXYT temp_index(it->x_index, it->y_index, 1);
-            pose.pose = index2pose(temp_index, _cost_map.info.resolution, 1);
+            // 2d
+            // IndexXYT temp_index(it->x_index, it->y_index, 1);
+            // pose.pose = index2pose(temp_index, _cost_map.info.resolution, 1);
 
-            //3d
-            // pose.pose = local2global(_cost_map, AstarNode2Pose(*it));
+            // 3d
+            pose.pose = local2global(_cost_map, AstarNode2Pose(*it));
 
             vehicle_marker.pose = pose.pose;
 
@@ -757,7 +755,6 @@ geometry_msgs::Pose HybridAstar::transformPose(const geometry_msgs::Pose &pose, 
 
 geometry_msgs::Pose HybridAstar::global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global)
 {
-    // costmap的origin，本质就是costmap到目标frame的变换矩阵
     tf2::Transform tf_origin;
     tf2::convert(costmap.info.origin, tf_origin);
 
@@ -769,7 +766,6 @@ geometry_msgs::Pose HybridAstar::global2local(const nav_msgs::OccupancyGrid &cos
 
 geometry_msgs::Pose HybridAstar::local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local)
 {
-    // costmap的origin，本质就是costmap到目标frame的变换矩阵
     tf2::Transform tf_origin;
     tf2::convert(costmap.info.origin, tf_origin);
 

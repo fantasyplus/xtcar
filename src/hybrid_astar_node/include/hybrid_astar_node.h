@@ -15,6 +15,10 @@
 //自定义
 #include "high_performence_hybrid_astar.hpp"
 #include "behaviour_state_machine/GoalPose.h"
+#include "mpc_msgs/Lane.h"
+#include "mpc_msgs/Waypoint.h"
+#include "mpc_msgs/ControlCommand.h"
+#include "mpc_msgs/VehicleStatus.h"
 
 class HybridAstarNode
 {
@@ -98,6 +102,11 @@ private:
   static constexpr color black = {0.f / 255.f, 0.f / 255.f, 0.f / 255.f};
 
   void visualPathVehicle(const TrajectoryWaypoints &visual_waypoints);
+
+private:
+  /*---------------------suv car---------------------*/
+  ros::Publisher _pub_mpc_lane;
+  void sendMpcMsgsLane(const TrajectoryWaypoints &traj);
 };
 
 #endif

@@ -1,0 +1,8 @@
+prefix=/home/ros/fantasyplus/xtcar/devel
+
+Name: grid_map
+Description: Description of grid_map
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

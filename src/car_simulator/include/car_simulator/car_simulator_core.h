@@ -26,8 +26,10 @@
 
 #include <string>
 #include <memory>
-#include <autoware_msgs/Lane.h>
 #include <car_simulator/vehicle_model_ros.h>
+#include "mpc_msgs/ControlCommand.h"
+#include "mpc_msgs/Lane.h"
+#include "mpc_msgs/VehicleStatus.h"
 
 class WFSimulatorCore
 {
@@ -39,65 +41,65 @@ public:
 
 private:
   /* ros system */
-  ros::NodeHandle nh_;                    //!< @brief ros node handle
-  ros::NodeHandle pnh_;                   //!< @brief private ros node handle
-  ros::Publisher pub_pose_;               //!< @brief topic ros publisher for current pose
-  ros::Publisher pub_lidar_pose_;         //!< @brief topic ros publisher for lodar pose
-  ros::Publisher pub_twist_;              //!< @brief topic ros publisher for current twist
-  ros::Publisher pub_vehicle_status_;     //!< @brief topic ros publisher for current vehicle status
-  ros::Subscriber sub_vehicle_cmd_;       //!< @brief topic subscriber for vehicle_cmd
-  ros::Subscriber sub_waypoints_;         //!< @brief topic subscriber for waypoints used for z ppsition
-  ros::Subscriber sub_initialpose_;       //!< @brief topic subscriber for initialpose topic
-  ros::Subscriber sub_closest_waypoint_;  //!< @brief topic subscriber for closest_waypoint id for z position
-  ros::Timer timer_simulation_;           //!< @brief timer for simulation
-
+  ros::NodeHandle nh_;                   //!< @brief ros node handle
+  ros::NodeHandle pnh_;                  //!< @brief private ros node handle
+  ros::Publisher pub_pose_;              //!< @brief topic ros publisher for current pose
+  ros::Publisher pub_lidar_pose_;        //!< @brief topic ros publisher for lodar pose
+  ros::Publisher pub_twist_;             //!< @brief topic ros publisher for current twist
+  ros::Publisher pub_vehicle_status_;    //!< @brief topic ros publisher for current vehicle status
+  ros::Subscriber sub_vehicle_cmd_;      //!< @brief topic subscriber for vehicle_cmd
+  ros::Subscriber sub_waypoints_;        //!< @brief topic subscriber for waypoints used for z ppsition
+  ros::Subscriber sub_initialpose_;      //!< @brief topic subscriber for initialpose topic
+  ros::Subscriber sub_closest_waypoint_; //!< @brief topic subscriber for closest_waypoint id for z position
+  ros::Timer timer_simulation_;          //!< @brief timer for simulation
+  ros::Timer timer_tf_;
   /* core library */
   VehicleModelROS vehicle_sim_model_;
 
   /* received & published topics */
-  geometry_msgs::Pose current_pose_;    //!< @brief current vehicle position ang angle with pose message class
-  std::shared_ptr<autoware_msgs::Lane> current_waypoints_ptr_;          //!< @brief latest received waypoints
-  double closest_pos_z_;                                                //!< @brief z position on closest waypoint
+  geometry_msgs::Pose current_pose_;                      //!< @brief current vehicle position ang angle with pose message class
+  std::shared_ptr<mpc_msgs::Lane> current_waypoints_ptr_; //!< @brief latest received waypoints
+  double closest_pos_z_;                                  //!< @brief z position on closest waypoint
 
   /* tf */
-  tf::TransformListener tf_listener_;        //!< @brief tf listener
-  tf::TransformBroadcaster tf_broadcaster_;  //!< @brief tf broadcaster
+  tf::TransformListener tf_listener_;       //!< @brief tf listener
+  tf::TransformBroadcaster tf_broadcaster_; //!< @brief tf broadcaster
 
   /* frame_id */
-  std::string simulation_frame_id_;  //!< @brief vehicle frame id simulated by car_simulator
-  std::string map_frame_id_;         //!< @brief map frame_id
-  std::string lidar_frame_id_;       //!< @brief lidar frame_id
+  std::string simulation_frame_id_; //!< @brief vehicle frame id simulated by car_simulator
+  std::string map_frame_id_;        //!< @brief map frame_id
+  std::string lidar_frame_id_;      //!< @brief lidar frame_id
 
   /* car_simulator parameters */
-  double lidar_height_;  //!< @brief lidar height [m] to calculate lidar tf
+  double lidar_height_; //!< @brief lidar height [m] to calculate lidar tf
 
   /* saved values */
-  std::shared_ptr<ros::Time> prev_update_time_ptr_;  //!< @brief previously updated time
+  std::shared_ptr<ros::Time> prev_update_time_ptr_; //!< @brief previously updated time
 
   /**
    * @brief set current_vehicle_cmd_ptr_ with received message
    */
-  void callbackVehicleCmd(const autoware_msgs::VehicleCmdConstPtr& msg);
+  void callbackControlCommand(const mpc_msgs::ControlCommandConstPtr &msg);
 
   /**
    * @brief set current_waypoints_ptr_ with received message
    */
-  void callbackWaypoints(const autoware_msgs::LaneConstPtr& msg);
+  void callbackWaypoints(const mpc_msgs::LaneConstPtr &msg);
 
   /**
    * @brief set current_closest_waypoint_ptr_ with received message
    */
-  void callbackClosestWaypoint(const std_msgs::Int32ConstPtr& msg);
+  void callbackClosestWaypoint(const std_msgs::Int32ConstPtr &msg);
 
   /**
    * @brief set initial pose for simulation with received message
    */
-  void callbackInitialPoseWithCov(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
+  void callbackInitialPoseWithCov(const geometry_msgs::PoseWithCovarianceStampedConstPtr &msg);
 
   /**
    * @brief set initial pose with received message
    */
-  void callbackInitialPoseStamped(const geometry_msgs::PoseStampedConstPtr& msg);
+  void callbackInitialPoseStamped(const geometry_msgs::PoseStampedConstPtr &msg);
 
   /**
    * @brief get transform from two frame_ids
@@ -109,29 +111,33 @@ private:
   /**
    * @brief timer callback for simulation with loop_rate
    */
-  void timerCallbackSimulation(const ros::TimerEvent& e);
+  void timerCallbackSimulation(const ros::TimerEvent &e);
 
   /**
    * @brief set initial state of simulated vehicle with pose transformation based on frame_id
    * @param [in] pose initial position and orientation with header
    * @param [in] twist initial velocity and angular velocity
    */
-  void setInitialStateWithPoseTransform(const geometry_msgs::PoseStamped& pose, const geometry_msgs::Twist& twist);
+  void setInitialStateWithPoseTransform(const geometry_msgs::PoseStamped &pose, const geometry_msgs::Twist &twist);
 
   /**
    * @brief set initial state of simulated vehicle with pose transformation based on frame_id
    * @param [in] pose initial position and orientation with header
    * @param [in] twist initial velocity and angular velocity
    */
-  void setInitialStateWithPoseTransform(const geometry_msgs::PoseWithCovarianceStamped& pose,
-                                        const geometry_msgs::Twist& twist);
+  void setInitialStateWithPoseTransform(const geometry_msgs::PoseWithCovarianceStamped &pose,
+                                        const geometry_msgs::Twist &twist);
 
   /**
    * @brief publish pose and twist
    * @param [in] pose pose to be published
    * @param [in] twist twist to be published
    */
-  void publishPoseTwist(const geometry_msgs::Pose& pose, const geometry_msgs::Twist& twist);
+  void publishPoseTwist(const geometry_msgs::Pose &pose, const geometry_msgs::Twist &twist);
+
+  void timerCallbackPublishTF(const ros::TimerEvent &e);
+
+  void publishTF(const geometry_msgs::Pose &pose);
 };
 
-#endif  // CAR_SIMULATOR_CAR_SIMULATOR_CORE_H
+#endif // CAR_SIMULATOR_CAR_SIMULATOR_CORE_H

@@ -4,6 +4,10 @@
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPoseRequest.h
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPoseResponse.h
+hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/ControlCommand.h
+hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/Lane.h
+hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/VehicleStatus.h
+hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/Waypoint.h
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/include/bucketedqueue.h
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/include/dynamicvoronoi.h
 hybrid_astar_node/CMakeFiles/hybrid_astar_node.dir/src/hybrid_astar_node.cpp.o: /home/ros/fantasyplus/xtcar/src/high_performence_hybrid_astar/include/high_performence_hybrid_astar.hpp

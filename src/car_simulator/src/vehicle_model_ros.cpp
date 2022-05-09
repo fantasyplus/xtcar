@@ -143,19 +143,19 @@ void VehicleModelROS::updateStatus(const double dt, const double closest_pos_z)
   current_pose_.orientation = tf2::toMsg(quaternion);
 }
 
-void VehicleModelROS::setVehicleCmd(const autoware_msgs::VehicleCmdConstPtr& msg)
+void VehicleModelROS::setControlCommand(const mpc_msgs::ControlCommandConstPtr& msg)
 {
   if (vehicle_model_type_ == VehicleModelType::IDEAL_TWIST || vehicle_model_type_ == VehicleModelType::DELAY_TWIST ||
       vehicle_model_type_ == VehicleModelType::CONST_ACCEL_TWIST)
   {
     Eigen::VectorXd input(2);
-    input << msg->twist_cmd.twist.linear.x, msg->twist_cmd.twist.angular.z;
+    input << msg->linear_velocity, msg->steering_angle;
     vehicle_model_ptr_->setInput(input);
   }
   else if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER || vehicle_model_type_ == VehicleModelType::DELAY_STEER)
   {
     Eigen::VectorXd input(2);
-    input << msg->ctrl_cmd.linear_velocity, msg->ctrl_cmd.steering_angle;
+    input << msg->linear_velocity, msg->steering_angle;
     vehicle_model_ptr_->setInput(input);
   }
   else

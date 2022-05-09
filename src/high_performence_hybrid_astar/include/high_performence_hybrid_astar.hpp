@@ -269,6 +269,7 @@ private:
     std::vector<std::vector<AstarNode2dPtr>> _2d_nodes;
     std::priority_queue<AstarNode2dPtr, std::vector<AstarNode2dPtr>, NodeComparison2d> _2d_open_list;
     std::unordered_set<AstarNode2dPtr> _2d_memory_open_nodes;
+    int research_cnt = 0;
 
 private:
     /*---------------------可视化相关定义---------------------*/

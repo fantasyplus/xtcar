@@ -171,6 +171,8 @@ std::vector<geometry_msgs::PoseStamped> BehaviourStateMachine::multipleTargetGen
 
         auto pose_in_costmap_frame = transformPose(temp_pose.pose, _target_tf);
 
+        // ROS_INFO("pose_in_costmap_frame:%f,%f", pose_in_costmap_frame.position.x, pose_in_costmap_frame.position.y);
+
         temp_pose.pose = pose_in_costmap_frame;
 
         res_vec.push_back(temp_pose);
@@ -181,27 +183,27 @@ std::vector<geometry_msgs::PoseStamped> BehaviourStateMachine::multipleTargetGen
 
 void BehaviourStateMachine::experimentalUse()
 {
-    geometry_msgs::PoseWithCovarianceStamped temp_start;
-    temp_start.header.stamp = ros::Time::now();
-    temp_start.header.frame_id = "map";
-    temp_start.pose.pose.position.x = 9.9479637146;
-    temp_start.pose.pose.position.y = 12.3065662384;
-    temp_start.pose.pose.position.z = 0.0;
-    temp_start.pose.pose.orientation.x = 0.0;
-    temp_start.pose.pose.orientation.y = 0.0;
-    temp_start.pose.pose.orientation.z = 0.766014177738;
-    temp_start.pose.pose.orientation.w = 0.642823676839;
-    _pub_rviz_start_pose.publish(temp_start);
+    // geometry_msgs::PoseWithCovarianceStamped temp_start;
+    // temp_start.header.stamp = ros::Time::now();
+    // temp_start.header.frame_id = "map";
+    // temp_start.pose.pose.position.x = 9.9479637146;
+    // temp_start.pose.pose.position.y = 12.3065662384;
+    // temp_start.pose.pose.position.z = 0.0;
+    // temp_start.pose.pose.orientation.x = 0.0;
+    // temp_start.pose.pose.orientation.y = 0.0;
+    // temp_start.pose.pose.orientation.z = 0.766014177738;
+    // temp_start.pose.pose.orientation.w = 0.642823676839;
+    // _pub_rviz_start_pose.publish(temp_start);
 
-    _goal_pose_stamped.header.stamp = ros::Time::now();
-    _goal_pose_stamped.header.frame_id = "map";
-    _goal_pose_stamped.pose.position.x = 39.7019958496;
-    _goal_pose_stamped.pose.position.y = 38.8793182373;
-    _goal_pose_stamped.pose.position.z = 0.0;
-    _goal_pose_stamped.pose.orientation.x = 0.0;
-    _goal_pose_stamped.pose.orientation.y = 0.0;
-    _goal_pose_stamped.pose.orientation.z = 0.688019505944;
-    _goal_pose_stamped.pose.orientation.w = 0.725692193317;
+    // _goal_pose_stamped.header.stamp = ros::Time::now();
+    // _goal_pose_stamped.header.frame_id = "map";
+    // _goal_pose_stamped.pose.position.x = 39.7019958496;
+    // _goal_pose_stamped.pose.position.y = 38.8793182373;
+    // _goal_pose_stamped.pose.position.z = 0.0;
+    // _goal_pose_stamped.pose.orientation.x = 0.0;
+    // _goal_pose_stamped.pose.orientation.y = 0.0;
+    // _goal_pose_stamped.pose.orientation.z = 0.688019505944;
+    // _goal_pose_stamped.pose.orientation.w = 0.725692193317;
 
     // sleep(1);
     sendGoalSrv(_goal_pose_stamped);

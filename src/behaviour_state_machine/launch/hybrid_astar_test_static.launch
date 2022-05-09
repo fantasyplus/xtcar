@@ -9,7 +9,7 @@
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_tf node -->
-    <arg name="lidar_trans_x" default="4.34" />
+    <!-- <arg name="lidar_trans_x" default="4.34" />
     <arg name="lidar_trans_y" default="-0.58" />
     <arg name="lidar_trans_z" default="0.0" />
 
@@ -37,10 +37,86 @@
         <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
 
         <param name="use_rviz_start" type="bool" value="$(arg use_rviz_start_cartf)" />
+    </node> -->
+
+
+      <!-- car_simulator parameters -->
+    <arg name="loop_rate" default="50.0"/>
+    <arg name="lidar_height" default="1.0"/>
+    <arg name="simulation_frame_id" default="base_link"/>
+    <arg name="map_frame_id" default="map"/>
+    <arg name="lidar_frame_id" default="rslidar"/>
+    <arg name="initialize_source" default="RVIZ"/>
+    <arg name="use_waypoints_for_z_position_source" default="false"/>
+
+    <arg name="sim_pose_name" default="gnss_pose"/>
+    <arg name="sim_lidar_pose_name" default="localizer_pose"/>
+    <arg name="sim_velocity_name" default="current_velocity"/>
+    <arg name="sim_vehicle_status_name" default="vehicle_status"/>
+
+    <!-- model parameters -->
+    <arg name="vehicle_model_type" default="IDEAL_STEER"/>
+
+    <arg name="tread_length" default="1.0"/>
+    <arg name="angvel_lim" default="3.0"/>
+    <arg name="vel_lim" default="30.0"/>
+    <arg name="steer_lim" default="1.0"/>
+    <arg name="angvel_rate" default="1.0"/>
+    <arg name="steer_rate_lim" default="0.3"/>
+    <arg name="vel_time_delay" default="0.25"/>
+    <arg name="vel_time_constant" default="0.61"/>
+    <arg name="steer_time_delay" default="0.24"/>
+    <arg name="steer_time_constant" default="0.27"/>
+    <arg name="angvel_time_delay" default="0.2"/>
+    <arg name="angvel_time_constant" default="0.5"/>
+
+    <arg name="add_measurement_noise" default="true"/>
+    <arg name="pos_noise_stddev" default="0.01"/>
+    <arg name="vel_noise_stddev" default="0.01"/>
+    <arg name="rpy_noise_stddev" default="0.0001"/>
+    <arg name="angvel_noise_stddev" default="0.001"/>
+    <arg name="steer_noise_stddev" default="0.0001"/>
+
+
+    <!-- car_simulator node -->
+    <node pkg="car_simulator" type="car_simulator" name="car_simulator" output="screen">
+        <param name="loop_rate" value="$(arg loop_rate)"/>
+        <param name="lidar_height" value="$(arg lidar_height)"/>
+        <param name="simulation_frame_id" value="$(arg simulation_frame_id)"/>
+        <param name="map_frame_id" value="$(arg map_frame_id)"/>
+        <param name="lidar_frame_id" value="$(arg lidar_frame_id)"/>
+        <param name="add_measurement_noise" value="$(arg add_measurement_noise)"/>
+        <param name="initialize_source" value="$(arg initialize_source)"/>
+        <param name="use_waypoints_for_z_position_source" value="$(arg use_waypoints_for_z_position_source)"/>
+
+        <param name="sim_pose_name" value="$(arg sim_pose_name)"/>
+        <param name="sim_lidar_pose_name" value="$(arg sim_lidar_pose_name)"/>
+        <param name="sim_velocity_name" value="$(arg sim_velocity_name)"/>
+        <param name="sim_vehicle_status_name" value="$(arg sim_vehicle_status_name)"/>
+
+        <param name="tread_length" value="$(arg tread_length)"/>
+        <param name="angvel_lim" value="$(arg angvel_lim)"/>
+        <param name="vel_lim" value="$(arg vel_lim)"/>
+        <param name="steer_lim" value="$(arg steer_lim)"/>
+        <param name="angvel_rate" value="$(arg angvel_rate)"/>
+        <param name="steer_rate_lim" value="$(arg steer_rate_lim)"/>
+        <param name="vel_time_delay" value="$(arg vel_time_delay)"/>
+        <param name="vel_time_constant" value="$(arg vel_time_constant)"/>
+        <param name="steer_time_delay" value="$(arg steer_time_delay)"/>
+        <param name="steer_time_constant" value="$(arg steer_time_constant)"/>
+        <param name="angvel_time_delay" value="$(arg angvel_time_delay)"/>
+        <param name="angvel_time_constant" value="$(arg angvel_time_constant)"/>
+
+        <param name="vehicle_model_type" value="$(arg vehicle_model_type)"/>
+        <param name="pos_noise_stddev" value="$(arg pos_noise_stddev)"/>
+        <param name="vel_noise_stddev" value="$(arg vel_noise_stddev)"/>
+        <param name="rpy_noise_stddev" value="$(arg rpy_noise_stddev)"/>
+        <param name="angvel_noise_stddev" value="$(arg angvel_noise_stddev)"/>
+        <param name="steer_noise_stddev" value="$(arg steer_noise_stddev)"/>
     </node>
 
     <!-- Costmap Server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find behaviour_state_machine)/map/map_maze.yaml">
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find behaviour_state_machine)/map/map.yaml">
         <remap from="/map" to="/global_cost_map" />
     </node>
 
@@ -96,7 +172,7 @@
     <arg name="analytic_expansion_max_length" default="30" />
 
 
-    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" required="true">
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" respawn="true">
       <param name="costmap_topic" value="$(arg costmap_topic)"/>
       <param name="pose_topic" value="$(arg pose_topic)"/>
       <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
@@ -138,4 +214,92 @@
       <param name="analytic_expansion_max_length" value="$(arg analytic_expansion_max_length)" />
     </node>
 
+    <!-- mpc控制器 -->
+    <arg name="show_debug_info" default="false"/>
+    <arg name="ctrl_period" default="0.03"/>
+    <arg name="enable_path_smoothing" default="true"/>
+    <arg name="enable_yaw_recalculation" default="true"/>
+    <arg name="path_filter_moving_ave_num" default="35"/>
+    <arg name="path_smoothing_times" default="1"/>
+    <arg name="curvature_smoothing_num" default="35"/>
+    <arg name="traj_resample_dist" default="0.1"/>
+    <arg name="admisible_position_error" default="5.0"/>
+    <arg name="admisible_yaw_error_deg" default="90.0"/>
+    <arg name="output_interface" default="all"/>
+
+    <arg name="mpc_prediction_horizon" default="70"/>
+    <arg name="mpc_prediction_sampling_time" default="0.1"/>
+    <arg name="mpc_weight_lat_error" default="1.0"/>
+    <arg name="mpc_weight_heading_error" default="0.0"/>
+    <arg name="mpc_weight_heading_error_squared_vel_coeff" default="0.3"/>
+    <arg name="mpc_weight_steering_input" default="1.0"/>
+    <arg name="mpc_weight_steering_input_squared_vel_coeff" default="0.25"/>
+    <arg name="mpc_weight_lat_jerk" default="0.0"/>
+    <arg name="mpc_weight_terminal_lat_error" default="1.0"/>
+    <arg name="mpc_weight_terminal_heading_error" default="0.1"/>
+    <arg name="mpc_zero_ff_steer_deg" default="2.0"/>
+    <arg name="delay_compensation_time" default="0.0"/>
+
+    <arg name="steer_lim_deg" default="35.0"/>
+    <arg name="vehicle_model_wheelbase" default="2.8"/>
+
+    <arg name="vehicle_model_type_mpc" default="kinematics"/>
+    <arg name="vehicle_model_steer_tau" default="0.1"/>
+
+    <arg name="qp_solver_type" default="unconstraint_fast"/>
+    <arg name="qpoases_max_iter" default="500"/>
+
+    <arg name="steering_lpf_cutoff_hz" default="3.0"/>
+    <arg name="error_deriv_lpf_curoff_hz" default="5.0"/>
+
+    <arg name="out_twist_name" default="twist_raw"/>
+    <arg name="out_vehicle_cmd_name" default="ctrl_raw"/>
+    <arg name="in_waypoints_name" default="mpc_waypoints"/>
+    <arg name="in_selfpose_name" default="gnss_pose"/>
+    <arg name="in_vehicle_status_name" default="vehicle_status"/>
+
+    <node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="screen">
+        <param name="show_debug_info" value="$(arg show_debug_info)"/>
+        <param name="ctrl_period" value="$(arg ctrl_period)"/>
+        <param name="enable_path_smoothing" value="$(arg enable_path_smoothing)"/>
+        <param name="enable_yaw_recalculation" value="$(arg enable_yaw_recalculation)"/>
+        <param name="path_filter_moving_ave_num" value="$(arg path_filter_moving_ave_num)"/>
+        <param name="path_smoothing_times" value="$(arg path_smoothing_times)"/>
+        <param name="curvature_smoothing_num" value="$(arg curvature_smoothing_num)"/>
+        <param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
+        <param name="admisible_position_error" value="$(arg admisible_position_error)"/>
+        <param name="admisible_yaw_error_deg" value="$(arg admisible_yaw_error_deg)"/>
+        <param name="output_interface" value="$(arg output_interface)"/>
+
+        <param name="mpc_prediction_horizon" value="$(arg mpc_prediction_horizon)"/>
+        <param name="mpc_prediction_sampling_time" value="$(arg mpc_prediction_sampling_time)"/>
+        <param name="mpc_weight_lat_error" value="$(arg mpc_weight_lat_error)"/>
+        <param name="mpc_weight_heading_error" value="$(arg mpc_weight_heading_error)"/>
+        <param name="mpc_weight_heading_error_squared_vel_coeff" value="$(arg mpc_weight_heading_error_squared_vel_coeff)"/>
+        <param name="mpc_weight_steering_input" value="$(arg mpc_weight_steering_input)"/>
+        <param name="mpc_weight_steering_input_squared_vel_coeff" value="$(arg mpc_weight_steering_input_squared_vel_coeff)"/>
+        <param name="mpc_weight_lat_jerk" value="$(arg mpc_weight_lat_jerk)"/>
+        <param name="mpc_weight_terminal_lat_error" value="$(arg mpc_weight_terminal_lat_error)"/>
+        <param name="mpc_weight_terminal_heading_error" value="$(arg mpc_weight_terminal_heading_error)"/>
+        <param name="mpc_zero_ff_steer_deg" value="$(arg mpc_zero_ff_steer_deg)"/>
+        <param name="delay_compensation_time" value="$(arg delay_compensation_time)"/>
+
+        <param name="steer_lim_deg" value="$(arg steer_lim_deg)"/>
+        <param name="vehicle_model_wheelbase" value="$(arg vehicle_model_wheelbase)"/>
+
+        <param name="vehicle_model_type" value="$(arg vehicle_model_type_mpc)"/>
+        <param name="vehicle_model_steer_tau" value="$(arg vehicle_model_steer_tau)"/>
+
+        <param name="qp_solver_type" value="$(arg qp_solver_type)"/>
+        <param name="qpoases_max_iter" value="$(arg qpoases_max_iter)"/>
+
+        <param name="steering_lpf_cutoff_hz" value="$(arg steering_lpf_cutoff_hz)"/>
+        <param name="error_deriv_lpf_curoff_hz" value="$(arg error_deriv_lpf_curoff_hz)"/>
+
+        <param name="out_twist_name" value="$(arg out_twist_name)"/>
+        <param name="out_vehicle_cmd_name" value="$(arg out_vehicle_cmd_name)"/>
+        <param name="in_waypoints_name" value="$(arg in_waypoints_name)"/>
+        <param name="in_selfpose_name" value="$(arg in_selfpose_name)"/>
+        <param name="in_vehicle_status_name" value="$(arg in_vehicle_status_name)"/>
+    </node>
 </launch>

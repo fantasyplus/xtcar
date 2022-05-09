@@ -4,7 +4,7 @@ project(car_simulator)
 find_package(autoware_build_flags REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   amathutils_lib
-  autoware_msgs
+  mpc_msgs
   geometry_msgs
   roscpp
   roslint
@@ -14,7 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   vehicle_sim_model
 )
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+)
 
 set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
 roslint_cpp()
