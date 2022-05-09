@@ -8,7 +8,7 @@
 (ros::load-ros-package "actionlib")
 (ros::load-ros-package "actionlib_msgs")
 (ros::load-ros-package "geometry_msgs")
-(ros::load-ros-package "nmea_msgs")
+(ros::load-ros-package "nav_msgs")
 (ros::load-ros-package "roscpp")
 (ros::load-ros-package "rosgraph_msgs")
 (ros::load-ros-package "sensor_msgs")

@@ -3,6 +3,6 @@ prefix=/home/ros/fantasyplus/xtcar/install
 Name: car_simulator
 Description: Description of car_simulator
 Version: 0.1.0
-Cflags: 
+Cflags: -I${prefix}/include
 Libs: -L${prefix}/lib 
 Requires: 

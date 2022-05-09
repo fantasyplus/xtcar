@@ -10,8 +10,8 @@ source devel/setup.bash
 
 //静态场景
 
-roslaunch hp_hybrid_astr_node hybrid_astar_test_static.launch
+roslaunch behaviour_state_machine hybrid_astar_test_static.launch
 
 //动态场景
 
-roslaunch hp_hybrid_astr_node hybrid_astar_test_dynamic.launch
+roslaunch behaviour_state_machine hybrid_astar_test_dynamic.launch

@@ -1,8 +1,52 @@
 
 #include "car_tf_broadcaster.h"
+geometry_msgs::Pose CarTF::transformPose(const geometry_msgs::Pose &pose,
+                                         const geometry_msgs::TransformStamped &transform)
+{
+    geometry_msgs::PoseStamped transformed_pose;
+    geometry_msgs::PoseStamped orig_pose;
+    orig_pose.pose = pose;
+    tf2::doTransform(orig_pose, transformed_pose, transform);
+
+    return transformed_pose.pose;
+}
+
+geometry_msgs::TransformStamped CarTF::getTransform(const std::string &target,
+                                                    const std::string &source)
+{
+    geometry_msgs::TransformStamped tf;
+    try
+    {
+        // _tf_buffer->setUsingDedicatedThread(true);
+        tf = _tf_buffer->lookupTransform(target, source, ros::Time(0), ros::Duration(1));
+    }
+    catch (const tf2::LookupException &ex)
+    {
+        ROS_ERROR("%s", ex.what());
+    }
+    return tf;
+}
+
 void CarTF::callbackGnssPose(const geometry_msgs::PoseStampedConstPtr &msg)
 {
     _gnss_pose = *msg;
+}
+
+void CarTF::callbackGoalPose(const geometry_msgs::PoseStamped &msg)
+{
+    _goal_pose_stamped = msg;
+    _goal_pose_flag = true;
+}
+
+void CarTF::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
+{
+    _costmap_frame_id = msg.header.frame_id;
+    _costmap_flag = true;
+}
+
+void CarTF::callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg)
+{
+    _rivz_start_pose = msg;
 }
 
 void CarTF::callbackTimerPublishTF(const ros::TimerEvent &e)
@@ -12,26 +56,33 @@ void CarTF::callbackTimerPublishTF(const ros::TimerEvent &e)
 
 void CarTF::publishTF()
 {
-    //广播map->base_link和base_link->lidar_rs的tf
-
-    // map->base_link 
+    // map->base_link
     geometry_msgs::TransformStamped base_link_transform;
 
     base_link_transform.header.frame_id = map_frame;
     base_link_transform.header.stamp = ros::Time::now();
- 
+
     base_link_transform.child_frame_id = base_link_frame;
 
-    base_link_transform.transform.translation.x = _gnss_pose.pose.position.x;
-    base_link_transform.transform.translation.y = _gnss_pose.pose.position.y;
-    base_link_transform.transform.translation.z = _gnss_pose.pose.position.z;
-    base_link_transform.transform.rotation = _gnss_pose.pose.orientation;
+    geometry_msgs::Pose base_link_pose;
+    if (use_rviz_start)
+    {
+        base_link_pose = _rivz_start_pose.pose.pose;
+    }
+    else
+    {
+        base_link_pose = _gnss_pose.pose;
+    }
+    base_link_transform.transform.translation.x = base_link_pose.position.x;
+    base_link_transform.transform.translation.y = base_link_pose.position.y;
+    base_link_transform.transform.translation.z = base_link_pose.position.z;
+    base_link_transform.transform.rotation = base_link_pose.orientation;
 
     _tf_broadcaster.sendTransform(base_link_transform);
-  
+
     // base_link->lidar_rs
     geometry_msgs::TransformStamped lidar_transform;
- 
+
     lidar_transform.header.frame_id = base_link_frame;
     lidar_transform.header.stamp = ros::Time::now();
 
@@ -52,6 +103,27 @@ void CarTF::publishTF()
 
     _tf_broadcaster.sendTransform(lidar_transform);
 
+    if (_costmap_flag && _goal_pose_flag)
+    {
+        geometry_msgs::TransformStamped broad_target_tf;
+
+        broad_target_tf.header.frame_id = _costmap_frame_id;
+        broad_target_tf.header.stamp = ros::Time::now();
+
+        broad_target_tf.child_frame_id = "target_car";
+
+        geometry_msgs::Pose goal_pose_in_costmap_frame;
+        _target_tf = getTransform(_costmap_frame_id, _goal_pose_stamped.header.frame_id);
+        goal_pose_in_costmap_frame = transformPose(_goal_pose_stamped.pose, _target_tf);
+
+        broad_target_tf.transform.translation.x = goal_pose_in_costmap_frame.position.x;
+        broad_target_tf.transform.translation.y = goal_pose_in_costmap_frame.position.y;
+        broad_target_tf.transform.translation.z = goal_pose_in_costmap_frame.position.z;
+        broad_target_tf.transform.rotation = goal_pose_in_costmap_frame.orientation;
+
+        _tf_broadcaster.sendTransform(broad_target_tf);
+    }
+
     //广播结束
 }
 
@@ -68,11 +140,19 @@ CarTF::CarTF() : _nh(""), _private_nh("~")
     _private_nh.param<std::string>("base_link_frame", base_link_frame, "base_link");
     _private_nh.param<std::string>("lidar_frame_id", lidar_frame, "rslidar");
     _private_nh.param<std::string>("pose_topic", pose_topic, "gnss_pose");
-    _private_nh.param<double>("dt", dt, 0.1);
+    _private_nh.param<bool>("use_rviz_start", use_rviz_start, false);
 
-    sub_gnss_pose = _nh.subscribe<geometry_msgs::PoseStamped>(pose_topic, 1, &CarTF::callbackGnssPose, this);
+    _sub_gnss_pose = _nh.subscribe(pose_topic, 1, &CarTF::callbackGnssPose, this);
+    _sub_rviz_start_pose = _nh.subscribe("initialpose", 1, &CarTF::callbackRvizStartPose, this);
+    _sub_goal_pose = _nh.subscribe("move_base_simple/goal", 1, &CarTF::callbackGoalPose, this);
+    _sub_cost_map = _nh.subscribe("global_cost_map", 1, &CarTF::callbackCostMap, this);
 
-    timer_tf = _nh.createTimer(ros::Duration(dt), &CarTF::callbackTimerPublishTF, this);
+    _timer_tf = _nh.createTimer(ros::Duration(0.2), &CarTF::callbackTimerPublishTF, this);
+
+    _tf_buffer = std::make_shared<tf2_ros::Buffer>();
+    _tf_listener = std::make_shared<tf2_ros::TransformListener>(*_tf_buffer);
+
+    _rivz_start_pose.pose.pose.orientation.w = 1.0;
 }
 
 int main(int argc, char **argv)
@@ -81,13 +161,6 @@ int main(int argc, char **argv)
 
     CarTF obj;
 
-    // ros::Rate loop_rate(50);
-    // while (ros::ok())
-    // {
-    //     ros::spinOnce();
-
-    //     loop_rate.sleep();
-    // }
     ros::spin();
 
     return 0;

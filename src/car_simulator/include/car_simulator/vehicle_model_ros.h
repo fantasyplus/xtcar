@@ -40,8 +40,8 @@
 #include <eigen3/Eigen/LU>
 #include <random>
 
-#include <autoware_msgs/VehicleCmd.h>
-#include <autoware_msgs/VehicleStatus.h>
+#include "mpc_msgs/ControlCommand.h"
+#include "mpc_msgs/VehicleStatus.h"
 
 #include "vehicle_sim_model/vehicle_model_interface.h"
 #include "vehicle_sim_model/vehicle_model_ideal.h"
@@ -68,7 +68,7 @@ public:
   /**
    * @brief set current_vehicle_cmd_ptr_ with received message
    */
-  void setVehicleCmd(const autoware_msgs::VehicleCmdConstPtr& msg);
+  void setControlCommand(const mpc_msgs::ControlCommandConstPtr& msg);
 
   /**
    * @brief set initial state of simulated vehicle

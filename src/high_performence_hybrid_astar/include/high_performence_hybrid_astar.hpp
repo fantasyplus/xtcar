@@ -37,13 +37,13 @@
 
 typedef ompl::base::SE2StateSpace::StateType State;
 using AstarNodePtr = std::shared_ptr<AstarNode>;
+using AstarNode2dPtr = std::shared_ptr<AstarNode2d>;
 
 class HybridAstar
 {
 public:
     HybridAstar()
     {
-        _pub_vis_collision = _nh.advertise<visualization_msgs::MarkerArray>("/collision_cubes", 1);
         _pub_open_node = _nh.advertise<visualization_msgs::MarkerArray>("/open_nodes", 1);
         _pub_vis_analytic = _nh.advertise<nav_msgs::Path>("analytic_path", 1);
     };
@@ -265,12 +265,18 @@ private:
     TrajectoryWaypoints _final_traj;
 
 private:
+    /*---------------------2D A*相关(障碍物启发值)---------------------*/
+    std::vector<std::vector<AstarNode2dPtr>> _2d_nodes;
+    std::priority_queue<AstarNode2dPtr, std::vector<AstarNode2dPtr>, NodeComparison2d> _2d_open_list;
+    std::unordered_set<AstarNode2dPtr> _2d_memory_open_nodes;
+    int research_cnt = 0;
+
+private:
     /*---------------------可视化相关定义---------------------*/
     ros::NodeHandle _nh;
 
     //碰撞格点可视化
     ros::Publisher _pub_vis_collision;
-    visualization_msgs::MarkerArray _collision_cubes;
     //解析扩张pose可视化
     ros::Publisher _pub_vis_analytic;
     nav_msgs::Path _analytic_path;

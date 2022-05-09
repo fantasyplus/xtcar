@@ -20,6 +20,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/ros/fantasyplus/xtcar/src/car_simulator/include"
+  "/home/ros/fantasyplus/xtcar/devel/include"
   "/home/ros/autoware.ai/install/vehicle_sim_model/include"
   "/home/ros/autoware.ai/install/amathutils_lib/include"
   "/home/ros/autoware.ai/install/autoware_msgs/include"

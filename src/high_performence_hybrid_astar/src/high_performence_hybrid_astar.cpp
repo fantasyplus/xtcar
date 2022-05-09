@@ -100,15 +100,12 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 
     _start_pose = global2local(_cost_map, start_pose);
     _goal_pose = global2local(_cost_map, goal_pose);
-    // _start_pose = start_pose;
-    // _goal_pose = goal_pose;
 
-    ROS_INFO("get start pose:%f,%f", _start_pose.position.x, _start_pose.position.y);
-    ROS_INFO("get goal pose:%f,%f", _goal_pose.position.x, _goal_pose.position.y);
+    // ROS_INFO("get start pose:%f,%f", _start_pose.position.x, _start_pose.position.y);
+    // ROS_INFO("get goal pose:%f,%f", _goal_pose.position.x, _goal_pose.position.y);
 
     if (!setStartNode())
     {
-        // ROS_INFO("start_pose is:%f,%f", start_pose.position.x, start_pose.position.y);
         return SearchStatus::FAILURE_COLLISION_AT_START;
     }
 
@@ -123,6 +120,7 @@ SearchStatus HybridAstar::makePlan(const geometry_msgs::Pose &start_pose, const 
 SearchStatus HybridAstar::search()
 {
     TimerClock t0;
+    research_cnt = 0;
 
     ROS_INFO("----------start search----------");
 
@@ -205,28 +203,6 @@ SearchStatus HybridAstar::search()
             //如果扩张的这个点有碰撞，跳过该点
             if (detectCollision(next_index))
             {
-                // visualization_msgs::Marker collision_cube;
-                // vis_collision_coount++;
-
-                // collision_cube.header.frame_id = "map";
-                // collision_cube.header.stamp = ros::Time::now();
-                // collision_cube.type = visualization_msgs::Marker::CUBE;
-
-                // collision_cube.id = vis_collision_coount;
-
-                // collision_cube.scale.x = _cost_map.info.resolution;
-                // collision_cube.scale.y = _cost_map.info.resolution;
-                // collision_cube.scale.z = 0.1;
-
-                // collision_cube.color.a = 0.5;
-                // collision_cube.color.r = orange.red;
-                // collision_cube.color.g = orange.green;
-                // collision_cube.color.b = orange.blue;
-
-                // collision_cube.pose.position.x = next_index.x_index;
-                // collision_cube.pose.position.y = next_index.y_index;
-
-                // _collision_cubes.markers.push_back(collision_cube);
                 continue;
             }
 
@@ -345,8 +321,21 @@ void HybridAstar::setPath(AstarNodePtr goal_node)
     }
 }
 
+double HybridAstar::calcDistance2d(const geometry_msgs::Point &p1, const geometry_msgs::Point &p2)
+{
+    return std::hypot(p2.x - p1.x, p2.y - p1.y);
+}
+
+double HybridAstar::calcDistance2d(const geometry_msgs::Pose &p1, const geometry_msgs::Pose &p2)
+{
+    double theta_cost = fabs(tf2::getYaw(p1.orientation) - tf2::getYaw(p2.orientation));
+
+    return calcDistance2d(p1.position, p2.position);
+}
+
 double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
 {
+    // TimerClock t1;
     ompl::base::ReedsSheppStateSpace reedsSheppPath(_planner_common_param.min_turning_radius);
 
     State *rsStart = (State *)reedsSheppPath.allocState();
@@ -358,24 +347,140 @@ double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const
     rsEnd->setXY(goal.position.x, goal.position.y);
     rsEnd->setYaw(tf2::getYaw(goal.orientation));
 
+    double theta_cost = fabs(tf2::getYaw(start.orientation) - tf2::getYaw(goal.orientation));
+
+    // ROS_INFO("rs cost:%f", t1.getTimerMilliSec());
     return reedsSheppPath.distance(rsStart, rsEnd);
 }
 
 double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
 {
+    // ROS_INFO("start 2d A*");
+    //反向2d A*(注意2d A*的起点是真实的终点，反向搜索到当前的起点)
+    AstarNode2dPtr goal_2d = std::make_shared<AstarNode2d>();
+    goal_2d->x_index = pose2index(start, _cost_map.info.resolution, 1).x_index;
+    goal_2d->y_index = pose2index(start, _cost_map.info.resolution, 1).y_index;
+
+    AstarNode2dPtr start_2d = std::make_shared<AstarNode2d>();
+    start_2d->x_index = pose2index(goal, _cost_map.info.resolution, 1).x_index;
+    start_2d->y_index = pose2index(goal, _cost_map.info.resolution, 1).y_index;
+    start_2d->status = NodeStatus::Open;
+    start_2d->h_cost = sqrt(pow(start_2d->x_index - goal_2d->x_index, 2.0) + pow(start_2d->y_index - goal_2d->y_index, 2.0));
+
+    //如果该点没有被搜索过，初始化并重新开始搜索(反向2d A*的终点，就是要启发值要判断的起点)
+    if (_2d_nodes[goal_2d->x_index][goal_2d->y_index]->is_discovered == true)
+    {
+        return _2d_nodes[goal_2d->x_index][goal_2d->y_index]->g_cost;
+    }
+    else
+    {
+        research_cnt++;
+        // ROS_INFO("_2d_memory_open_nodes size():%d", _2d_memory_open_nodes.size());
+        // ROS_INFO("_2d_open_list size():%d", _2d_open_list.size());
+        for (auto it : _2d_memory_open_nodes)
+        {
+            it->g_cost = 0.0;
+            it->status = NodeStatus::None;
+            it->h_cost = 0.0;
+            it->is_discovered = false;
+        }
+        std::priority_queue<AstarNode2dPtr, std::vector<AstarNode2dPtr>, NodeComparison2d> empty_list;
+        std::swap(_2d_open_list, empty_list);
+        std::unordered_set<AstarNode2dPtr> empty_set;
+        std::swap(_2d_memory_open_nodes, empty_set);
+    }
+
+    //不用检查开始节点（即真实终点）的碰撞，因为hybrid A*已经做过了，2d A*只是用来计算启发值的
+
+    _2d_open_list.push(start_2d);
+
+    while (!_2d_open_list.empty())
+    {
+        AstarNode2dPtr current_node_2d = _2d_open_list.top();
+
+        if (current_node_2d->status == NodeStatus::Close)
+        {
+            _2d_open_list.pop();
+            continue;
+        }
+
+        _2d_open_list.pop();
+        current_node_2d->status = NodeStatus::Close;
+        current_node_2d->is_discovered = true;
+
+        _2d_memory_open_nodes.insert(current_node_2d);
+
+        if (current_node_2d->x_index == goal_2d->x_index &&
+            current_node_2d->y_index == goal_2d->y_index)
+        {
+            // ROS_INFO("find 2d A* goal:%d,%d", goal_2d->x_index, goal_2d->y_index);
+            // AstarNode2dPtr node = current_node_2d;
+            // while (node != nullptr)
+            // {
+            //     _2d_memory_open_nodes.insert(node);
+            //     node = node->parent;
+            // }
+            return current_node_2d->g_cost;
+        }
+
+        int dx[8] = {0, 0, 1, -1, 1, 1, -1, -1};
+        int dy[8] = {1, -1, 0, 0, 1, -1, 1, -1};
+
+        for (int i = 0; i < 8; i++)
+        {
+            int nx = current_node_2d->x_index + dx[i];
+            int ny = current_node_2d->y_index + dy[i];
+            IndexXYT n_index(nx, ny, 1);
+
+            if (isOutOfRange(n_index) || isObstacle(n_index))
+            {
+                continue;
+            }
+
+            AstarNode2dPtr next_node_2d = _2d_nodes[nx][ny];
+
+            double move_cost = sqrt(pow(dx[i], 2.0) + pow(dy[i], 2.0));
+            const double next_gc = current_node_2d->g_cost + move_cost;
+
+            if (next_node_2d->status == NodeStatus::None || next_gc < next_node_2d->g_cost)
+            {
+                next_node_2d->status = NodeStatus::Open;
+                next_node_2d->x_index = nx;
+                next_node_2d->y_index = ny;
+                next_node_2d->g_cost = next_gc;
+                next_node_2d->h_cost = sqrt(pow(nx - goal_2d->x_index, 2.0) + pow(ny - goal_2d->y_index, 2.0));
+                next_node_2d->parent = current_node_2d;
+                next_node_2d->is_discovered = true;
+                _2d_open_list.push(next_node_2d);
+                _2d_memory_open_nodes.insert(next_node_2d);
+            }
+        }
+    }
+    // ROS_INFO("can't find 2d a* goal");
+    return 0x7f7f7f7f;
 }
 
 double HybridAstar::estimateCost(const geometry_msgs::Pose &start)
 {
     double total_cost = 0.0;
+    double rs_cost = 0.0;
+    double obs_cost = 0.0;
     if (_planner_common_param.use_reeds_shepp)
     {
-        total_cost += getDistanceHeuristic(start, _goal_pose);
+        rs_cost = max(getDistanceHeuristic(start, _goal_pose), calcDistance2d(start, _goal_pose));
     }
     else
     {
-        total_cost += calcDistance2d(start, _goal_pose);
+        rs_cost = calcDistance2d(start, _goal_pose);
     }
+
+    if (_planner_common_param.use_obstacle_heuristic)
+    {
+        obs_cost = getObstacleHeuristic(start, _goal_pose);
+    }
+
+    total_cost = max(rs_cost, obs_cost);
+
     return total_cost;
 }
 
@@ -383,7 +488,7 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
 {
     _cost_map = cost_map;
 
-    ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
+    // ROS_INFO("costmap height:%d,width:%d,resolution:%f", _cost_map.info.height, _cost_map.info.width, _cost_map.info.resolution);
 
     const auto map_height = _cost_map.info.height;
     const auto map_width = _cost_map.info.width;
@@ -430,15 +535,24 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
         _collision_index_table.push_back(index_2d);
     }
 
-    //初始化A*节点表
+    //初始化A*节点表(2d和3d)
     _nodes.clear();
     _nodes.resize(map_height);
+
+    _2d_nodes.clear();
+    _2d_nodes.resize(map_height);
     for (int i = 0; i < map_height; i++)
     {
         _nodes[i].resize(map_width);
+
+        _2d_nodes[i].resize(map_width);
+
         for (int j = 0; j < map_width; j++)
         {
+            _2d_nodes[i][j] = std::make_shared<AstarNode2d>();
+
             _nodes[i][j].resize(_planner_common_param.theta_size);
+
             for (int t = 0; t < _planner_common_param.theta_size; t++)
             {
                 _nodes[i][j][t] = std::make_shared<AstarNode>();
@@ -446,7 +560,7 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
         }
     }
 
-    ROS_INFO("SetOccupancyGrid successfully");
+    // ROS_INFO("SetOccupancyGrid successfully");
 }
 
 //计算车辆模型的碰撞区间，就是将指定旋转角下的车体映射格点索引保存下来，以备之后用来检测碰撞
@@ -523,8 +637,6 @@ void HybridAstar::visualCollisionClear()
 
 void HybridAstar::visualAnalyticPath()
 {
-    // _pub_vis_collision.publish(_collision_cubes);
-
     _analytic_path.header.frame_id = _cost_map.header.frame_id;
     _analytic_path.header.stamp = ros::Time::now();
     _pub_vis_analytic.publish(_analytic_path);
@@ -535,9 +647,10 @@ void HybridAstar::visualOpenNode()
 {
     int clear_index = 0;
     static int id = 0;
+    ROS_INFO("_memory_open_nodes size():%d", (int)_memory_open_nodes.size());
     for (auto it : _memory_open_nodes)
     {
-        if (it->status == NodeStatus::Open)
+        if (it->status == NodeStatus::Open || it->status == NodeStatus::Close)
         {
             visualization_msgs::Marker vehicle_marker;
 
@@ -550,7 +663,7 @@ void HybridAstar::visualOpenNode()
             vehicle_marker.header.frame_id = _cost_map.header.frame_id;
             vehicle_marker.header.stamp = ros::Time::now();
             vehicle_marker.id = id++;
-            vehicle_marker.type = visualization_msgs::Marker::ARROW;
+            vehicle_marker.type = visualization_msgs::Marker::CUBE;
 
             vehicle_marker.scale.x = _cost_map.info.resolution;
             vehicle_marker.scale.y = _cost_map.info.resolution;
@@ -563,6 +676,12 @@ void HybridAstar::visualOpenNode()
 
             geometry_msgs::PoseStamped pose;
             pose.header = vehicle_marker.header;
+
+            // 2d
+            // IndexXYT temp_index(it->x_index, it->y_index, 1);
+            // pose.pose = index2pose(temp_index, _cost_map.info.resolution, 1);
+
+            // 3d
             pose.pose = local2global(_cost_map, AstarNode2Pose(*it));
 
             vehicle_marker.pose = pose.pose;
@@ -636,7 +755,6 @@ geometry_msgs::Pose HybridAstar::transformPose(const geometry_msgs::Pose &pose, 
 
 geometry_msgs::Pose HybridAstar::global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global)
 {
-    // costmap的origin，本质就是costmap到目标frame的变换矩阵
     tf2::Transform tf_origin;
     tf2::convert(costmap.info.origin, tf_origin);
 
@@ -648,7 +766,6 @@ geometry_msgs::Pose HybridAstar::global2local(const nav_msgs::OccupancyGrid &cos
 
 geometry_msgs::Pose HybridAstar::local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local)
 {
-    // costmap的origin，本质就是costmap到目标frame的变换矩阵
     tf2::Transform tf_origin;
     tf2::convert(costmap.info.origin, tf_origin);
 
@@ -692,16 +809,6 @@ const TrajectoryWaypoints &HybridAstar::getTrajectory() const
 constexpr double HybridAstar::deg2rad(const double deg)
 {
     return deg * M_PI / 180.0;
-}
-
-double HybridAstar::calcDistance2d(const geometry_msgs::Point &p1, const geometry_msgs::Point &p2)
-{
-    return std::hypot(p2.x - p1.x, p2.y - p1.y);
-}
-
-double HybridAstar::calcDistance2d(const geometry_msgs::Pose &p1, const geometry_msgs::Pose &p2)
-{
-    return calcDistance2d(p1.position, p2.position);
 }
 
 inline geometry_msgs::Quaternion HybridAstar::getQuaternion(const double yaw)

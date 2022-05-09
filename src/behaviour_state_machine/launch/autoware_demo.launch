@@ -25,7 +25,6 @@
     </include>
     <include file="$(find vehicle_description)/launch/vehicle_model.launch" />
 
-
     <!-- points downsampler -->
     <include file="$(find points_downsampler)/launch/points_downsample.launch" />
 

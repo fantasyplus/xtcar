@@ -1,0 +1,51 @@
+<launch>
+  <!-- topic名设置 -->
+  <arg name="input_point_topic" default="/points_no_ground" />  
+  <arg name="base_frame" default="/rslidar" />  
+  <arg name="grid_topic" default="/grid_map" />
+  <!-- 点云范围设置 cm-->
+  <arg name="min_x" default="-2000.0" />
+  <arg name="max_x" default="6000.0" />
+  <arg name="min_y" default="-2000.0" />
+  <arg name="max_y" default="2000.0" />
+  <arg name="min_z" default="-200.0" />
+  <arg name="max_z" default="100.0" />
+  <!-- 栅格设置 -->
+  <arg name="grid_size_x" default="320" />
+  <arg name="grid_size_y" default="160" />
+  <arg name="resolution_x" default="25" />
+  <arg name="resolution_y" default="25" />
+  <arg name="offset_x" default="80" />
+  <arg name="offset_y" default="80" />
+  <!-- 阈值设置 -->
+  <arg name="hang_z_gap" default="80.0" />
+  <arg name="hd_threshold" default="15.0" />
+  <arg name="rough_threshold" default="20.0" />
+  
+
+  <node pkg="grid_map" type="grid_map_node" name="grid_map_node_main" output="screen">
+    <param name="input_point_topic" value="$(arg input_point_topic)" />
+    <!-- <param name="base_frame" value="$(arg base_frame)" /> -->
+    <param name="grid_topic" value="$(arg grid_topic)" />
+
+    <param name="min_x" value="$(arg min_x)" />
+    <param name="max_x" value="$(arg max_x)" />
+    <param name="min_y" value="$(arg min_y)" />
+    <param name="max_y" value="$(arg max_y)" />
+    <param name="max_z" value="$(arg max_z)" />
+
+    <param name="grid_size_x" value="$(arg grid_size_x)" />
+    <param name="grid_size_y" value="$(arg grid_size_y)" />
+    <param name="resolution_x" value="$(arg resolution_x)" />
+    <param name="resolution_y" value="$(arg resolution_y)" />
+    <param name="offset_x" value="$(arg offset_x)" />
+    <param name="offset_y" value="$(arg offset_y)" />
+
+    <param name="hang_z_gap" value="$(arg hang_z_gap)" />
+    <param name="hd_threshold" value="$(arg hd_threshold)" />
+    <param name="rough_threshold" value="$(arg rough_threshold)" />
+
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grid_map)/rviz/map.rviz" required="true" />
+</launch>

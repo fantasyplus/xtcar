@@ -1,6 +1,7 @@
 #include "hybrid_astar_node.h"
 
-geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const geometry_msgs::TransformStamped &transform)
+geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
+                                  const geometry_msgs::TransformStamped &transform)
 {
   geometry_msgs::PoseStamped transformed_pose;
   geometry_msgs::PoseStamped orig_pose;
@@ -10,7 +11,8 @@ geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose, const geometr
   return transformed_pose.pose;
 }
 
-geometry_msgs::TransformStamped HybridAstarNode::getTransform(const string &target, const string &source)
+geometry_msgs::TransformStamped HybridAstarNode::getTransform(const string &target,
+                                                              const string &source)
 {
   geometry_msgs::TransformStamped tf;
   try
@@ -29,10 +31,10 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 {
   //节点参数
   _private_nh.param<std::string>("costmap_topic", _costmap_topic, "global_cost_map");
-  _private_nh.param<std::string>("pose_topic", _pose_topic, "current_pose");
+  _private_nh.param<std::string>("pose_topic", _pose_topic, "gnss_pose");
   _private_nh.param<double>("waypoints_velocity", _waypoints_velocity, 5.0);
   _private_nh.param<double>("update_rate", _update_rate, 10.0);
-  _private_nh.param<bool>("is_visual", is_visual, false);
+  _private_nh.param<bool>("is_visual", is_visual, true);
   _private_nh.param<bool>("use_rviz_start", use_rviz_start, false);
 
   //混合A*参数
@@ -44,18 +46,19 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
 
   _private_nh.param<double>("max_turning_radius", _hybrid_astar_param.max_turning_radius, 20.0);
   _private_nh.param<double>("min_turning_radius", _hybrid_astar_param.min_turning_radius, 4.36);
-  _private_nh.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 11);
+  _private_nh.param<int>("turning_radius_size", _hybrid_astar_param.turning_radius_size, 1);
   _private_nh.param<int>("theta_size", _hybrid_astar_param.theta_size, 48);
 
   _private_nh.param<double>("reverse_weight", _hybrid_astar_param.reverse_weight, 4.0);
   _private_nh.param<double>("turning_weight", _hybrid_astar_param.turning_weight, 2.2);
-  _private_nh.param<double>("goal_lateral_tolerance", _hybrid_astar_param.goal_lateral_tolerance, 1.0);
-  _private_nh.param<double>("goal_longitudinal_tolerance", _hybrid_astar_param.goal_longitudinal_tolerance, 1.0);
+  _private_nh.param<double>("goal_lateral_tolerance", _hybrid_astar_param.goal_lateral_tolerance, 0.5);
+  _private_nh.param<double>("goal_longitudinal_tolerance", _hybrid_astar_param.goal_longitudinal_tolerance, 0.5);
   _private_nh.param<double>("goal_angular_tolerance", _hybrid_astar_param.goal_angular_tolerance, 0.15708);
   _private_nh.param<int>("obstacle_threshold", _hybrid_astar_param.obstacle_threshold, 100);
 
   _private_nh.param<bool>("use_back", _hybrid_astar_param.use_back, true);
   _private_nh.param<bool>("use_reeds_shepp", _hybrid_astar_param.use_reeds_shepp, true);
+  _private_nh.param<bool>("use_obstacle_heuristic", _hybrid_astar_param.use_obstacle_heuristic, false);
   _private_nh.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, false);
 
   _private_nh.param<float>("alpha", _hybrid_astar_param.alpha, 0.1);
@@ -65,21 +68,21 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
   _private_nh.param<float>("obstacle_distance_max", _hybrid_astar_param.obstacle_distance_max, 1.0);
 
   _private_nh.param<float>("analytic_expansion_ratio", _hybrid_astar_param.analytic_expansion_ratio, 35);
-  _private_nh.param<float>("analytic_expansion_max_length", _hybrid_astar_param.analytic_expansion_max_length, 300);
+  _private_nh.param<float>("analytic_expansion_max_length", _hybrid_astar_param.analytic_expansion_max_length, 30);
 
   /*---------------------subscribe---------------------*/
   _costmap_sub = _nh.subscribe(_costmap_topic, 1, &HybridAstarNode::costmapCallback, this);
-  //如果用rviz定起点的话，就是静态地图，不是的话就是实时定位
+  //如果用rviz定起点的话，就是静态地图，不是的话就是动态地图实时定位
   if (use_rviz_start)
     _rviz_start_sub = _nh.subscribe("initialpose", 1, &HybridAstarNode::currentRvizPoseCallback, this);
   else
     _current_pose_sub = _nh.subscribe(_pose_topic, 1, &HybridAstarNode::currentPoseCallback, this);
-  // _goal_pose_sub_ = _nh.subscribe("move_base_simple/goal", 1, &HybridAstarNode::goalPoseCallback, this);
 
   /*---------------------advertise---------------------*/
   _pub_initial_path = _nh.advertise<nav_msgs::Path>("initial_path", 1, true);
   _pub_smoothed_path = _nh.advertise<nav_msgs::Path>("smoothed_path", 1, true);
   _pub_path_vehicles = _nh.advertise<visualization_msgs::MarkerArray>("path_vehicle", 1, true);
+  _pub_mpc_lane = _nh.advertise<mpc_msgs::Lane>("mpc_waypoints", 1, this);
 
   /*---------------------service_server---------------------*/
   _goal_pose_server = _nh.advertiseService("goal_pose_srv", &HybridAstarNode::srvHandleGoalPose, this);
@@ -109,10 +112,9 @@ void HybridAstarNode::currentRvizPoseCallback(const geometry_msgs::PoseWithCovar
   {
     return;
   }
-  geometry_msgs::PoseStamped start_pose;
-  start_pose.pose = msg->pose.pose;
-  start_pose.header = msg->header;
-  _current_pose_global = start_pose;
+
+  _current_pose_global.pose = msg->pose.pose;
+  _current_pose_global.header = msg->header;
   _current_pose_initialized = true;
 }
 
@@ -126,26 +128,19 @@ void HybridAstarNode::currentPoseCallback(const geometry_msgs::PoseStamped &msg)
   _current_pose_initialized = true;
 }
 
-// void HybridAstarNode::goalPoseCallback(const geometry_msgs::PoseStamped &msg)
-// {
-//   if (!_costmap_initialized)
-//   {
-//     return;
-//   }
-//   _goal_pose_global = msg;
-//   _goal_pose_initialized = true;
-// }
-
-bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Request &req, behaviour_state_machine::GoalPose::Response &res)
+bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Request &req,
+                                        behaviour_state_machine::GoalPose::Response &res)
 {
   _goal_pose_global.pose = req.pose;
   _goal_pose_global.header = req.header;
 
   const auto start_pose_in_costmap_frame = transformPose(_current_pose_global.pose,
                                                          getTransform(_costmap.header.frame_id, _current_pose_global.header.frame_id));
+  // ROS_INFO("start_pose_in_costmap_frame:%f,%f", start_pose_in_costmap_frame.position.x, start_pose_in_costmap_frame.position.y);
 
   const auto goal_pose_in_costmap_frame = transformPose(_goal_pose_global.pose,
                                                         getTransform(_costmap.header.frame_id, _goal_pose_global.header.frame_id));
+  // ROS_INFO("goal_pose_in_costmap_frame:%f,%f", goal_pose_in_costmap_frame.position.x, goal_pose_in_costmap_frame.position.y);
 
   TimerClock t0;
   SearchStatus result = _hybrid_astar.makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
@@ -184,8 +179,10 @@ bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Reque
     _hybrid_astar.reset();
     ROS_INFO("reset cost: %f [ms]", t2.getTimerMilliSec());
 
+    //发送lane给mpc
+    sendMpcMsgsLane(waypoints);
+
     res.is_success = true;
-    return true;
   }
   else
   {
@@ -209,13 +206,50 @@ bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Reque
     }
 
     res.is_success = false;
-    return false;
   }
+  return true;
 }
 
 inline bool HybridAstarNode::isSuccess(const SearchStatus &status)
 {
   return status == SearchStatus::SUCCESS;
+}
+
+void HybridAstarNode::sendMpcMsgsLane(const TrajectoryWaypoints &traj)
+{
+  mpc_msgs::Lane suv_lane;
+  suv_lane.header = traj.header;
+
+  for (int i = 0; i < traj.trajectory.size(); i++)
+  {
+
+    mpc_msgs::Waypoint temp_wp;
+    temp_wp.pose = traj.trajectory[i].pose;
+
+    geometry_msgs::TwistStamped temp_twist;
+    temp_twist.twist.linear.x = (i == traj.trajectory.size() - 1) ? 0.0 : 2.0;
+    temp_wp.twist = temp_twist;
+
+    if (i != traj.trajectory.size() - 1 &&
+        traj.trajectory[i].is_back != traj.trajectory[i + 1].is_back)
+    {
+      temp_wp.direction = 6;
+      // ROS_INFO("stop");
+    }
+    else if (traj.trajectory[i].is_back == false)
+    {
+      temp_wp.direction = 0;
+      // ROS_INFO("staright");
+    }
+    else if (traj.trajectory[i].is_back == true)
+    {
+      temp_wp.direction = 3;
+      // ROS_INFO("back");
+    }
+
+    suv_lane.waypoints.push_back(temp_wp);
+  }
+  _pub_mpc_lane.publish(suv_lane);
 }
 
 nav_msgs::Path HybridAstarNode::transferTrajectory(const geometry_msgs::Pose &current_pose,
@@ -246,16 +280,22 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
 {
   int clear_index = 0;
   static int id = 0;
+  if (clear_index == 0)
+  {
+    visualization_msgs::Marker vehicle_marker;
+    vehicle_marker.header.frame_id = _costmap.header.frame_id;
+    vehicle_marker.header.stamp = ros::Time::now();
+    vehicle_marker.id = id++;
+    vehicle_marker.action = 3;
+
+    _path_vehicles.markers.push_back(vehicle_marker);
+
+    clear_index = 1;
+  }
 
   for (int i = 0; i < visual_waypoints.trajectory.size(); i++)
   {
     visualization_msgs::Marker vehicle_marker;
-
-    if (clear_index == 0)
-    {
-      vehicle_marker.action = 3;
-      clear_index = 1;
-    }
 
     vehicle_marker.header.frame_id = _costmap.header.frame_id;
     vehicle_marker.header.stamp = ros::Time::now();
@@ -268,7 +308,8 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
 
     vehicle_marker.color.a = 0.2;
 
-    if (i != visual_waypoints.trajectory.size() - 1 && visual_waypoints.trajectory[i].is_back != visual_waypoints.trajectory[i + 1].is_back)
+    if (i != visual_waypoints.trajectory.size() - 1 &&
+        visual_waypoints.trajectory[i].is_back != visual_waypoints.trajectory[i + 1].is_back)
     {
       vehicle_marker.color.r = black.red;
       vehicle_marker.color.r = black.green;

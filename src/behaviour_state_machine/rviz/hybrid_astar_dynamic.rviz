@@ -5,8 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
-      Splitter Ratio: 0.6823529601097107
+        - /TF1/Frames1
+        - //global_cost_map1
+        - //global_cost_map1/Position1
+        - //global_cost_map1/Orientation1
+      Splitter Ratio: 0.6764705777168274
     Tree Height: 755
   - Class: rviz/Selection
     Name: Selection
@@ -48,7 +51,7 @@ Visualization Manager:
           Value: true
         world:
           Value: true
-      Marker Scale: 5
+      Marker Scale: 3
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -179,13 +182,13 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /path_vehicle
       Name: /path_vehicle
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -245,13 +248,13 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /open_nodes
       Name: /open_nodes
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -280,25 +283,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 38.2177619934082
+      Distance: 54.78310775756836
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 12.256386756896973
-        Y: -6.472484588623047
-        Z: -4.8757807235233486e-5
+        X: 18.146224975585938
+        Y: -11.583932876586914
+        Z: -3.8267389754764736e-5
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 1.5647963285446167
       Target Frame: base_link
       Value: XYOrbit (rviz)
-      Yaw: 4.703571796417236
+      Yaw: 4.719818115234375
     Saved: ~
 Window Geometry:
   Displays:
