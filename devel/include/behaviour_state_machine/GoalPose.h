@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::behaviour_state_machine::GoalPose > {
   static const char* value()
   {
-    return "0aad1829ef886d046d8951a77cf3842c";
+    return "604702dcfaf8996a479f50cf127e8a0d";
   }
 
   static const char* value(const ::behaviour_state_machine::GoalPose&) { return value(); }

@@ -2,7 +2,7 @@
 
 message(STATUS "mpc_msgs: 4 messages, 0 services")
 
-set(MSG_I_FLAGS "-Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg;-Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg;-Ijsk_recognition_msgs:/opt/ros/melodic/share/jsk_recognition_msgs/cmake/../msg;-Ipcl_msgs:/opt/ros/melodic/share/pcl_msgs/cmake/../msg;-Ijsk_footstep_msgs:/opt/ros/melodic/share/jsk_footstep_msgs/cmake/../msg;-Iactionlib_msgs:/opt/ros/melodic/share/actionlib_msgs/cmake/../msg")
+set(MSG_I_FLAGS "-Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg;-Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg")
 
 # Find all generators
 find_package(gencpp REQUIRED)
@@ -344,9 +344,6 @@ endif()
 if(TARGET sensor_msgs_generate_messages_cpp)
   add_dependencies(mpc_msgs_generate_messages_cpp sensor_msgs_generate_messages_cpp)
 endif()
-if(TARGET jsk_recognition_msgs_generate_messages_cpp)
-  add_dependencies(mpc_msgs_generate_messages_cpp jsk_recognition_msgs_generate_messages_cpp)
-endif()
 
 if(geneus_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs)
   # install generated code
@@ -363,9 +360,6 @@ if(TARGET geometry_msgs_generate_messages_eus)
 endif()
 if(TARGET sensor_msgs_generate_messages_eus)
   add_dependencies(mpc_msgs_generate_messages_eus sensor_msgs_generate_messages_eus)
-endif()
-if(TARGET jsk_recognition_msgs_generate_messages_eus)
-  add_dependencies(mpc_msgs_generate_messages_eus jsk_recognition_msgs_generate_messages_eus)
 endif()
 
 if(genlisp_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs)
@@ -384,9 +378,6 @@ endif()
 if(TARGET sensor_msgs_generate_messages_lisp)
   add_dependencies(mpc_msgs_generate_messages_lisp sensor_msgs_generate_messages_lisp)
 endif()
-if(TARGET jsk_recognition_msgs_generate_messages_lisp)
-  add_dependencies(mpc_msgs_generate_messages_lisp jsk_recognition_msgs_generate_messages_lisp)
-endif()
 
 if(gennodejs_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs)
   # install generated code
@@ -403,9 +394,6 @@ if(TARGET geometry_msgs_generate_messages_nodejs)
 endif()
 if(TARGET sensor_msgs_generate_messages_nodejs)
   add_dependencies(mpc_msgs_generate_messages_nodejs sensor_msgs_generate_messages_nodejs)
-endif()
-if(TARGET jsk_recognition_msgs_generate_messages_nodejs)
-  add_dependencies(mpc_msgs_generate_messages_nodejs jsk_recognition_msgs_generate_messages_nodejs)
 endif()
 
 if(genpy_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs)
@@ -424,7 +412,4 @@ if(TARGET geometry_msgs_generate_messages_py)
 endif()
 if(TARGET sensor_msgs_generate_messages_py)
   add_dependencies(mpc_msgs_generate_messages_py sensor_msgs_generate_messages_py)
-endif()
-if(TARGET jsk_recognition_msgs_generate_messages_py)
-  add_dependencies(mpc_msgs_generate_messages_py jsk_recognition_msgs_generate_messages_py)
 endif()

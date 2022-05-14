@@ -32,7 +32,7 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
   //节点参数
   _private_nh.param<std::string>("costmap_topic", _costmap_topic, "global_cost_map");
   _private_nh.param<std::string>("pose_topic", _pose_topic, "gnss_pose");
-  _private_nh.param<double>("waypoints_velocity", _waypoints_velocity, 5.0);
+  _private_nh.param<double>("waypoints_velocity", _waypoints_velocity, 2.0);
   _private_nh.param<double>("update_rate", _update_rate, 10.0);
   _private_nh.param<bool>("is_visual", is_visual, true);
   _private_nh.param<bool>("use_rviz_start", use_rviz_start, false);
@@ -59,6 +59,10 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
   _private_nh.param<bool>("use_back", _hybrid_astar_param.use_back, true);
   _private_nh.param<bool>("use_reeds_shepp", _hybrid_astar_param.use_reeds_shepp, true);
   _private_nh.param<bool>("use_obstacle_heuristic", _hybrid_astar_param.use_obstacle_heuristic, false);
+  _private_nh.param<bool>("use_analytic_expansion", _hybrid_astar_param.use_analytic_expansion, true);
+  _private_nh.param<bool>("use_theta_cost", _hybrid_astar_param.use_theta_cost, false);
+  _private_nh.param<double>("obstacle_theta_ratio", _hybrid_astar_param.obstacle_theta_ratio, 1.0); 
+
   _private_nh.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, false);
 
   _private_nh.param<float>("alpha", _hybrid_astar_param.alpha, 0.1);
@@ -82,7 +86,6 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
   _pub_initial_path = _nh.advertise<nav_msgs::Path>("initial_path", 1, true);
   _pub_smoothed_path = _nh.advertise<nav_msgs::Path>("smoothed_path", 1, true);
   _pub_path_vehicles = _nh.advertise<visualization_msgs::MarkerArray>("path_vehicle", 1, true);
-  _pub_mpc_lane = _nh.advertise<mpc_msgs::Lane>("mpc_waypoints", 1, this);
 
   /*---------------------service_server---------------------*/
   _goal_pose_server = _nh.advertiseService("goal_pose_srv", &HybridAstarNode::srvHandleGoalPose, this);
@@ -179,9 +182,8 @@ bool HybridAstarNode::srvHandleGoalPose(behaviour_state_machine::GoalPose::Reque
     _hybrid_astar.reset();
     ROS_INFO("reset cost: %f [ms]", t2.getTimerMilliSec());
 
-    //发送lane给mpc
-    sendMpcMsgsLane(waypoints);
-
+    //返回lane给状态机做进一步处理
+    res.traj = convertToMpcMsgsLane(waypoints);
     res.is_success = true;
   }
   else
@@ -215,7 +217,7 @@ inline bool HybridAstarNode::isSuccess(const SearchStatus &status)
   return status == SearchStatus::SUCCESS;
 }
 
-void HybridAstarNode::sendMpcMsgsLane(const TrajectoryWaypoints &traj)
+mpc_msgs::Lane HybridAstarNode::convertToMpcMsgsLane(const TrajectoryWaypoints &traj)
 {
   mpc_msgs::Lane suv_lane;
   suv_lane.header = traj.header;
@@ -224,10 +226,21 @@ void HybridAstarNode::sendMpcMsgsLane(const TrajectoryWaypoints &traj)
   {
 
     mpc_msgs::Waypoint temp_wp;
-    temp_wp.pose = traj.trajectory[i].pose;
+    geometry_msgs::PoseStamped temp_pose = traj.trajectory[i].pose;
+
+    //转换到map坐标系下，给mpc追踪用
+    const auto temp_pose_in_mapframe = transformPose(temp_pose.pose,
+                                                     getTransform("map", temp_pose.header.frame_id));
+
+    temp_pose.pose = temp_pose_in_mapframe;
+    temp_pose.header.frame_id = "map";
+    temp_pose.header.seq = i;
+    temp_pose.header.stamp = ros::Time::now();
+
+    temp_wp.pose = temp_pose;
 
     geometry_msgs::TwistStamped temp_twist;
-    temp_twist.twist.linear.x = (i == traj.trajectory.size() - 1) ? 0.0 : 2.0;
+    temp_twist.twist.linear.x = (i == traj.trajectory.size() - 1) ? 0.0 : _waypoints_velocity;
     temp_wp.twist = temp_twist;
 
     if (i != traj.trajectory.size() - 1 &&
@@ -249,7 +262,7 @@ void HybridAstarNode::sendMpcMsgsLane(const TrajectoryWaypoints &traj)
 
     suv_lane.waypoints.push_back(temp_wp);
   }
-  _pub_mpc_lane.publish(suv_lane);
+  return suv_lane;
 }
 
 nav_msgs::Path HybridAstarNode::transferTrajectory(const geometry_msgs::Pose &current_pose,
@@ -311,9 +324,9 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
     if (i != visual_waypoints.trajectory.size() - 1 &&
         visual_waypoints.trajectory[i].is_back != visual_waypoints.trajectory[i + 1].is_back)
     {
-      vehicle_marker.color.r = black.red;
-      vehicle_marker.color.r = black.green;
-      vehicle_marker.color.r = black.blue;
+      vehicle_marker.color.r = blue.red;
+      vehicle_marker.color.g = blue.green;
+      vehicle_marker.color.b = blue.blue;
     }
     else if (visual_waypoints.trajectory[i].is_back == false)
     {

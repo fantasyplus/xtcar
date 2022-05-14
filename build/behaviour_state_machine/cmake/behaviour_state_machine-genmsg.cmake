@@ -2,7 +2,7 @@
 
 message(STATUS "behaviour_state_machine: 0 messages, 1 services")
 
-set(MSG_I_FLAGS "-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg")
+set(MSG_I_FLAGS "-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg;-Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg;-Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg")
 
 # Find all generators
 find_package(gencpp REQUIRED)
@@ -19,7 +19,7 @@ add_custom_target(behaviour_state_machine_generate_messages ALL)
 
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv" NAME_WE)
 add_custom_target(_behaviour_state_machine_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "behaviour_state_machine" "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv" "geometry_msgs/Pose:geometry_msgs/Point:geometry_msgs/Quaternion:std_msgs/Header"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "behaviour_state_machine" "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv" "mpc_msgs/Waypoint:geometry_msgs/TwistStamped:geometry_msgs/Twist:geometry_msgs/Vector3:geometry_msgs/Pose:mpc_msgs/Lane:std_msgs/Header:geometry_msgs/Quaternion:geometry_msgs/PoseStamped:geometry_msgs/Point"
 )
 
 #
@@ -33,7 +33,7 @@ add_custom_target(_behaviour_state_machine_generate_messages_check_deps_${_filen
 _generate_srv_cpp(behaviour_state_machine
   "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv"
   "${MSG_I_FLAGS}"
-  "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/behaviour_state_machine
 )
 
@@ -66,7 +66,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS behaviour_state_machine_generate_me
 _generate_srv_eus(behaviour_state_machine
   "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv"
   "${MSG_I_FLAGS}"
-  "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/behaviour_state_machine
 )
 
@@ -99,7 +99,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS behaviour_state_machine_generate_me
 _generate_srv_lisp(behaviour_state_machine
   "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv"
   "${MSG_I_FLAGS}"
-  "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/behaviour_state_machine
 )
 
@@ -132,7 +132,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS behaviour_state_machine_generate_me
 _generate_srv_nodejs(behaviour_state_machine
   "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv"
   "${MSG_I_FLAGS}"
-  "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/behaviour_state_machine
 )
 
@@ -165,7 +165,7 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS behaviour_state_machine_generate_me
 _generate_srv_py(behaviour_state_machine
   "/home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv"
   "${MSG_I_FLAGS}"
-  "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg"
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/behaviour_state_machine
 )
 
@@ -206,6 +206,9 @@ endif()
 if(TARGET geometry_msgs_generate_messages_cpp)
   add_dependencies(behaviour_state_machine_generate_messages_cpp geometry_msgs_generate_messages_cpp)
 endif()
+if(TARGET mpc_msgs_generate_messages_cpp)
+  add_dependencies(behaviour_state_machine_generate_messages_cpp mpc_msgs_generate_messages_cpp)
+endif()
 
 if(geneus_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/behaviour_state_machine)
   # install generated code
@@ -219,6 +222,9 @@ if(TARGET std_msgs_generate_messages_eus)
 endif()
 if(TARGET geometry_msgs_generate_messages_eus)
   add_dependencies(behaviour_state_machine_generate_messages_eus geometry_msgs_generate_messages_eus)
+endif()
+if(TARGET mpc_msgs_generate_messages_eus)
+  add_dependencies(behaviour_state_machine_generate_messages_eus mpc_msgs_generate_messages_eus)
 endif()
 
 if(genlisp_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/behaviour_state_machine)
@@ -234,6 +240,9 @@ endif()
 if(TARGET geometry_msgs_generate_messages_lisp)
   add_dependencies(behaviour_state_machine_generate_messages_lisp geometry_msgs_generate_messages_lisp)
 endif()
+if(TARGET mpc_msgs_generate_messages_lisp)
+  add_dependencies(behaviour_state_machine_generate_messages_lisp mpc_msgs_generate_messages_lisp)
+endif()
 
 if(gennodejs_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/behaviour_state_machine)
   # install generated code
@@ -247,6 +256,9 @@ if(TARGET std_msgs_generate_messages_nodejs)
 endif()
 if(TARGET geometry_msgs_generate_messages_nodejs)
   add_dependencies(behaviour_state_machine_generate_messages_nodejs geometry_msgs_generate_messages_nodejs)
+endif()
+if(TARGET mpc_msgs_generate_messages_nodejs)
+  add_dependencies(behaviour_state_machine_generate_messages_nodejs mpc_msgs_generate_messages_nodejs)
 endif()
 
 if(genpy_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/behaviour_state_machine)
@@ -262,4 +274,7 @@ if(TARGET std_msgs_generate_messages_py)
 endif()
 if(TARGET geometry_msgs_generate_messages_py)
   add_dependencies(behaviour_state_machine_generate_messages_py geometry_msgs_generate_messages_py)
+endif()
+if(TARGET mpc_msgs_generate_messages_py)
+  add_dependencies(behaviour_state_machine_generate_messages_py mpc_msgs_generate_messages_py)
 endif()

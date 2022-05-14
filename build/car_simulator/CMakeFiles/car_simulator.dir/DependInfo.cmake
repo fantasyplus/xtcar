@@ -22,8 +22,6 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/ros/fantasyplus/xtcar/src/car_simulator/include"
   "/home/ros/fantasyplus/xtcar/devel/include"
   "/home/ros/autoware.ai/install/vehicle_sim_model/include"
-  "/home/ros/autoware.ai/install/amathutils_lib/include"
-  "/home/ros/autoware.ai/install/autoware_msgs/include"
   "/opt/ros/melodic/include"
   "/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   )

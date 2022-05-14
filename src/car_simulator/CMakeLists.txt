@@ -3,7 +3,6 @@ project(car_simulator)
 
 find_package(autoware_build_flags REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  amathutils_lib
   mpc_msgs
   geometry_msgs
   roscpp

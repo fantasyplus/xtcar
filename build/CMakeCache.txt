@@ -384,20 +384,8 @@ OMPLAPPBASE_LIBRARY:FILEPATH=OMPLAPPBASE_LIBRARY-NOTFOUND
 //Path to a library.
 OMPLAPP_LIBRARY:FILEPATH=OMPLAPP_LIBRARY-NOTFOUND
 
-//Path to a file.
-OMPL_CONFIG:FILEPATH=/usr/local/include/ompl/config.h
-
-//The directory containing a CMake configuration file for OMPL.
-OMPL_DIR:PATH=/usr/share/ompl
-
-//Path to a file.
-OMPL_INCLUDE_DIRS:PATH=/usr/local/include/ompl/base
-
-//Path to OMPL library
-OMPL_LIBRARIES:FILEPATH=/usr/local/lib/libompl.so
-
 //Path to a library.
-OMPL_LIBRARY:FILEPATH=/usr/local/lib/libompl.so
+OMPL_LIBRARIES:FILEPATH=/usr/local/lib/libompl.so
 
 //Path to a file.
 OPENNI2_INCLUDE_DIRS:PATH=/usr/include/openni2
@@ -711,14 +699,8 @@ actionlib_DIR:PATH=/opt/ros/melodic/share/actionlib/cmake
 //The directory containing a CMake configuration file for actionlib_msgs.
 actionlib_msgs_DIR:PATH=/opt/ros/melodic/share/actionlib_msgs/cmake
 
-//The directory containing a CMake configuration file for amathutils_lib.
-amathutils_lib_DIR:PATH=/home/ros/autoware.ai/install/amathutils_lib/share/amathutils_lib/cmake
-
 //The directory containing a CMake configuration file for autoware_build_flags.
 autoware_build_flags_DIR:PATH=/home/ros/autoware.ai/install/autoware_build_flags/share/autoware_build_flags/cmake
-
-//The directory containing a CMake configuration file for autoware_msgs.
-autoware_msgs_DIR:PATH=/home/ros/autoware.ai/install/autoware_msgs/share/autoware_msgs/cmake
 
 //Value Computed by CMake
 behaviour_state_machine_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/behaviour_state_machine
@@ -856,12 +838,6 @@ hybrid_astar_node_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/hybrid_ast
 //Value Computed by CMake
 hybrid_astar_node_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/hybrid_astar_node
 
-//The directory containing a CMake configuration file for jsk_footstep_msgs.
-jsk_footstep_msgs_DIR:PATH=/opt/ros/melodic/share/jsk_footstep_msgs/cmake
-
-//The directory containing a CMake configuration file for jsk_recognition_msgs.
-jsk_recognition_msgs_DIR:PATH=/opt/ros/melodic/share/jsk_recognition_msgs/cmake
-
 //The directory containing a CMake configuration file for kdl_conversions.
 kdl_conversions_DIR:PATH=/opt/ros/melodic/share/kdl_conversions/cmake
 
@@ -903,6 +879,9 @@ nodelet_DIR:PATH=/opt/ros/melodic/share/nodelet/cmake
 
 //The directory containing a CMake configuration file for nodelet_topic_tools.
 nodelet_topic_tools_DIR:PATH=/opt/ros/melodic/share/nodelet_topic_tools/cmake
+
+//The directory containing a CMake configuration file for ompl.
+ompl_DIR:PATH=/usr/local/share/ompl/cmake
 
 //The directory containing a CMake configuration file for pcl_conversions.
 pcl_conversions_DIR:PATH=/opt/ros/melodic/share/pcl_conversions/cmake
@@ -1232,8 +1211,6 @@ DSSDK_LIBRARY_turbojpeg-ADVANCED:INTERNAL=1
 FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/include][cfound components: system filesystem thread date_time iostreams serialization chrono atomic regex ][v1.65.1(1.40.0)]
 //Details about finding Flann
 FIND_PACKAGE_MESSAGE_DETAILS_Flann:INTERNAL=[/usr/lib/x86_64-linux-gnu/libflann_cpp_s.a][/usr/include][v()]
-//Details about finding OMPL
-FIND_PACKAGE_MESSAGE_DETAILS_OMPL:INTERNAL=[/usr/local/lib/libompl.so][/usr/local/include][v()]
 //Details about finding OpenCV
 FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr][v3.2.0()]
 //Details about finding OpenMP
@@ -1304,6 +1281,8 @@ FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 FIND_PACKAGE_MESSAGE_DETAILS_eigen:INTERNAL=[/usr/local/include/eigen3][v()]
 //Details about finding libusb-1.0
 FIND_PACKAGE_MESSAGE_DETAILS_libusb-1.0:INTERNAL=[/usr/include][v()]
+//Details about finding ompl
+FIND_PACKAGE_MESSAGE_DETAILS_ompl:INTERNAL=[/usr/local/include][/usr/local/lib/libompl.so][v()]
 //Details about finding openni
 FIND_PACKAGE_MESSAGE_DETAILS_openni:INTERNAL=[/usr/lib/libOpenNI.so][/usr/include/ni][v()]
 //Details about finding qhull

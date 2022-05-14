@@ -78,16 +78,22 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_eus
 
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/lib/geneus/gen_eus.py
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Twist.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Vector3.msg
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Pose.msg
-/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
-/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from behaviour_state_machine/GoalPose.srv"
-	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv
+	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv
 
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/manifest.l: /opt/ros/melodic/lib/geneus/gen_eus.py
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp manifest code for behaviour_state_machine"
-	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine behaviour_state_machine std_msgs geometry_msgs
+	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine behaviour_state_machine std_msgs geometry_msgs mpc_msgs
 
 behaviour_state_machine_generate_messages_eus: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_eus
 behaviour_state_machine_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/behaviour_state_machine/srv/GoalPose.l

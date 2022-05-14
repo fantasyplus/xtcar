@@ -73,7 +73,7 @@ CMAKE_BINARY_DIR = /home/ros/fantasyplus/xtcar/build
 include behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose.dir/progress.make
 
 behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose:
-	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py behaviour_state_machine /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv geometry_msgs/Pose:geometry_msgs/Point:geometry_msgs/Quaternion:std_msgs/Header
+	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py behaviour_state_machine /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv mpc_msgs/Waypoint:geometry_msgs/TwistStamped:geometry_msgs/Twist:geometry_msgs/Vector3:geometry_msgs/Pose:mpc_msgs/Lane:std_msgs/Header:geometry_msgs/Quaternion:geometry_msgs/PoseStamped:geometry_msgs/Point
 
 _behaviour_state_machine_generate_messages_check_deps_GoalPose: behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose
 _behaviour_state_machine_generate_messages_check_deps_GoalPose: behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose.dir/build.make

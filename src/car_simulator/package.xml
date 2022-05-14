@@ -9,7 +9,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>amathutils_lib</depend>
   <depend>mpc_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>roscpp</depend>

@@ -5,4 +5,6 @@
           POSE
           IS_SUCCESS-VAL
           IS_SUCCESS
+          TRAJ-VAL
+          TRAJ
 ))

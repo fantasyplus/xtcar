@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   message_generation
-  jsk_recognition_msgs
+  #jsk_recognition_msgs
 )
 
 
@@ -27,7 +27,7 @@ generate_messages(
   std_msgs
   geometry_msgs
   sensor_msgs
-  jsk_recognition_msgs
+  #jsk_recognition_msgs
 )
 
 catkin_package(
