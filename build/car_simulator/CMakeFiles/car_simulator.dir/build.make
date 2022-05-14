@@ -128,7 +128,6 @@ car_simulator_EXTERNAL_OBJECTS =
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: car_simulator/CMakeFiles/car_simulator.dir/src/car_simulator_core.cpp.o
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: car_simulator/CMakeFiles/car_simulator.dir/src/vehicle_model_ros.cpp.o
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: car_simulator/CMakeFiles/car_simulator.dir/build.make
-/home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: /home/ros/autoware.ai/install/amathutils_lib/lib/libamathutils_lib.so
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: /opt/ros/melodic/lib/libtf.so
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: /opt/ros/melodic/lib/libtf2_ros.so
 /home/ros/fantasyplus/xtcar/devel/lib/car_simulator/car_simulator: /opt/ros/melodic/lib/libactionlib.so

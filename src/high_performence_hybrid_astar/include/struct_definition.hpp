@@ -69,15 +69,21 @@ struct PlannerCommonParam
     double goal_longitudinal_tolerance;
     //离终点的角度容忍大小
     double goal_angular_tolerance;
-
     //在costmap下被认为是障碍物的最小值
     int obstacle_threshold;
+
     //是否允许倒车
     bool use_back;
     //是否使用RS代价值
     bool use_reeds_shepp;
     //是否使用障碍物启发值
     bool use_obstacle_heuristic;
+    //是否使用解析扩张
+    bool use_analytic_expansion;
+    //是否使用航向启发值（小论文）
+    bool use_theta_cost;
+    //障碍物启发值下的theta_cost（小论文）
+    double obstacle_theta_ratio;
     //是否平滑轨迹
     bool use_smoother;
 

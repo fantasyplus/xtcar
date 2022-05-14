@@ -221,15 +221,127 @@ python3 = True if sys.hexversion > 0x03000000 else False
 import genpy
 import struct
 
+import geometry_msgs.msg
+import mpc_msgs.msg
+import std_msgs.msg
 
 class GoalPoseResponse(genpy.Message):
-  _md5sum = "fa3e942e5cfe76a6a46f20a0780b2cf3"
+  _md5sum = "6e1d92b8f22c17c1e9e4839abb91044a"
   _type = "behaviour_state_machine/GoalPoseResponse"
   _has_header = False  # flag to mark the presence of a Header object
   _full_text = """bool is_success
-"""
-  __slots__ = ['is_success']
-  _slot_types = ['bool']
+mpc_msgs/Lane traj
+
+================================================================================
+MSG: mpc_msgs/Lane
+Header header
+int32 increment
+int32 lane_id
+Waypoint[] waypoints
+
+uint32 lane_index
+float32 cost
+float32 closest_object_distance
+float32 closest_object_velocity
+bool is_blocked
+
+================================================================================
+MSG: std_msgs/Header
+# Standard metadata for higher-level stamped data types.
+# This is generally used to communicate timestamped data 
+# in a particular coordinate frame.
+# 
+# sequence ID: consecutively increasing ID 
+uint32 seq
+#Two-integer timestamp that is expressed as:
+# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')
+# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')
+# time-handling sugar is provided by the client library
+time stamp
+#Frame this data is associated with
+string frame_id
+
+================================================================================
+MSG: mpc_msgs/Waypoint
+# global id
+int32 gid 
+# local id
+int32 lid
+geometry_msgs/PoseStamped pose
+geometry_msgs/TwistStamped twist
+int32 change_flag
+
+uint32 lane_id
+uint32 left_lane_id
+uint32 right_lane_id
+uint32 stop_line_id
+float32 cost
+float32 time_cost
+
+# Lane Direction
+# FORWARD				= 0
+# FORWARD_LEFT	 		= 1
+# FORWARD_RIGHT			= 2
+# BACKWARD				= 3 
+# BACKWARD_LEFT			= 4
+# BACKWARD_RIGHT		= 5
+# STANDSTILL	 		= 6
+uint32 direction
+
+================================================================================
+MSG: geometry_msgs/PoseStamped
+# A Pose with reference coordinate frame and timestamp
+Header header
+Pose pose
+
+================================================================================
+MSG: geometry_msgs/Pose
+# A representation of pose in free space, composed of position and orientation. 
+Point position
+Quaternion orientation
+
+================================================================================
+MSG: geometry_msgs/Point
+# This contains the position of a point in free space
+float64 x
+float64 y
+float64 z
+
+================================================================================
+MSG: geometry_msgs/Quaternion
+# This represents an orientation in free space in quaternion form.
+
+float64 x
+float64 y
+float64 z
+float64 w
+
+================================================================================
+MSG: geometry_msgs/TwistStamped
+# A twist with reference coordinate frame and timestamp
+Header header
+Twist twist
+
+================================================================================
+MSG: geometry_msgs/Twist
+# This expresses velocity in free space broken into its linear and angular parts.
+Vector3  linear
+Vector3  angular
+
+================================================================================
+MSG: geometry_msgs/Vector3
+# This represents a vector in free space. 
+# It is only meant to represent a direction. Therefore, it does not
+# make sense to apply a translation to it (e.g., when applying a 
+# generic rigid transformation to a Vector3, tf2 will only apply the
+# rotation). If you want your data to be translatable too, use the
+# geometry_msgs/Point message instead.
+
+float64 x
+float64 y
+float64 z"""
+  __slots__ = ['is_success','traj']
+  _slot_types = ['bool','mpc_msgs/Lane']
 
   def __init__(self, *args, **kwds):
     """
@@ -239,7 +351,7 @@ class GoalPoseResponse(genpy.Message):
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       is_success
+       is_success,traj
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -250,8 +362,11 @@ class GoalPoseResponse(genpy.Message):
       # message fields cannot be None, assign default values for those that are
       if self.is_success is None:
         self.is_success = False
+      if self.traj is None:
+        self.traj = mpc_msgs.msg.Lane()
     else:
       self.is_success = False
+      self.traj = mpc_msgs.msg.Lane()
 
   def _get_types(self):
     """
@@ -265,8 +380,65 @@ class GoalPoseResponse(genpy.Message):
     :param buff: buffer, ``StringIO``
     """
     try:
-      _x = self.is_success
-      buff.write(_get_struct_B().pack(_x))
+      _x = self
+      buff.write(_get_struct_B3I().pack(_x.is_success, _x.traj.header.seq, _x.traj.header.stamp.secs, _x.traj.header.stamp.nsecs))
+      _x = self.traj.header.frame_id
+      length = len(_x)
+      if python3 or type(_x) == unicode:
+        _x = _x.encode('utf-8')
+        length = len(_x)
+      buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+      _x = self
+      buff.write(_get_struct_2i().pack(_x.traj.increment, _x.traj.lane_id))
+      length = len(self.traj.waypoints)
+      buff.write(_struct_I.pack(length))
+      for val1 in self.traj.waypoints:
+        _x = val1
+        buff.write(_get_struct_2i().pack(_x.gid, _x.lid))
+        _v1 = val1.pose
+        _v2 = _v1.header
+        _x = _v2.seq
+        buff.write(_get_struct_I().pack(_x))
+        _v3 = _v2.stamp
+        _x = _v3
+        buff.write(_get_struct_2I().pack(_x.secs, _x.nsecs))
+        _x = _v2.frame_id
+        length = len(_x)
+        if python3 or type(_x) == unicode:
+          _x = _x.encode('utf-8')
+          length = len(_x)
+        buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+        _v4 = _v1.pose
+        _v5 = _v4.position
+        _x = _v5
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _v6 = _v4.orientation
+        _x = _v6
+        buff.write(_get_struct_4d().pack(_x.x, _x.y, _x.z, _x.w))
+        _v7 = val1.twist
+        _v8 = _v7.header
+        _x = _v8.seq
+        buff.write(_get_struct_I().pack(_x))
+        _v9 = _v8.stamp
+        _x = _v9
+        buff.write(_get_struct_2I().pack(_x.secs, _x.nsecs))
+        _x = _v8.frame_id
+        length = len(_x)
+        if python3 or type(_x) == unicode:
+          _x = _x.encode('utf-8')
+          length = len(_x)
+        buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+        _v10 = _v7.twist
+        _v11 = _v10.linear
+        _x = _v11
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _v12 = _v10.angular
+        _x = _v12
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _x = val1
+        buff.write(_get_struct_i4I2fI().pack(_x.change_flag, _x.lane_id, _x.left_lane_id, _x.right_lane_id, _x.stop_line_id, _x.cost, _x.time_cost, _x.direction))
+      _x = self
+      buff.write(_get_struct_I3fB().pack(_x.traj.lane_index, _x.traj.cost, _x.traj.closest_object_distance, _x.traj.closest_object_velocity, _x.traj.is_blocked))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -278,11 +450,107 @@ class GoalPoseResponse(genpy.Message):
     if python3:
       codecs.lookup_error("rosmsg").msg_type = self._type
     try:
+      if self.traj is None:
+        self.traj = mpc_msgs.msg.Lane()
       end = 0
+      _x = self
       start = end
-      end += 1
-      (self.is_success,) = _get_struct_B().unpack(str[start:end])
+      end += 13
+      (_x.is_success, _x.traj.header.seq, _x.traj.header.stamp.secs, _x.traj.header.stamp.nsecs,) = _get_struct_B3I().unpack(str[start:end])
       self.is_success = bool(self.is_success)
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      start = end
+      end += length
+      if python3:
+        self.traj.header.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+      else:
+        self.traj.header.frame_id = str[start:end]
+      _x = self
+      start = end
+      end += 8
+      (_x.traj.increment, _x.traj.lane_id,) = _get_struct_2i().unpack(str[start:end])
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      self.traj.waypoints = []
+      for i in range(0, length):
+        val1 = mpc_msgs.msg.Waypoint()
+        _x = val1
+        start = end
+        end += 8
+        (_x.gid, _x.lid,) = _get_struct_2i().unpack(str[start:end])
+        _v13 = val1.pose
+        _v14 = _v13.header
+        start = end
+        end += 4
+        (_v14.seq,) = _get_struct_I().unpack(str[start:end])
+        _v15 = _v14.stamp
+        _x = _v15
+        start = end
+        end += 8
+        (_x.secs, _x.nsecs,) = _get_struct_2I().unpack(str[start:end])
+        start = end
+        end += 4
+        (length,) = _struct_I.unpack(str[start:end])
+        start = end
+        end += length
+        if python3:
+          _v14.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+        else:
+          _v14.frame_id = str[start:end]
+        _v16 = _v13.pose
+        _v17 = _v16.position
+        _x = _v17
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _v18 = _v16.orientation
+        _x = _v18
+        start = end
+        end += 32
+        (_x.x, _x.y, _x.z, _x.w,) = _get_struct_4d().unpack(str[start:end])
+        _v19 = val1.twist
+        _v20 = _v19.header
+        start = end
+        end += 4
+        (_v20.seq,) = _get_struct_I().unpack(str[start:end])
+        _v21 = _v20.stamp
+        _x = _v21
+        start = end
+        end += 8
+        (_x.secs, _x.nsecs,) = _get_struct_2I().unpack(str[start:end])
+        start = end
+        end += 4
+        (length,) = _struct_I.unpack(str[start:end])
+        start = end
+        end += length
+        if python3:
+          _v20.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+        else:
+          _v20.frame_id = str[start:end]
+        _v22 = _v19.twist
+        _v23 = _v22.linear
+        _x = _v23
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _v24 = _v22.angular
+        _x = _v24
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _x = val1
+        start = end
+        end += 32
+        (_x.change_flag, _x.lane_id, _x.left_lane_id, _x.right_lane_id, _x.stop_line_id, _x.cost, _x.time_cost, _x.direction,) = _get_struct_i4I2fI().unpack(str[start:end])
+        self.traj.waypoints.append(val1)
+      _x = self
+      start = end
+      end += 17
+      (_x.traj.lane_index, _x.traj.cost, _x.traj.closest_object_distance, _x.traj.closest_object_velocity, _x.traj.is_blocked,) = _get_struct_I3fB().unpack(str[start:end])
+      self.traj.is_blocked = bool(self.traj.is_blocked)
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -295,8 +563,65 @@ class GoalPoseResponse(genpy.Message):
     :param numpy: numpy python module
     """
     try:
-      _x = self.is_success
-      buff.write(_get_struct_B().pack(_x))
+      _x = self
+      buff.write(_get_struct_B3I().pack(_x.is_success, _x.traj.header.seq, _x.traj.header.stamp.secs, _x.traj.header.stamp.nsecs))
+      _x = self.traj.header.frame_id
+      length = len(_x)
+      if python3 or type(_x) == unicode:
+        _x = _x.encode('utf-8')
+        length = len(_x)
+      buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+      _x = self
+      buff.write(_get_struct_2i().pack(_x.traj.increment, _x.traj.lane_id))
+      length = len(self.traj.waypoints)
+      buff.write(_struct_I.pack(length))
+      for val1 in self.traj.waypoints:
+        _x = val1
+        buff.write(_get_struct_2i().pack(_x.gid, _x.lid))
+        _v25 = val1.pose
+        _v26 = _v25.header
+        _x = _v26.seq
+        buff.write(_get_struct_I().pack(_x))
+        _v27 = _v26.stamp
+        _x = _v27
+        buff.write(_get_struct_2I().pack(_x.secs, _x.nsecs))
+        _x = _v26.frame_id
+        length = len(_x)
+        if python3 or type(_x) == unicode:
+          _x = _x.encode('utf-8')
+          length = len(_x)
+        buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+        _v28 = _v25.pose
+        _v29 = _v28.position
+        _x = _v29
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _v30 = _v28.orientation
+        _x = _v30
+        buff.write(_get_struct_4d().pack(_x.x, _x.y, _x.z, _x.w))
+        _v31 = val1.twist
+        _v32 = _v31.header
+        _x = _v32.seq
+        buff.write(_get_struct_I().pack(_x))
+        _v33 = _v32.stamp
+        _x = _v33
+        buff.write(_get_struct_2I().pack(_x.secs, _x.nsecs))
+        _x = _v32.frame_id
+        length = len(_x)
+        if python3 or type(_x) == unicode:
+          _x = _x.encode('utf-8')
+          length = len(_x)
+        buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
+        _v34 = _v31.twist
+        _v35 = _v34.linear
+        _x = _v35
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _v36 = _v34.angular
+        _x = _v36
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
+        _x = val1
+        buff.write(_get_struct_i4I2fI().pack(_x.change_flag, _x.lane_id, _x.left_lane_id, _x.right_lane_id, _x.stop_line_id, _x.cost, _x.time_cost, _x.direction))
+      _x = self
+      buff.write(_get_struct_I3fB().pack(_x.traj.lane_index, _x.traj.cost, _x.traj.closest_object_distance, _x.traj.closest_object_velocity, _x.traj.is_blocked))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -309,11 +634,107 @@ class GoalPoseResponse(genpy.Message):
     if python3:
       codecs.lookup_error("rosmsg").msg_type = self._type
     try:
+      if self.traj is None:
+        self.traj = mpc_msgs.msg.Lane()
       end = 0
+      _x = self
       start = end
-      end += 1
-      (self.is_success,) = _get_struct_B().unpack(str[start:end])
+      end += 13
+      (_x.is_success, _x.traj.header.seq, _x.traj.header.stamp.secs, _x.traj.header.stamp.nsecs,) = _get_struct_B3I().unpack(str[start:end])
       self.is_success = bool(self.is_success)
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      start = end
+      end += length
+      if python3:
+        self.traj.header.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+      else:
+        self.traj.header.frame_id = str[start:end]
+      _x = self
+      start = end
+      end += 8
+      (_x.traj.increment, _x.traj.lane_id,) = _get_struct_2i().unpack(str[start:end])
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      self.traj.waypoints = []
+      for i in range(0, length):
+        val1 = mpc_msgs.msg.Waypoint()
+        _x = val1
+        start = end
+        end += 8
+        (_x.gid, _x.lid,) = _get_struct_2i().unpack(str[start:end])
+        _v37 = val1.pose
+        _v38 = _v37.header
+        start = end
+        end += 4
+        (_v38.seq,) = _get_struct_I().unpack(str[start:end])
+        _v39 = _v38.stamp
+        _x = _v39
+        start = end
+        end += 8
+        (_x.secs, _x.nsecs,) = _get_struct_2I().unpack(str[start:end])
+        start = end
+        end += 4
+        (length,) = _struct_I.unpack(str[start:end])
+        start = end
+        end += length
+        if python3:
+          _v38.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+        else:
+          _v38.frame_id = str[start:end]
+        _v40 = _v37.pose
+        _v41 = _v40.position
+        _x = _v41
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _v42 = _v40.orientation
+        _x = _v42
+        start = end
+        end += 32
+        (_x.x, _x.y, _x.z, _x.w,) = _get_struct_4d().unpack(str[start:end])
+        _v43 = val1.twist
+        _v44 = _v43.header
+        start = end
+        end += 4
+        (_v44.seq,) = _get_struct_I().unpack(str[start:end])
+        _v45 = _v44.stamp
+        _x = _v45
+        start = end
+        end += 8
+        (_x.secs, _x.nsecs,) = _get_struct_2I().unpack(str[start:end])
+        start = end
+        end += 4
+        (length,) = _struct_I.unpack(str[start:end])
+        start = end
+        end += length
+        if python3:
+          _v44.frame_id = str[start:end].decode('utf-8', 'rosmsg')
+        else:
+          _v44.frame_id = str[start:end]
+        _v46 = _v43.twist
+        _v47 = _v46.linear
+        _x = _v47
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _v48 = _v46.angular
+        _x = _v48
+        start = end
+        end += 24
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
+        _x = val1
+        start = end
+        end += 32
+        (_x.change_flag, _x.lane_id, _x.left_lane_id, _x.right_lane_id, _x.stop_line_id, _x.cost, _x.time_cost, _x.direction,) = _get_struct_i4I2fI().unpack(str[start:end])
+        self.traj.waypoints.append(val1)
+      _x = self
+      start = end
+      end += 17
+      (_x.traj.lane_index, _x.traj.cost, _x.traj.closest_object_distance, _x.traj.closest_object_velocity, _x.traj.is_blocked,) = _get_struct_I3fB().unpack(str[start:end])
+      self.traj.is_blocked = bool(self.traj.is_blocked)
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -322,14 +743,50 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
-_struct_B = None
-def _get_struct_B():
-    global _struct_B
-    if _struct_B is None:
-        _struct_B = struct.Struct("<B")
-    return _struct_B
+_struct_2I = None
+def _get_struct_2I():
+    global _struct_2I
+    if _struct_2I is None:
+        _struct_2I = struct.Struct("<2I")
+    return _struct_2I
+_struct_2i = None
+def _get_struct_2i():
+    global _struct_2i
+    if _struct_2i is None:
+        _struct_2i = struct.Struct("<2i")
+    return _struct_2i
+_struct_3d = None
+def _get_struct_3d():
+    global _struct_3d
+    if _struct_3d is None:
+        _struct_3d = struct.Struct("<3d")
+    return _struct_3d
+_struct_4d = None
+def _get_struct_4d():
+    global _struct_4d
+    if _struct_4d is None:
+        _struct_4d = struct.Struct("<4d")
+    return _struct_4d
+_struct_B3I = None
+def _get_struct_B3I():
+    global _struct_B3I
+    if _struct_B3I is None:
+        _struct_B3I = struct.Struct("<B3I")
+    return _struct_B3I
+_struct_I3fB = None
+def _get_struct_I3fB():
+    global _struct_I3fB
+    if _struct_I3fB is None:
+        _struct_I3fB = struct.Struct("<I3fB")
+    return _struct_I3fB
+_struct_i4I2fI = None
+def _get_struct_i4I2fI():
+    global _struct_i4I2fI
+    if _struct_i4I2fI is None:
+        _struct_i4I2fI = struct.Struct("<i4I2fI")
+    return _struct_i4I2fI
 class GoalPose(object):
   _type          = 'behaviour_state_machine/GoalPose'
-  _md5sum = '0aad1829ef886d046d8951a77cf3842c'
+  _md5sum = '604702dcfaf8996a479f50cf127e8a0d'
   _request_class  = GoalPoseRequest
   _response_class = GoalPoseResponse

@@ -15,6 +15,7 @@
 #include <ros/builtin_message_traits.h>
 #include <ros/message_operations.h>
 
+#include <mpc_msgs/Lane.h>
 
 namespace behaviour_state_machine
 {
@@ -24,10 +25,12 @@ struct GoalPoseResponse_
   typedef GoalPoseResponse_<ContainerAllocator> Type;
 
   GoalPoseResponse_()
-    : is_success(false)  {
+    : is_success(false)
+    , traj()  {
     }
   GoalPoseResponse_(const ContainerAllocator& _alloc)
-    : is_success(false)  {
+    : is_success(false)
+    , traj(_alloc)  {
   (void)_alloc;
     }
 
@@ -35,6 +38,9 @@ struct GoalPoseResponse_
 
    typedef uint8_t _is_success_type;
   _is_success_type is_success;
+
+   typedef  ::mpc_msgs::Lane_<ContainerAllocator>  _traj_type;
+  _traj_type traj;
 
 
 
@@ -65,7 +71,8 @@ return s;
 template<typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator==(const ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator1> & lhs, const ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator2> & rhs)
 {
-  return lhs.is_success == rhs.is_success;
+  return lhs.is_success == rhs.is_success &&
+    lhs.traj == rhs.traj;
 }
 
 template<typename ContainerAllocator1, typename ContainerAllocator2>
@@ -88,12 +95,12 @@ namespace message_traits
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator> >
-  : TrueType
+  : FalseType
   { };
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator> const>
-  : TrueType
+  : FalseType
   { };
 
 template <class ContainerAllocator>
@@ -122,12 +129,12 @@ struct MD5Sum< ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator> 
 {
   static const char* value()
   {
-    return "fa3e942e5cfe76a6a46f20a0780b2cf3";
+    return "6e1d92b8f22c17c1e9e4839abb91044a";
   }
 
   static const char* value(const ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xfa3e942e5cfe76a6ULL;
-  static const uint64_t static_value2 = 0xa46f20a0780b2cf3ULL;
+  static const uint64_t static_value1 = 0x6e1d92b8f22c17c1ULL;
+  static const uint64_t static_value2 = 0xe9e4839abb91044aULL;
 };
 
 template<class ContainerAllocator>
@@ -147,6 +154,116 @@ struct Definition< ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocat
   static const char* value()
   {
     return "bool is_success\n"
+"mpc_msgs/Lane traj\n"
+"\n"
+"================================================================================\n"
+"MSG: mpc_msgs/Lane\n"
+"Header header\n"
+"int32 increment\n"
+"int32 lane_id\n"
+"Waypoint[] waypoints\n"
+"\n"
+"uint32 lane_index\n"
+"float32 cost\n"
+"float32 closest_object_distance\n"
+"float32 closest_object_velocity\n"
+"bool is_blocked\n"
+"\n"
+"================================================================================\n"
+"MSG: std_msgs/Header\n"
+"# Standard metadata for higher-level stamped data types.\n"
+"# This is generally used to communicate timestamped data \n"
+"# in a particular coordinate frame.\n"
+"# \n"
+"# sequence ID: consecutively increasing ID \n"
+"uint32 seq\n"
+"#Two-integer timestamp that is expressed as:\n"
+"# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')\n"
+"# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')\n"
+"# time-handling sugar is provided by the client library\n"
+"time stamp\n"
+"#Frame this data is associated with\n"
+"string frame_id\n"
+"\n"
+"================================================================================\n"
+"MSG: mpc_msgs/Waypoint\n"
+"# global id\n"
+"int32 gid \n"
+"# local id\n"
+"int32 lid\n"
+"geometry_msgs/PoseStamped pose\n"
+"geometry_msgs/TwistStamped twist\n"
+"int32 change_flag\n"
+"\n"
+"uint32 lane_id\n"
+"uint32 left_lane_id\n"
+"uint32 right_lane_id\n"
+"uint32 stop_line_id\n"
+"float32 cost\n"
+"float32 time_cost\n"
+"\n"
+"# Lane Direction\n"
+"# FORWARD				= 0\n"
+"# FORWARD_LEFT	 		= 1\n"
+"# FORWARD_RIGHT			= 2\n"
+"# BACKWARD				= 3 \n"
+"# BACKWARD_LEFT			= 4\n"
+"# BACKWARD_RIGHT		= 5\n"
+"# STANDSTILL	 		= 6\n"
+"uint32 direction\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/PoseStamped\n"
+"# A Pose with reference coordinate frame and timestamp\n"
+"Header header\n"
+"Pose pose\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/Pose\n"
+"# A representation of pose in free space, composed of position and orientation. \n"
+"Point position\n"
+"Quaternion orientation\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/Point\n"
+"# This contains the position of a point in free space\n"
+"float64 x\n"
+"float64 y\n"
+"float64 z\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/Quaternion\n"
+"# This represents an orientation in free space in quaternion form.\n"
+"\n"
+"float64 x\n"
+"float64 y\n"
+"float64 z\n"
+"float64 w\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/TwistStamped\n"
+"# A twist with reference coordinate frame and timestamp\n"
+"Header header\n"
+"Twist twist\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/Twist\n"
+"# This expresses velocity in free space broken into its linear and angular parts.\n"
+"Vector3  linear\n"
+"Vector3  angular\n"
+"\n"
+"================================================================================\n"
+"MSG: geometry_msgs/Vector3\n"
+"# This represents a vector in free space. \n"
+"# It is only meant to represent a direction. Therefore, it does not\n"
+"# make sense to apply a translation to it (e.g., when applying a \n"
+"# generic rigid transformation to a Vector3, tf2 will only apply the\n"
+"# rotation). If you want your data to be translatable too, use the\n"
+"# geometry_msgs/Point message instead.\n"
+"\n"
+"float64 x\n"
+"float64 y\n"
+"float64 z\n"
 ;
   }
 
@@ -166,6 +283,7 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.is_success);
+      stream.next(m.traj);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -186,6 +304,9 @@ struct Printer< ::behaviour_state_machine::GoalPoseResponse_<ContainerAllocator>
   {
     s << indent << "is_success: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.is_success);
+    s << indent << "traj: ";
+    s << std::endl;
+    Printer< ::mpc_msgs::Lane_<ContainerAllocator> >::stream(s, indent + "  ", v.traj);
   }
 };
 

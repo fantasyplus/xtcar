@@ -10,50 +10,6 @@
           args="/home/ros/fantasyplus/rosbag/suv/costmap_xt_4_26.bag --loop --clock --topics /points_no_ground /gnss_pose /" 
           output="log"/>
 
-    <!-- costmap生成(暂时还是用的autoware的) -->
-    <!-- <arg name="lidar_frame" default="rslidar" />
-    <arg name="map_frame_costmap" default="map" />
-    <arg name="grid_min_value" default="0.0" />
-    <arg name="grid_max_value" default="1.0" />
-    <arg name="grid_resolution" default="0.25" />
-    <arg name="grid_length_x" default="50" />
-    <arg name="grid_length_y" default="30" />
-    <arg name="grid_position_x" default="0" />
-    <arg name="grid_position_y" default="0" />
-    <arg name="maximum_lidar_height_thres" default="0.3" />
-    <arg name="minimum_lidar_height_thres" default="-2.2" />
-    <arg name="expand_polygon_size" default="1.0" />
-    <arg name="size_of_expansion_kernel" default="9" />
-    <arg name="use_objects_box" default="false" />
-    <arg name="use_objects_convex_hull" default="false" />
-    <arg name="use_points" default="true" />
-    <arg name="use_wayarea" default="false" />
-
-    <arg name="objects_input" default="/prediction/motion_predictor/objects" />
-    <arg name="points_input" default="/points_no_ground" />
-    <node pkg="costmap_generator" type="costmap_generator" name="costmap_generator" output="screen">
-        <param name="lidar_frame" value="$(arg lidar_frame)" />
-        <param name="map_frame" value="$(arg map_frame_costmap)" />
-        <param name="grid_min_value" value="$(arg grid_min_value)" />
-        <param name="grid_max_value" value="$(arg grid_max_value)" />
-        <param name="grid_resolution" value="$(arg grid_resolution)" />
-        <param name="grid_length_x" value="$(arg grid_length_x)" />
-        <param name="grid_length_y" value="$(arg grid_length_y)" />
-        <param name="grid_position_x" value="$(arg grid_position_x)" />
-        <param name="grid_position_y" value="$(arg grid_position_y)" />
-        <param name="maximum_lidar_height_thres" value="$(arg maximum_lidar_height_thres)" />
-        <param name="minimum_lidar_height_thres" value="$(arg minimum_lidar_height_thres)" />
-        <param name="expand_polygon_size" value="$(arg expand_polygon_size)" />
-        <param name="size_of_expansion_kernel" value="$(arg size_of_expansion_kernel)" />
-        <param name="use_objects_box" value="$(arg use_objects_box)" />
-        <param name="use_objects_convex_hull" value="$(arg use_objects_convex_hull)" />
-        <param name="use_points" value="$(arg use_points)" />
-        <param name="use_wayarea" value="$(arg use_wayarea)" />
-
-        <remap from="/prediction/motion_predictor/objects"  to="$(arg objects_input)" />
-        <remap from="/points_no_ground"                     to="$(arg points_input)" />
-    </node> -->
-
     <!-- costmap生成 -->
     <arg name="input_point_topic" default="points_no_ground" />  
     <arg name="base_frame" default="rslidar" />  
@@ -109,8 +65,8 @@
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_tf node -->
-    <arg name="lidar_trans_x" default="4.34" />
-    <arg name="lidar_trans_y" default="-0.58" />
+    <arg name="lidar_trans_x" default="4.34" doc="4.34"/>
+    <arg name="lidar_trans_y" default="-0.58" doc="-0.58"/>
     <arg name="lidar_trans_z" default="0.0" />
 
     <arg name="lidar_rotation_roll" default="0.0" />
@@ -142,8 +98,16 @@
 
     <!-- 上层控制节点 -->
     <arg name="is_static_map" default="false"/>
-    <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen">
+    <arg name="is_keep_sending" default="true"/>
+    <arg name="sub_goal_tolerance_distance" default="20.0" doc="对静态地图没有用"/>
+    <arg name="zero_vel_segment" default="5" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
+    <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
         <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
+        <param name="is_keep_sending" type="bool" value="$(arg is_keep_sending)"/>
+        <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
+        <param name="zero_vel_segment" type="int" value="$(arg zero_vel_segment)"/>
+        <param name="use_complex_lane" type="bool" value="$(arg use_complex_lane)"/>
     </node>
 
     <!-- Hybrid A* node -->
@@ -151,13 +115,12 @@
     <arg name="costmap_topic" default="global_cost_map" />
     <arg name="pose_topic" default="gnss_pose" />
     
-    <arg name="waypoints_velocity" default="5.0" />
+    <arg name="waypoints_velocity" default="2.0" />
     <arg name="update_rate" default="10" />
     
     <arg name="is_visual" default="true" />
     <arg name="use_rviz_start" default="false" />
 
-    <!-- Hybrid A* search configurations -->
     <arg name="time_limit" default="10000.0" />
 
     <arg name="vehicle_length" default="4.788" />
@@ -166,8 +129,8 @@
 
     <arg name="max_turning_radius" default="20.0" />
     <arg name="min_turning_radius" default="4.36" />
-    <arg name="turning_radius_size" default="1" />
-    <arg name="theta_size" default="48" />
+    <arg name="turning_radius_size" default="11" />
+    <arg name="theta_size" default="72" />
 
     <arg name="reverse_weight" default="10.0" />
     <arg name="turning_weight" default="2.0" />
@@ -192,7 +155,7 @@
     <arg name="analytic_expansion_max_length" default="30" />
 
 
-    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" required="true">
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen">
 
       <param name="costmap_topic" value="$(arg costmap_topic)"/>
       <param name="pose_topic" value="$(arg pose_topic)"/>

@@ -1,16 +1,5 @@
 #include "high_performence_hybrid_astar.hpp"
 
-// HybridAstar::HybridAstar(const PlannerCommonParam &planner_common_param)
-//     : _planner_common_param(planner_common_param)
-// {
-//     _transition_table = createTransitionTable(
-//         _planner_common_param.min_turning_radius,
-//         _planner_common_param.max_turning_radius,
-//         _planner_common_param.turning_radius_size,
-//         _planner_common_param.theta_size,
-//         _planner_common_param.use_back);
-// }
-
 void HybridAstar::initParam(const PlannerCommonParam &planner_common_param)
 {
     _planner_common_param = planner_common_param;
@@ -22,7 +11,7 @@ void HybridAstar::initParam(const PlannerCommonParam &planner_common_param)
         _planner_common_param.use_back);
 
     alpha = _planner_common_param.alpha;
-    wObstacle = _planner_common_param.obstacle_weight;
+    wObstacle = _planner_common_param.obstacle_weight; 
     wCurvature = _planner_common_param.curvature_weight;
     wSmoothness = _planner_common_param.smoothness_weight;
 }
@@ -155,26 +144,30 @@ SearchStatus HybridAstar::search()
         current_node->status = NodeStatus::Close;
 
         //尝试解析扩张
-        AstarNodePtr goal_node = std::make_shared<AstarNode>();
-        goal_node->x = _goal_pose.position.x;
-        goal_node->y = _goal_pose.position.y;
-        goal_node->theta = tf2::getYaw(_goal_pose.orientation);
-
-        int analytic_iterations = 0;
-        float closest_distance = std::numeric_limits<float>::max();
-
-        AstarNodePtr analytic_node = tryAnalyticExpansion(current_node, goal_node, analytic_iterations, closest_distance);
-        if (analytic_node != nullptr)
+        if (_planner_common_param.use_analytic_expansion)
         {
-            ROS_INFO("analytic expansion successfully");
-            current_node = analytic_node;
-            goal_node.reset();
+            AstarNodePtr goal_node = std::make_shared<AstarNode>();
+            goal_node->x = _goal_pose.position.x;
+            goal_node->y = _goal_pose.position.y;
+            goal_node->theta = tf2::getYaw(_goal_pose.orientation);
+
+            int analytic_iterations = 0;
+            float closest_distance = std::numeric_limits<float>::max();
+
+            AstarNodePtr analytic_node = tryAnalyticExpansion(current_node, goal_node, analytic_iterations, closest_distance);
+            if (analytic_node != nullptr)
+            {
+                ROS_INFO("analytic expansion successfully");
+                current_node = analytic_node;
+                goal_node.reset();
+            }
         }
 
         //如果当前节点就是终点，那么记录路径并返回SUCCESS
         if (isGoal(*current_node))
         {
             setPath(current_node);
+            ROS_INFO("research_cnt:%d", research_cnt);
             return SearchStatus::SUCCESS;
         }
 
@@ -328,7 +321,11 @@ double HybridAstar::calcDistance2d(const geometry_msgs::Point &p1, const geometr
 
 double HybridAstar::calcDistance2d(const geometry_msgs::Pose &p1, const geometry_msgs::Pose &p2)
 {
-    double theta_cost = fabs(tf2::getYaw(p1.orientation) - tf2::getYaw(p2.orientation));
+    double theta_cost = 0;
+    if (_planner_common_param.use_theta_cost)
+    {
+        theta_cost = fabs(tf2::getYaw(p1.orientation) - tf2::getYaw(p2.orientation));
+    }
 
     return calcDistance2d(p1.position, p2.position);
 }
@@ -347,7 +344,11 @@ double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const
     rsEnd->setXY(goal.position.x, goal.position.y);
     rsEnd->setYaw(tf2::getYaw(goal.orientation));
 
-    double theta_cost = fabs(tf2::getYaw(start.orientation) - tf2::getYaw(goal.orientation));
+    double theta_cost = 0;
+    if (_planner_common_param.use_theta_cost)
+    {
+        theta_cost = fabs(tf2::getYaw(start.orientation) - tf2::getYaw(goal.orientation));
+    }
 
     // ROS_INFO("rs cost:%f", t1.getTimerMilliSec());
     return reedsSheppPath.distance(rsStart, rsEnd);
@@ -394,6 +395,35 @@ double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const
 
     _2d_open_list.push(start_2d);
 
+    std::unordered_map<int, bool> dir_map;
+    if (_planner_common_param.use_theta_cost)
+    {
+        if (goal_2d->x_index > start_2d->x_index && goal_2d->y_index > start_2d->y_index) //右上
+        {
+            dir_map.insert(std::pair<int, bool>(0, true));
+            dir_map.insert(std::pair<int, bool>(1, true));
+            dir_map.insert(std::pair<int, bool>(2, true));
+        }
+        else if (goal_2d->x_index > start_2d->x_index && goal_2d->y_index < start_2d->y_index) //右下
+        {
+            dir_map.insert(std::pair<int, bool>(2, true));
+            dir_map.insert(std::pair<int, bool>(3, true));
+            dir_map.insert(std::pair<int, bool>(4, true));
+        }
+        else if (goal_2d->x_index < start_2d->x_index && goal_2d->y_index > start_2d->y_index) //左下
+        {
+            dir_map.insert(std::pair<int, bool>(4, true));
+            dir_map.insert(std::pair<int, bool>(5, true));
+            dir_map.insert(std::pair<int, bool>(6, true));
+        }
+        else if (goal_2d->x_index < start_2d->x_index && goal_2d->y_index < start_2d->y_index) //左上
+        {
+            dir_map.insert(std::pair<int, bool>(6, true));
+            dir_map.insert(std::pair<int, bool>(7, true));
+            dir_map.insert(std::pair<int, bool>(0, true));
+        }
+    }
+
     while (!_2d_open_list.empty())
     {
         AstarNode2dPtr current_node_2d = _2d_open_list.top();
@@ -423,11 +453,13 @@ double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const
             return current_node_2d->g_cost;
         }
 
-        int dx[8] = {0, 0, 1, -1, 1, 1, -1, -1};
-        int dy[8] = {1, -1, 0, 0, 1, -1, 1, -1};
+        //从上开始顺时针转
+        int dx[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+        int dy[8] = {1, 1, 0, -1, -1, -1, 0, 1};
 
         for (int i = 0; i < 8; i++)
         {
+
             int nx = current_node_2d->x_index + dx[i];
             int ny = current_node_2d->y_index + dy[i];
             IndexXYT n_index(nx, ny, 1);
@@ -440,8 +472,15 @@ double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const
             AstarNode2dPtr next_node_2d = _2d_nodes[nx][ny];
 
             double move_cost = sqrt(pow(dx[i], 2.0) + pow(dy[i], 2.0));
-            const double next_gc = current_node_2d->g_cost + move_cost;
+            if (_planner_common_param.use_theta_cost)
+            {
+                if (dir_map.find(i) == dir_map.end()) //没找到
+                {
+                    move_cost *= _planner_common_param.obstacle_theta_ratio;
+                }
+            }
 
+            const double next_gc = current_node_2d->g_cost + move_cost;
             if (next_node_2d->status == NodeStatus::None || next_gc < next_node_2d->g_cost)
             {
                 next_node_2d->status = NodeStatus::Open;
@@ -539,17 +578,26 @@ void HybridAstar::SetOccupancyGrid(const nav_msgs::OccupancyGrid &cost_map)
     _nodes.clear();
     _nodes.resize(map_height);
 
-    _2d_nodes.clear();
-    _2d_nodes.resize(map_height);
+    if (_planner_common_param.use_obstacle_heuristic)
+    {
+        _2d_nodes.clear();
+        _2d_nodes.resize(map_height);
+    }
+
     for (int i = 0; i < map_height; i++)
     {
         _nodes[i].resize(map_width);
-
-        _2d_nodes[i].resize(map_width);
+        if (_planner_common_param.use_obstacle_heuristic)
+        {
+            _2d_nodes[i].resize(map_width);
+        }
 
         for (int j = 0; j < map_width; j++)
         {
-            _2d_nodes[i][j] = std::make_shared<AstarNode2d>();
+            if (_planner_common_param.use_obstacle_heuristic)
+            {
+                _2d_nodes[i][j] = std::make_shared<AstarNode2d>();
+            }
 
             _nodes[i][j].resize(_planner_common_param.theta_size);
 

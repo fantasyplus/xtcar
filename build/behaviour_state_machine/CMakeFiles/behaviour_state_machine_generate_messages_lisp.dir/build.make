@@ -77,12 +77,18 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lis
 
 /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/lib/genlisp/gen_lisp.py
 /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Twist.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Vector3.msg
 /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Pose.msg
-/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
-/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg
 /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
+/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Lisp code from behaviour_state_machine/GoalPose.srv"
-	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv
+	cd /home/ros/fantasyplus/xtcar/build/behaviour_state_machine && ../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genlisp/cmake/../../../lib/genlisp/gen_lisp.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv
 
 behaviour_state_machine_generate_messages_lisp: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp
 behaviour_state_machine_generate_messages_lisp: /home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/behaviour_state_machine/srv/GoalPose.lisp

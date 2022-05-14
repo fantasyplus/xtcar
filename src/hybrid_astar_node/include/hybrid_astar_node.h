@@ -101,12 +101,13 @@ private:
 
   static constexpr color black = {0.f / 255.f, 0.f / 255.f, 0.f / 255.f};
 
+  static constexpr color blue = {51.f / 255.f, 204.f / 255.f, 204.f / 255.f};
+
   void visualPathVehicle(const TrajectoryWaypoints &visual_waypoints);
 
 private:
   /*---------------------suv car---------------------*/
-  ros::Publisher _pub_mpc_lane;
-  void sendMpcMsgsLane(const TrajectoryWaypoints &traj);
+  mpc_msgs::Lane convertToMpcMsgsLane(const TrajectoryWaypoints &traj);
 };
 
 #endif

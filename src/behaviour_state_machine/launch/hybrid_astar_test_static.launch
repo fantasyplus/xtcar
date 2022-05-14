@@ -120,10 +120,14 @@
         <remap from="/map" to="/global_cost_map" />
     </node>
 
-    <!-- 上层控制节点 -->
+    <!-- 上层控制状态机节点 -->
     <arg name="is_static_map" default="true"/>
+    <arg name="is_keep_sending" default="false"/>
+    <arg name="sub_goal_tolerance_distance" default="2.0" doc="对静态地图没有用"/>
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen">
         <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
+        <param name="is_keep_sending" type="bool" value="$(arg is_keep_sending)"/>
+        <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
     </node>
 
     <!-- Hybrid A* node -->
@@ -138,34 +142,38 @@
     <arg name="use_rviz_start_hybridastar" default="true" />
 
     <!-- Hybrid A* search configurations -->
-    <arg name="time_limit" default="100000.0" />
+    <arg name="time_limit" default="5000.0" />
 
     <arg name="vehicle_length" default="4.788" />
     <arg name="vehicle_width" default="2.198" />
     <arg name="vehicle_cg2back" default="1.367" />
 
-    <arg name="max_turning_radius" default="20.0" />
+    <arg name="max_turning_radius" default="20.0" doc="该值与障碍物密集程度成反比，值越大在空地中搜索越快，反之在复杂环境搜索越慢"/>
     <arg name="min_turning_radius" default="4.36" />
     <arg name="turning_radius_size" default="1" />
-    <arg name="theta_size" default="48" />
+    <arg name="theta_size" default="72" />
 
-    <arg name="reverse_weight" default="10.0" />
+    <arg name="reverse_weight" default="2.0" />
     <arg name="turning_weight" default="2.0" />
 
-    <arg name="goal_lateral_tolerance" default="0.5" />
-    <arg name="goal_longitudinal_tolerance" default="0.5" />
-    <arg name="goal_angular_tolerance" default="0.015708" />
+    <arg name="goal_lateral_tolerance" default="0.25" />
+    <arg name="goal_longitudinal_tolerance" default="0.25" />
+    <arg name="goal_angular_tolerance" default="0.08726" />
     <arg name="obstacle_threshold" default="100" />
 
-    <arg name="use_back" default="false" />
+    <arg name="use_back" default="true" />
     <arg name="use_reeds_shepp" default="true" />
     <arg name="use_obstacle_heuristic" default="true" />
+    <arg name="use_analytic_expansion" default="true" />
+    <arg name="use_theta_cost" default="false" />
+    <arg name="obstacle_theta_ratio" default="0.9" />
+
     <arg name="use_smoother" default="false" />
 
-    <arg name="alpha" default="0.1" />
-    <arg name="obstacle_weight" default="0.5" />
-    <arg name="curvature_weight" default="0.0" />
-    <arg name="smoothness_weight" default="0.0" />
+    <arg name="alpha" default="0.2" />
+    <arg name="obstacle_weight" default="0.0" />
+    <arg name="curvature_weight" default="0.1" />
+    <arg name="smoothness_weight" default="0.1" />
     <arg name="obstacle_distance_max" default="1.0" />
 
     <arg name="analytic_expansion_ratio" default="3.5" />
@@ -202,6 +210,10 @@
       <param name="use_back" value="$(arg use_back)" />
       <param name="use_reeds_shepp" value="$(arg use_reeds_shepp)" />
       <param name="use_obstacle_heuristic" value="$(arg use_obstacle_heuristic)" />
+      <param name="use_analytic_expansion" value="$(arg use_analytic_expansion)" />
+      <param name="use_theta_cost" value="$(arg use_theta_cost)" />
+      <param name="obstacle_theta_ratio" value="$(arg obstacle_theta_ratio)" />
+
       <param name="use_smoother" value="$(arg use_smoother)" />
 
       <param name="alpha" value="$(arg alpha)" />
@@ -215,7 +227,7 @@
     </node>
 
     <!-- mpc控制器 -->
-    <arg name="show_debug_info" default="false"/>
+    <!-- <arg name="show_debug_info" default="false"/>
     <arg name="ctrl_period" default="0.03"/>
     <arg name="enable_path_smoothing" default="true"/>
     <arg name="enable_yaw_recalculation" default="true"/>
@@ -301,5 +313,5 @@
         <param name="in_waypoints_name" value="$(arg in_waypoints_name)"/>
         <param name="in_selfpose_name" value="$(arg in_selfpose_name)"/>
         <param name="in_vehicle_status_name" value="$(arg in_vehicle_status_name)"/>
-    </node>
+    </node> -->
 </launch>

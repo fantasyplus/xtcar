@@ -77,14 +77,20 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_cpp
 
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Twist.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Vector3.msg
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Pose.msg
-/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
-/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
+/home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/gencpp/msg.h.template
 /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h: /opt/ros/melodic/share/gencpp/srv.h.template
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code from behaviour_state_machine/GoalPose.srv"
-	cd /home/ros/fantasyplus/xtcar/src/behaviour_state_machine && /home/ros/fantasyplus/xtcar/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine -e /opt/ros/melodic/share/gencpp/cmake/..
+	cd /home/ros/fantasyplus/xtcar/src/behaviour_state_machine && /home/ros/fantasyplus/xtcar/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/srv/GoalPose.srv -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p behaviour_state_machine -o /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine -e /opt/ros/melodic/share/gencpp/cmake/..
 
 behaviour_state_machine_generate_messages_cpp: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_cpp
 behaviour_state_machine_generate_messages_cpp: /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPose.h
