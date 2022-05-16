@@ -29,9 +29,12 @@
 
 enum class Direction
 {
-    Left,
-    Right,
-    Straight,
+    ForwardLeft,
+    ForwardRight,
+    BackLeft,
+    BackRight,
+    Forward,
+    Back,
     None
 };
 
@@ -116,11 +119,14 @@ private:
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
-    void sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
+    bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
 
 private:
     Direction dir;
     std::vector<geometry_msgs::PoseStamped> sub_goal_vec;
+    double first_horizontal_distance; // ros参数
+    double second_vertical_distance;  // ros参数
+    double third_nearby_distance;     // ros参数
 
     Direction getDirection(geometry_msgs::PoseStamped &cur, geometry_msgs::PoseStamped &goal);
 

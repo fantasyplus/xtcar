@@ -61,7 +61,7 @@ HybridAstarNode::HybridAstarNode() : _nh(), _private_nh("~")
   _private_nh.param<bool>("use_obstacle_heuristic", _hybrid_astar_param.use_obstacle_heuristic, false);
   _private_nh.param<bool>("use_analytic_expansion", _hybrid_astar_param.use_analytic_expansion, true);
   _private_nh.param<bool>("use_theta_cost", _hybrid_astar_param.use_theta_cost, false);
-  _private_nh.param<double>("obstacle_theta_ratio", _hybrid_astar_param.obstacle_theta_ratio, 1.0); 
+  _private_nh.param<double>("obstacle_theta_ratio", _hybrid_astar_param.obstacle_theta_ratio, 1.0);
 
   _private_nh.param<bool>("use_smoother", _hybrid_astar_param.use_smoother, false);
 
@@ -296,7 +296,7 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
   if (clear_index == 0)
   {
     visualization_msgs::Marker vehicle_marker;
-    vehicle_marker.header.frame_id = _costmap.header.frame_id;
+    vehicle_marker.header.frame_id = "map";
     vehicle_marker.header.stamp = ros::Time::now();
     vehicle_marker.id = id++;
     vehicle_marker.action = 3;
@@ -310,7 +310,7 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
   {
     visualization_msgs::Marker vehicle_marker;
 
-    vehicle_marker.header.frame_id = _costmap.header.frame_id;
+    vehicle_marker.header.frame_id = "map";
     vehicle_marker.header.stamp = ros::Time::now();
     vehicle_marker.id = id++;
     vehicle_marker.type = visualization_msgs::Marker::CUBE;
@@ -341,10 +341,10 @@ void HybridAstarNode::visualPathVehicle(const TrajectoryWaypoints &visual_waypoi
       vehicle_marker.color.b = pink.blue;
     }
 
-    vehicle_marker.pose.position.x = visual_waypoints.trajectory[i].pose.pose.position.x;
-    vehicle_marker.pose.position.y = visual_waypoints.trajectory[i].pose.pose.position.y;
-    vehicle_marker.pose.orientation = visual_waypoints.trajectory[i].pose.pose.orientation;
+    const auto vis_pose_in_mapframe = transformPose(visual_waypoints.trajectory[i].pose.pose,
+                                                    getTransform("map", _costmap.header.frame_id));
 
+    vehicle_marker.pose = vis_pose_in_mapframe;
     _path_vehicles.markers.push_back(vehicle_marker);
   }
 

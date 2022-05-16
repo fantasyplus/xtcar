@@ -142,11 +142,11 @@ private:
     geometry_msgs::Pose transformPose(const geometry_msgs::Pose &pose,
                                       const geometry_msgs::TransformStamped &transform);
 
-    //将位姿变换到costmap frame下
+    //从costmap的frame变换到栅格地图起点
     geometry_msgs::Pose global2local(const nav_msgs::OccupancyGrid &costmap,
                                      const geometry_msgs::Pose &pose_global);
 
-    //将costmap frame下的位姿变换到原始frame下
+    //从栅格地图起点变换到costmap的frame
     geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap,
                                      const geometry_msgs::Pose &pose_local);
 

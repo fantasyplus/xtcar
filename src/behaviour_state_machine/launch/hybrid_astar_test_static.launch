@@ -142,7 +142,7 @@
     <arg name="use_rviz_start_hybridastar" default="true" />
 
     <!-- Hybrid A* search configurations -->
-    <arg name="time_limit" default="5000.0" />
+    <arg name="time_limit" default="10000.0" />
 
     <arg name="vehicle_length" default="4.788" />
     <arg name="vehicle_width" default="2.198" />
@@ -150,7 +150,7 @@
 
     <arg name="max_turning_radius" default="20.0" doc="该值与障碍物密集程度成反比，值越大在空地中搜索越快，反之在复杂环境搜索越慢"/>
     <arg name="min_turning_radius" default="4.36" />
-    <arg name="turning_radius_size" default="1" />
+    <arg name="turning_radius_size" default="11" />
     <arg name="theta_size" default="72" />
 
     <arg name="reverse_weight" default="2.0" />
@@ -165,7 +165,7 @@
     <arg name="use_reeds_shepp" default="true" />
     <arg name="use_obstacle_heuristic" default="true" />
     <arg name="use_analytic_expansion" default="true" />
-    <arg name="use_theta_cost" default="false" />
+    <arg name="use_theta_cost" default="true" />
     <arg name="obstacle_theta_ratio" default="0.9" />
 
     <arg name="use_smoother" default="false" />
