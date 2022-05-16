@@ -1,5 +1,4 @@
 # Hybrid A*
-## 注意：car_simulator对autoware有依赖，不编译成功也没关系
 
 ## 大致编译流程
 rm -rf build/ devel/
