@@ -7,6 +7,9 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<double>("sub_goal_tolerance_distance", _sub_goal_tolerance_distance, 1.0);
     _private_nh.param<int>("zero_vel_segment", _zero_vel_segment, 1);
     _private_nh.param<bool>("use_complex_lane", use_complex_lane, false);
+    _private_nh.param<double>("first_horizontal_distance", first_horizontal_distance, 2.0);
+    _private_nh.param<double>("second_vertical_distance", second_vertical_distance, 10.0);
+    _private_nh.param<double>("third_nearby_distance", third_nearby_distance, 5.0);
 
     /*---------------------subscribe---------------------*/
     _sub_costmap = _nh.subscribe("global_cost_map", 1, &BehaviourStateMachine::callbackCostMap, this);
@@ -228,7 +231,7 @@ void BehaviourStateMachine::sendGoalSrv(geometry_msgs::PoseStamped &pose)
     }
 }
 
-void BehaviourStateMachine::sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &mpc_lane)
+bool BehaviourStateMachine::sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &mpc_lane)
 {
     _goal_pose_srv.request.pose = pose.pose;
     _goal_pose_srv.request.header = pose.header;
@@ -242,14 +245,16 @@ void BehaviourStateMachine::sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_ms
             ROS_INFO("Hybrid Astar Successful");
             temp_lane = _goal_pose_srv.response.traj;
             mpc_lane = temp_lane;
+
+            return true;
         }
         else
         {
             ROS_INFO("Hybrid Astar Failed");
-            mpc_lane = temp_lane;
+            return false;
         }
     }
-    mpc_lane = temp_lane;
+    return false;
 }
 
 Direction BehaviourStateMachine::getDirection(geometry_msgs::PoseStamped &cur, geometry_msgs::PoseStamped &goal)
@@ -259,20 +264,36 @@ Direction BehaviourStateMachine::getDirection(geometry_msgs::PoseStamped &cur, g
 
     geometry_msgs::Pose pose_in_cur_frame = transformPose(goal.pose, goal2cur_tf);
 
-    // ROS_INFO("pose_in_cur_frame:%f,%f,frame:%s", pose_in_cur_frame.position.x, pose_in_cur_frame.position.y, goal2cur_tf.header.frame_id.c_str());
+    //(-90,0),(0,90)为正方向，(90,180),(-180,-90)为负方向
+    double theta_in_cur_frame = tf2::getYaw(pose_in_cur_frame.orientation);
+    theta_in_cur_frame = theta_in_cur_frame * 180.0 / M_PI;
+    ROS_INFO("theta_in_cur_frame:%f", theta_in_cur_frame);
+
     if (pose_in_cur_frame.position.y > 0)
     {
-        ROS_INFO("Target at Current's Left");
-        return Direction::Left;
+        if (theta_in_cur_frame >= -90.0 && theta_in_cur_frame <= 90.0)
+        {
+            ROS_INFO("Target at Current's Left and Orientation at Current's Forward");
+            return Direction::ForwardLeft;
+        }
+        else if ((theta_in_cur_frame > 90.0 && theta_in_cur_frame <= 180.0) || (theta_in_cur_frame >= -180.0 && theta_in_cur_frame < -90.0))
+        {
+            ROS_INFO("Target at Current's Left and Orientation at Current's Back");
+            return Direction::BackLeft;
+        }
     }
     else if (pose_in_cur_frame.position.y < 0)
     {
-        ROS_INFO("Target at Current's Right");
-        return Direction::Right;
-    }
-    else if (pose_in_cur_frame.position.y == 0)
-    {
-        return Direction::Straight;
+        if (theta_in_cur_frame >= -90.0 && theta_in_cur_frame <= 90.0)
+        {
+            ROS_INFO("Target at Current's Right and Orientation at Current's Forward");
+            return Direction::ForwardRight;
+        }
+        else if ((theta_in_cur_frame > 90.0 && theta_in_cur_frame <= 180.0) || (theta_in_cur_frame >= -180.0 && theta_in_cur_frame < -90.0))
+        {
+            ROS_INFO("Target at Current's Right and Orientation at Current's Back");
+            return Direction::BackRight;
+        }
     }
 
     return Direction::None;
@@ -284,22 +305,44 @@ std::vector<geometry_msgs::PoseStamped> BehaviourStateMachine::multipleTargetGen
     std::vector<double> dy;
     switch (dir)
     {
-    //右前前
-    case Direction::Left:
+    //右前前(在车辆左边同方向)
+    case Direction::ForwardLeft:
     {
-        std::vector<double> left_dx{0, 4, 2};
-        std::vector<double> left_dy{-2, 0, 0};
+        std::vector<double> left_dx{0, second_vertical_distance, third_nearby_distance};
+        std::vector<double> left_dy{-first_horizontal_distance, 0, 0};
 
         dx.insert(dx.begin(), left_dx.begin(), left_dx.end());
         dy.insert(dy.begin(), left_dy.begin(), left_dy.end());
 
         break;
     }
-    //左前前
-    case Direction::Right:
+    //左前前(在车辆左边反方向)
+    case Direction::BackLeft:
     {
-        std::vector<double> right_dx{0, 4, 2};
-        std::vector<double> right_dy{-2, 0, 0};
+        std::vector<double> left_dx{0, second_vertical_distance, third_nearby_distance};
+        std::vector<double> left_dy{first_horizontal_distance, 0, 0};
+
+        dx.insert(dx.begin(), left_dx.begin(), left_dx.end());
+        dy.insert(dy.begin(), left_dy.begin(), left_dy.end());
+
+        break;
+    }
+    //左前前(在车辆右边同方向)
+    case Direction::ForwardRight:
+    {
+        std::vector<double> right_dx{0, second_vertical_distance, third_nearby_distance};
+        std::vector<double> right_dy{first_horizontal_distance, 0, 0};
+
+        dx.insert(dx.begin(), right_dx.begin(), right_dx.end());
+        dy.insert(dy.begin(), right_dy.begin(), right_dy.end());
+
+        break;
+    }
+    //右前前(在车辆右边反方向)
+    case Direction::BackRight:
+    {
+        std::vector<double> right_dx{0, second_vertical_distance, third_nearby_distance};
+        std::vector<double> right_dy{-first_horizontal_distance, 0, 0};
 
         dx.insert(dx.begin(), right_dx.begin(), right_dx.end());
         dy.insert(dy.begin(), right_dy.begin(), right_dy.end());
@@ -345,24 +388,24 @@ void BehaviourStateMachine::experimentalUse()
     geometry_msgs::PoseWithCovarianceStamped temp_start;
     temp_start.header.stamp = ros::Time::now();
     temp_start.header.frame_id = "map";
-    temp_start.pose.pose.position.x = 44.5119094849;
-    temp_start.pose.pose.position.y = 28.0472793579;
+    temp_start.pose.pose.position.x = 10.3339920044;
+    temp_start.pose.pose.position.y = 27.3301734924;
     temp_start.pose.pose.position.z = 0.0;
     temp_start.pose.pose.orientation.x = 0.0;
     temp_start.pose.pose.orientation.y = 0.0;
-    temp_start.pose.pose.orientation.z = -0.368646407278;
-    temp_start.pose.pose.orientation.w = 0.929569699593;
+    temp_start.pose.pose.orientation.z = 0.707105953703;
+    temp_start.pose.pose.orientation.w = 0.707107608669;
     _pub_rviz_start_pose.publish(temp_start);
 
     _goal_pose_stamped.header.stamp = ros::Time::now();
     _goal_pose_stamped.header.frame_id = "map";
-    _goal_pose_stamped.pose.position.x = 80.6284713745;
-    _goal_pose_stamped.pose.position.y = 41.0094299316;
+    _goal_pose_stamped.pose.position.x = 58.5468978882;
+    _goal_pose_stamped.pose.position.y = 52.9061088562;
     _goal_pose_stamped.pose.position.z = 0.0;
     _goal_pose_stamped.pose.orientation.x = 0.0;
     _goal_pose_stamped.pose.orientation.y = 0.0;
-    _goal_pose_stamped.pose.orientation.z = -0.0824805305618;
-    _goal_pose_stamped.pose.orientation.w = 0.996592676111;
+    _goal_pose_stamped.pose.orientation.z = 0.998516745489;
+    _goal_pose_stamped.pose.orientation.w = 0.0544454679205;
 
     sendGoalSrv(_goal_pose_stamped);
 }
@@ -463,7 +506,14 @@ void BehaviourStateMachine::run()
                     pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
 
                     mpc_msgs::Lane temp_lane;
-                    sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送第一个子目标点并将返回轨迹保存到temp_lane中
+                    bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送第一个子目标点并将返回轨迹保存到temp_lane中
+
+                    //如果规划失败了，退出正常流程
+                    if (!ret)
+                    {
+                        dynamic_id = 3;
+                        continue;
+                    }
 
                     if (use_complex_lane)
                     {
@@ -498,7 +548,14 @@ void BehaviourStateMachine::run()
                         pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
 
                         mpc_msgs::Lane temp_lane;
-                        sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送子目标点并将返回轨迹保存到temp_lane中
+                        bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送子目标点并将返回轨迹保存到temp_lane中
+
+                        //如果规划失败了，退出正常流程
+                        if (!ret)
+                        {
+                            dynamic_id = 3;
+                            continue;
+                        }
 
                         if (use_complex_lane)
                         {

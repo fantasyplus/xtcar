@@ -107,13 +107,13 @@ void CarTF::publishTF()
     {
         geometry_msgs::TransformStamped broad_target_tf;
 
-        broad_target_tf.header.frame_id = _costmap_frame_id;
+        broad_target_tf.header.frame_id = "map";
         broad_target_tf.header.stamp = ros::Time::now();
 
         broad_target_tf.child_frame_id = "target_car";
 
         geometry_msgs::Pose goal_pose_in_costmap_frame;
-        _target_tf = getTransform(_costmap_frame_id, _goal_pose_stamped.header.frame_id);
+        _target_tf = getTransform("map", _goal_pose_stamped.header.frame_id);
         goal_pose_in_costmap_frame = transformPose(_goal_pose_stamped.pose, _target_tf);
 
         broad_target_tf.transform.translation.x = goal_pose_in_costmap_frame.position.x;
