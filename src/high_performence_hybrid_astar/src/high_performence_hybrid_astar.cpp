@@ -11,7 +11,7 @@ void HybridAstar::initParam(const PlannerCommonParam &planner_common_param)
         _planner_common_param.use_back);
 
     alpha = _planner_common_param.alpha;
-    wObstacle = _planner_common_param.obstacle_weight; 
+    wObstacle = _planner_common_param.obstacle_weight;
     wCurvature = _planner_common_param.curvature_weight;
     wSmoothness = _planner_common_param.smoothness_weight;
 }
@@ -289,6 +289,7 @@ void HybridAstar::setPath(AstarNodePtr goal_node)
     //从目标点反向迭代回起点
     AstarNodePtr node = goal_node;
 
+    double path_length = 0.0;
     while (node != nullptr)
     {
         geometry_msgs::PoseStamped pose;
@@ -300,9 +301,16 @@ void HybridAstar::setPath(AstarNodePtr goal_node)
         single_waypoint.is_back = node->is_back;
         _final_traj.trajectory.push_back(single_waypoint);
 
+        //计算路径长度
+        if (node->parent != nullptr)
+        {
+            path_length += std::hypot(node->x - node->parent->x, node->y - node->parent->y);
+        }
+
         //迭代至下一个点
         node = node->parent;
     }
+    ROS_INFO("path_length:%f", path_length);
 
     //反转路径，才是从起点到终点的路径
     std::reverse(_final_traj.trajectory.begin(), _final_traj.trajectory.end());
@@ -327,12 +335,11 @@ double HybridAstar::calcDistance2d(const geometry_msgs::Pose &p1, const geometry
         theta_cost = fabs(tf2::getYaw(p1.orientation) - tf2::getYaw(p2.orientation));
     }
 
-    return calcDistance2d(p1.position, p2.position);
+    return calcDistance2d(p1.position, p2.position) + theta_cost;
 }
 
 double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
 {
-    // TimerClock t1;
     ompl::base::ReedsSheppStateSpace reedsSheppPath(_planner_common_param.min_turning_radius);
 
     State *rsStart = (State *)reedsSheppPath.allocState();
@@ -350,8 +357,7 @@ double HybridAstar::getDistanceHeuristic(const geometry_msgs::Pose &start, const
         theta_cost = fabs(tf2::getYaw(start.orientation) - tf2::getYaw(goal.orientation));
     }
 
-    // ROS_INFO("rs cost:%f", t1.getTimerMilliSec());
-    return reedsSheppPath.distance(rsStart, rsEnd);
+    return reedsSheppPath.distance(rsStart, rsEnd) + theta_cost;
 }
 
 double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const geometry_msgs::Pose &goal)
@@ -496,7 +502,7 @@ double HybridAstar::getObstacleHeuristic(const geometry_msgs::Pose &start, const
         }
     }
     // ROS_INFO("can't find 2d a* goal");
-    return 0x7f7f7f7f;
+    return 10000;
 }
 
 double HybridAstar::estimateCost(const geometry_msgs::Pose &start)

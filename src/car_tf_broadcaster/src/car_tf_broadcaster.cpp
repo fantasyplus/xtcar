@@ -112,14 +112,14 @@ void CarTF::publishTF()
 
         broad_target_tf.child_frame_id = "target_car";
 
-        geometry_msgs::Pose goal_pose_in_costmap_frame;
+        geometry_msgs::Pose goal_pose_in_map_frame;
         _target_tf = getTransform("map", _goal_pose_stamped.header.frame_id);
-        goal_pose_in_costmap_frame = transformPose(_goal_pose_stamped.pose, _target_tf);
+        goal_pose_in_map_frame = transformPose(_goal_pose_stamped.pose, _target_tf);
 
-        broad_target_tf.transform.translation.x = goal_pose_in_costmap_frame.position.x;
-        broad_target_tf.transform.translation.y = goal_pose_in_costmap_frame.position.y;
-        broad_target_tf.transform.translation.z = goal_pose_in_costmap_frame.position.z;
-        broad_target_tf.transform.rotation = goal_pose_in_costmap_frame.orientation;
+        broad_target_tf.transform.translation.x = goal_pose_in_map_frame.position.x;
+        broad_target_tf.transform.translation.y = goal_pose_in_map_frame.position.y;
+        broad_target_tf.transform.translation.z = goal_pose_in_map_frame.position.z;
+        broad_target_tf.transform.rotation = goal_pose_in_map_frame.orientation;
 
         _tf_broadcaster.sendTransform(broad_target_tf);
     }

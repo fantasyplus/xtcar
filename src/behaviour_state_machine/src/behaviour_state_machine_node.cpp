@@ -10,6 +10,11 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<double>("first_horizontal_distance", first_horizontal_distance, 2.0);
     _private_nh.param<double>("second_vertical_distance", second_vertical_distance, 10.0);
     _private_nh.param<double>("third_nearby_distance", third_nearby_distance, 5.0);
+    _private_nh.param<double>("vehicle_length", vehicle_length, 4.788);
+    _private_nh.param<double>("vehicle_width", vehicle_width, 2.198);
+    _private_nh.param<double>("vehicle_cg2back", vehicle_cg2back, 1.367);
+    _private_nh.param<double>("lookahead_distance", lookahead_distance, 5.0);
+    _private_nh.param<double>("waypoints_velocity", waypoints_velocity, 2.0);
 
     /*---------------------subscribe---------------------*/
     _sub_costmap = _nh.subscribe("global_cost_map", 1, &BehaviourStateMachine::callbackCostMap, this);
@@ -29,6 +34,9 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _pub_rviz_start_pose = _nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1, true);
     _pub_mpc_lane = _nh.advertise<mpc_msgs::Lane>("mpc_waypoints", 1, true);
     _pub_vis_mpc_lane = _nh.advertise<nav_msgs::Path>("vis_mpc_waypoints", 1, true);
+
+    // debug 可视化车辆轮廓
+    _pub_vis_car_path = _nh.advertise<nav_msgs::Path>("vis_car_path", 1, true);
 
     //发布mpclane的定时器
     _timer_pub_lane = _nh.createTimer(ros::Duration(0.2), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
@@ -66,6 +74,17 @@ geometry_msgs::TransformStamped BehaviourStateMachine::getTransform(const std::s
     return tf;
 }
 
+geometry_msgs::Pose BehaviourStateMachine::global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global)
+{
+    tf2::Transform tf_origin;
+    tf2::convert(costmap.info.origin, tf_origin);
+
+    geometry_msgs::TransformStamped transform;
+    transform.transform = tf2::toMsg(tf_origin.inverse());
+
+    return transformPose(pose_global, transform);
+}
+
 void BehaviourStateMachine::callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg)
 {
     _rviz_start_flag = true;
@@ -94,6 +113,152 @@ void BehaviourStateMachine::callbackGoalPose(const geometry_msgs::PoseStamped &m
 void BehaviourStateMachine::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
 {
     _costmap_frame_id = msg.header.frame_id;
+
+    /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
+
+    //代价地图参数
+    const double map_width = msg.info.width;
+    const double map_height = msg.info.height;
+    const double map_resolution = msg.info.resolution;
+
+    //车体参数
+    const double back = -1.0 * vehicle_cg2back;
+    const double front = vehicle_length - vehicle_cg2back;
+    const double right = -1.0 * vehicle_width / 2;
+    const double left = vehicle_width / 2;
+
+    //获得当前正在执行的路径，得到前探距离上最近的那个路径点
+    if (_mpc_lane.waypoints.empty())
+    {
+        return;
+    }
+    const mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
+
+    //获取当前位置在路径上的最近点
+    double min_dis = std::numeric_limits<int>::max();
+    int closet_index = -1;
+    geometry_msgs::Pose cur_pose = _current_pose_stamped.pose;
+    for (std::size_t i = 0; i < temp_lane_to_detect_collision.waypoints.size(); i++)
+    {
+        geometry_msgs::Pose temp_pose = temp_lane_to_detect_collision.waypoints[i].pose.pose;
+        double dis = std::hypot(temp_pose.position.x - cur_pose.position.x, temp_pose.position.y - cur_pose.position.y);
+        if (dis < min_dis)
+        {
+            closet_index = i;
+            min_dis = dis;
+        }
+    }
+
+    //检测碰撞的那个路径点
+    geometry_msgs::Pose base_pose;
+    //获得从最近点往前看lookahead_distance距离的点
+    double length = 0.0;
+    geometry_msgs::Pose pre_pose = temp_lane_to_detect_collision.waypoints[closet_index].pose.pose;
+    for (std::size_t i = closet_index + 1; i < temp_lane_to_detect_collision.waypoints.size(); i++)
+    {
+        geometry_msgs::Pose temp_pose = temp_lane_to_detect_collision.waypoints[i].pose.pose;
+        length += std::hypot(temp_pose.position.x - pre_pose.position.x, temp_pose.position.y - pre_pose.position.y);
+        pre_pose = temp_pose;
+
+        if (length >= lookahead_distance)
+        {
+            base_pose = temp_pose;
+            break;
+        }
+    }
+    if (length < lookahead_distance)
+    {
+        ROS_INFO("lookahead_distance is bigger than path length");
+        return;
+    }
+
+    // debug 可视化车辆轮廓
+    std::vector<geometry_msgs::PoseStamped> vis_car_pose;
+
+    //获取最近点角度下的车体轮廓位置数组
+    double cur_theta = tf2::getYaw(base_pose.orientation);
+    std::vector<geometry_msgs::Pose> car_pose_vec;
+    for (auto x = back; x <= front; x += map_resolution)
+    {
+        for (auto y = right; y < left; y += map_resolution)
+        {
+            const double offset_x = x * std::cos(cur_theta) - y * std::sin(cur_theta);
+            const double offset_y = x * std::sin(cur_theta) + y * std::cos(cur_theta);
+
+            // debug 可视化车体轮廓
+            geometry_msgs::PoseStamped vis_pose;
+            vis_pose.header.frame_id = "map";
+            vis_pose.pose.position.x = base_pose.position.x + offset_x;
+            vis_pose.pose.position.y = base_pose.position.y + offset_y;
+            vis_pose.pose.position.z = base_pose.position.z;
+            vis_car_pose.push_back(vis_pose);
+
+            //车体轮廓点
+            geometry_msgs::Pose car_pose;
+            car_pose.position.x = base_pose.position.x + offset_x;
+            car_pose.position.y = base_pose.position.y + offset_y;
+            car_pose.position.z = base_pose.position.z;
+
+            const auto car_pose_in_costmap_frame = transformPose(car_pose, getTransform(msg.header.frame_id, "map"));
+            car_pose_vec.push_back(global2local(msg, car_pose_in_costmap_frame));
+        }
+    }
+
+    //转换车体轮廓点到栅格地图索引
+    std::vector<std::pair<int, int>> collision_index_vec;
+    for (auto p : car_pose_vec)
+    {
+        std::pair<int, int> car_index_xy;
+        car_index_xy.first = static_cast<int>(std::floor(p.position.x / map_resolution));
+        car_index_xy.second = static_cast<int>(std::floor(p.position.y / map_resolution));
+        collision_index_vec.push_back(car_index_xy);
+    }
+
+    // debug 可视化车辆轮廓
+    vis_car_path.poses.clear();
+    for (auto sp : vis_car_pose)
+    {
+        vis_car_path.poses.push_back(sp);
+    }
+    vis_car_path.header.frame_id = "map";
+    _pub_vis_car_path.publish(vis_car_path);
+
+    //判断在当前路径点是否会发生碰撞
+    bool is_collision = false;
+    for (auto car_index : collision_index_vec)
+    {
+        int coll_x = car_index.first;
+        int coll_y = car_index.second;
+
+        if (coll_x < 0 || coll_x >= map_width || coll_y < 0 || coll_y >= map_height)
+        {
+            //越界
+            return;
+        }
+        if (msg.data[coll_y * map_width + coll_x])
+        {
+            //碰撞
+            is_collision = true;
+            break;
+        }
+    }
+    //_mpc_lane速度全置为0
+    if (is_collision)
+    {
+        ROS_INFO("collision at x:%f,y:%f", base_pose.position.x, base_pose.position.y);
+        for (auto &wp : _mpc_lane.waypoints)
+        {
+            wp.twist.twist.linear.x = 0.0;
+        }
+    }
+    else //还原成原始路径
+    {
+        for (auto &wp : _mpc_lane.waypoints)
+        {
+            wp.twist.twist.linear.x = waypoints_velocity;
+        }
+        processMpcLane(_mpc_lane);
+    }
 }
 
 void BehaviourStateMachine::callbackCurrentPose(const geometry_msgs::PoseStamped &msg)
@@ -108,34 +273,39 @@ void BehaviourStateMachine::callbackVehicleStatus(const mpc_msgs::VehicleStatus 
     _vehicle_status = msg;
 }
 
+void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &mpc_lane)
+{
+    //到这里的_mpc_lane应该都是单段轨迹，即只前进或只后退
+    //对后1/_zero_vel_segment的路径点速度赋0
+    int size = _mpc_lane.waypoints.size();
+    // ROS_INFO("_mpc_lane.size:%d", (int)size);
+
+    if (size >= _zero_vel_segment)
+    {
+        //获得开始赋0的起始点位置
+        int zero_point_start_index = size - (int)(((double)size / (double)_zero_vel_segment) + 0.5); //四舍五入
+        // ROS_INFO("(int)std::round(size / _zero_vel_segment:%d", (int)(((double)size / (double)_zero_vel_segment) + 0.5));
+        for (int i = zero_point_start_index - 1; i < size; i++)
+        {
+            _mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
+        }
+    }
+    else
+    { //如果size比_zero_vel_segment还小，给最后一个点速度赋0
+        _mpc_lane.waypoints[size - 1].twist.twist.linear.x = 0.0;
+    }
+
+    //最后一个点的direction赋6（停止标志位）
+    _mpc_lane.waypoints[size - 1].direction = 6;
+}
+
 void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e)
 {
     if (is_pub_mpc_lane)
     {
         /*-----对mpclane进行处理,并发送真实路径-----*/
 
-        //到这里的_mpc_lane应该都是单段轨迹，即只前进或只后退
-        //对后1/_zero_vel_segment的路径点速度赋0
-        int size = _mpc_lane.waypoints.size();
-        // ROS_INFO("_mpc_lane.size:%d", (int)size);
-
-        if (size >= _zero_vel_segment)
-        {
-            //获得开始赋0的起始点位置
-            int zero_point_start_index = size - (int)(((double)size / (double)_zero_vel_segment) + 0.5); //四舍五入
-            // ROS_INFO("(int)std::round(size / _zero_vel_segment:%d", (int)(((double)size / (double)_zero_vel_segment) + 0.5));
-            for (int i = zero_point_start_index - 1; i < size; i++)
-            {
-                _mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
-            }
-        }
-        else
-        { //如果size比_zero_vel_segment还小，给最后一个点速度赋0
-            _mpc_lane.waypoints[size - 1].twist.twist.linear.x = 0.0;
-        }
-
-        //最后一个点的direction赋6（停止标志位）
-        _mpc_lane.waypoints[size - 1].direction = 6;
+        processMpcLane(_mpc_lane);
         _pub_mpc_lane.publish(_mpc_lane);
 
         /*-----发送可视化路径-----*/
@@ -385,27 +555,29 @@ std::vector<geometry_msgs::PoseStamped> BehaviourStateMachine::multipleTargetGen
 
 void BehaviourStateMachine::experimentalUse()
 {
-    geometry_msgs::PoseWithCovarianceStamped temp_start;
-    temp_start.header.stamp = ros::Time::now();
-    temp_start.header.frame_id = "map";
-    temp_start.pose.pose.position.x = 10.3339920044;
-    temp_start.pose.pose.position.y = 27.3301734924;
-    temp_start.pose.pose.position.z = 0.0;
-    temp_start.pose.pose.orientation.x = 0.0;
-    temp_start.pose.pose.orientation.y = 0.0;
-    temp_start.pose.pose.orientation.z = 0.707105953703;
-    temp_start.pose.pose.orientation.w = 0.707107608669;
-    _pub_rviz_start_pose.publish(temp_start);
+    //保留点 ratio=0.5 319ms opennode:2692
+    //不加thetacost 2066ms opennode:2094
+    // geometry_msgs::PoseWithCovarianceStamped temp_start;
+    // temp_start.header.stamp = ros::Time::now();
+    // temp_start.header.frame_id = "map";
+    // temp_start.pose.pose.position.x = 27.391078949;
+    // temp_start.pose.pose.position.y = 18.884557724;
+    // temp_start.pose.pose.position.z = 0.0;
+    // temp_start.pose.pose.orientation.x = 0.0;
+    // temp_start.pose.pose.orientation.y = 0.0;
+    // temp_start.pose.pose.orientation.z = 1.0;
+    // temp_start.pose.pose.orientation.w = -4.37113900019e-08;
+    // _pub_rviz_start_pose.publish(temp_start);
 
-    _goal_pose_stamped.header.stamp = ros::Time::now();
-    _goal_pose_stamped.header.frame_id = "map";
-    _goal_pose_stamped.pose.position.x = 58.5468978882;
-    _goal_pose_stamped.pose.position.y = 52.9061088562;
-    _goal_pose_stamped.pose.position.z = 0.0;
-    _goal_pose_stamped.pose.orientation.x = 0.0;
-    _goal_pose_stamped.pose.orientation.y = 0.0;
-    _goal_pose_stamped.pose.orientation.z = 0.998516745489;
-    _goal_pose_stamped.pose.orientation.w = 0.0544454679205;
+    // _goal_pose_stamped.header.stamp = ros::Time::now();
+    // _goal_pose_stamped.header.frame_id = "map";
+    // _goal_pose_stamped.pose.position.x = 29.698841095;
+    // _goal_pose_stamped.pose.position.y = 77.3743591309;
+    // _goal_pose_stamped.pose.position.z = 0.0;
+    // _goal_pose_stamped.pose.orientation.x = 0.0;
+    // _goal_pose_stamped.pose.orientation.y = 0.0;
+    // _goal_pose_stamped.pose.orientation.z = 0.721826900025;
+    // _goal_pose_stamped.pose.orientation.w = 0.692073642324;
 
     sendGoalSrv(_goal_pose_stamped);
 }

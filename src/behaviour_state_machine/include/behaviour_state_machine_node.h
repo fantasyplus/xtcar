@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 // ros
 #include <ros/ros.h>
@@ -110,6 +111,7 @@ private:
 
     //定义路径倒数1/_zero_vel_segment的路径点速度为0的参数
     int _zero_vel_segment; // ros参数
+    double waypoints_velocity;
 
     bool is_pub_mpc_lane = false;
     void callbackTimerPublishMpcLane(const ros::TimerEvent &e);
@@ -117,6 +119,7 @@ private:
     bool is_complex_lane = false;
     bool use_complex_lane; // ros参数
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
+    void processMpcLane(mpc_msgs::Lane &mpc_lane);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
@@ -135,6 +138,20 @@ private:
     double getDistance(geometry_msgs::PoseStamped &p1, geometry_msgs::PoseStamped &p2);
 
     void experimentalUse();
+
+private:
+    /*---------------------障碍物避碰急停相关---------------------*/
+    double vehicle_length;  // ros参数
+    double vehicle_width;   // ros参数
+    double vehicle_cg2back; // ros参数
+
+    double lookahead_distance; // ros参数
+
+    // debug 可视化车辆轮廓
+    nav_msgs::Path vis_car_path;
+    ros::Publisher _pub_vis_car_path;
+
+    geometry_msgs::Pose global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global);
 
 private:
     /*---------------------TF相关---------------------*/

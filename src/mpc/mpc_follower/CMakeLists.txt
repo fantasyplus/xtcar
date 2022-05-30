@@ -33,11 +33,11 @@ set(
     src/amathutils_lib/Amathutils.cpp
 )
 
-# set(QPOASES_INLUDE_DIRS /usr/local/include/qpOASES)
+# set(QPOASES_INCLUDE_DIRS /usr/local/include/qpOASES)
 
 include_directories(
   include
-  # ${QPOASES_INLUDE_DIRS}
+  # ${QPOASES_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${qpoases_vendor_INCLUDE_DIRS}/qpoases_vendor
 )
