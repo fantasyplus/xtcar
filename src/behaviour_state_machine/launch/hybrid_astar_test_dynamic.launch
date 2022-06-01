@@ -79,7 +79,7 @@
 
     <arg name="use_rviz_start_cartf" default="false" />
 
-    <node name="car_tf" pkg="car_tf_broadcaster_xt" type="car_tf_broadcaster_xt" output="screen">
+    <node name="car_tf" pkg="car_tf_broadcaster" type="car_tf_broadcaster" output="screen">
         <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
         <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
         <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
@@ -99,24 +99,26 @@
     <!-- 上层控制节点 -->
     <arg name="is_static_map" default="false"/>
     <arg name="is_keep_sending" default="true"/>
-    <arg name="sub_goal_tolerance_distance" default="2.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
-    <arg name="zero_vel_segment" default="5" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="sub_goal_tolerance_distance" default="30" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="normal_zero_vel_segment" default="4" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="collision_zero_vel_segment" default="1" doc="速度赋0的分母(障碍物避碰用),整数"/>
     <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
     <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
-    <arg name="second_vertical_distance" default="10.0" doc="第二个子目标点（纵向距离）"/>
+    <arg name="second_vertical_distance" default="5.0" doc="第二个子目标点（纵向距离）"/>
     <arg name="third_nearby_distance" default="5.0" doc="第三个子目标点（纵向距离）"/>
 
     <arg name="vehicle_length_coll" default="4.788"/>
     <arg name="vehicle_width_coll" default="2.198"/>
     <arg name="vehicle_cg2back_coll" default="1.367"/>
-    <arg name="lookahead_distance" default="5.0"/>
+    <arg name="lookahead_distance" default="20.0"/>
     <arg name="waypoints_velocity_behav" default="2.0"/>
 
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
         <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
         <param name="is_keep_sending" type="bool" value="$(arg is_keep_sending)"/>
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
-        <param name="zero_vel_segment" type="int" value="$(arg zero_vel_segment)"/>
+        <param name="normal_zero_vel_segment" type="int" value="$(arg normal_zero_vel_segment)"/>
+        <param name="collision_zero_vel_segment" type="int" value="$(arg collision_zero_vel_segment)"/>
         <param name="use_complex_lane" type="bool" value="$(arg use_complex_lane)"/>
         <param name="first_horizontal_distance" type="double" value="$(arg first_horizontal_distance)"/>
         <param name="second_vertical_distance" type="double" value="$(arg second_vertical_distance)"/>

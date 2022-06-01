@@ -1,0 +1,8 @@
+prefix=/home/ros/fantasyplus/xtcar/devel
+
+Name: car_tf_broadcaster
+Description: Description of car_tf_broadcaster
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

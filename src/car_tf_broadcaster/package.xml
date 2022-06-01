@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>car_tf_broadcaster_xt</name>
+  <name>car_tf_broadcaster</name>
   <version>0.1.0</version>
-  <description>The car_tf_broadcaster_xt package</description>
+  <description>The car_tf_broadcaster package</description>
   
   <maintainer email="530925206@qq.com">fantasyplus</maintainer>
 

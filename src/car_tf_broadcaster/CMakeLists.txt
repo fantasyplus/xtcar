@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(car_tf_broadcaster_xt)
+project(car_tf_broadcaster)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs

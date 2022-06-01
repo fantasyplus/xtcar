@@ -1,11 +1,14 @@
 #include "behaviour_state_machine_node.h"
 
+int BehaviourStateMachine::last_collision_car_index = 0;
+
 BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
 {
     _private_nh.param<bool>("is_static_map", is_static_map, true);
     _private_nh.param<bool>("is_keep_sending", is_keep_sending, false);
     _private_nh.param<double>("sub_goal_tolerance_distance", _sub_goal_tolerance_distance, 1.0);
-    _private_nh.param<int>("zero_vel_segment", _zero_vel_segment, 1);
+    _private_nh.param<int>("normal_zero_vel_segment", _normal_zero_vel_segment, 5);
+    _private_nh.param<int>("collision_zero_vel_segment", _collision_zero_vel_segment, 1);
     _private_nh.param<bool>("use_complex_lane", use_complex_lane, false);
     _private_nh.param<double>("first_horizontal_distance", first_horizontal_distance, 2.0);
     _private_nh.param<double>("second_vertical_distance", second_vertical_distance, 10.0);
@@ -38,8 +41,8 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     // debug 可视化车辆轮廓
     _pub_vis_car_path = _nh.advertise<nav_msgs::Path>("vis_car_path", 1, true);
 
-    //发布mpclane的定时器
-    _timer_pub_lane = _nh.createTimer(ros::Duration(0.2), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
+    //实时检测障碍物避碰且发布mpclane的定时器
+    _timer_pub_lane = _nh.createTimer(ros::Duration(0.1), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
 
     /*---------------------serviceClient---------------------*/
     _goal_pose_client = _nh.serviceClient<behaviour_state_machine::GoalPose>("goal_pose_srv");
@@ -74,6 +77,17 @@ geometry_msgs::TransformStamped BehaviourStateMachine::getTransform(const std::s
     return tf;
 }
 
+geometry_msgs::Pose BehaviourStateMachine::local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local)
+{
+    tf2::Transform tf_origin;
+    tf2::convert(costmap.info.origin, tf_origin);
+
+    geometry_msgs::TransformStamped transform;
+    transform.transform = tf2::toMsg(tf_origin);
+
+    return transformPose(pose_local, transform);
+}
+
 geometry_msgs::Pose BehaviourStateMachine::global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global)
 {
     tf2::Transform tf_origin;
@@ -83,6 +97,24 @@ geometry_msgs::Pose BehaviourStateMachine::global2local(const nav_msgs::Occupanc
     transform.transform = tf2::toMsg(tf_origin.inverse());
 
     return transformPose(pose_global, transform);
+}
+
+void BehaviourStateMachine::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
+{
+    //存储到全局代价地图中
+    _cost_map = msg;
+}
+
+void BehaviourStateMachine::callbackCurrentPose(const geometry_msgs::PoseStamped &msg)
+{
+    _current_pose_flag = true;
+
+    _current_pose_stamped = msg;
+}
+
+void BehaviourStateMachine::callbackVehicleStatus(const mpc_msgs::VehicleStatus &msg)
+{
+    _vehicle_status = msg;
 }
 
 void BehaviourStateMachine::callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg)
@@ -110,77 +142,69 @@ void BehaviourStateMachine::callbackGoalPose(const geometry_msgs::PoseStamped &m
     }
 }
 
-void BehaviourStateMachine::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
+void BehaviourStateMachine::getClosestIndex(const mpc_msgs::Lane &temp_lane, int &closest_index)
 {
-    _costmap_frame_id = msg.header.frame_id;
+    double min_dis = std::numeric_limits<int>::max();
+    geometry_msgs::Pose cur_pose = _current_pose_stamped.pose;
+    for (std::size_t i = 0; i < temp_lane.waypoints.size(); i++)
+    {
+        geometry_msgs::Pose temp_pose = temp_lane.waypoints[i].pose.pose;
+        double dis = std::hypot(temp_pose.position.x - cur_pose.position.x, temp_pose.position.y - cur_pose.position.y);
+        if (dis < min_dis)
+        {
+            closest_index = i;
+            min_dis = dis;
+        }
+    }
+}
 
-    /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
+void BehaviourStateMachine::getCollisionPoseVec(int closest_index,
+                                                const mpc_msgs::Lane &temp_lane,
+                                                std::vector<std::pair<geometry_msgs::Pose, double>> &base_pose_vec)
+{
+    double length = 0.0;
 
-    //代价地图参数
-    const double map_width = msg.info.width;
-    const double map_height = msg.info.height;
-    const double map_resolution = msg.info.resolution;
+    //最近点先加进数组
+    geometry_msgs::Pose pre_pose = temp_lane.waypoints[closest_index].pose.pose;
+    base_pose_vec.push_back(std::pair<geometry_msgs::Pose, double>(pre_pose, length));
+
+    for (std::size_t i = closest_index + 1; i < temp_lane.waypoints.size(); i++)
+    {
+        //超过前探距离了，退出循环
+        if (length >= lookahead_distance)
+        {
+            break;
+        }
+
+        geometry_msgs::Pose temp_pose = temp_lane.waypoints[i].pose.pose;
+        length += std::hypot(temp_pose.position.x - pre_pose.position.x, temp_pose.position.y - pre_pose.position.y);
+        pre_pose = temp_pose;
+
+        //最近点之后的点依次加进数组
+        base_pose_vec.push_back(std::pair<geometry_msgs::Pose, double>(temp_pose, length));
+    }
+    //如果前探距离比路径还要长，实际上就是把最近点后面的所有点都加进数组了
+}
+
+void BehaviourStateMachine::computeCollisionIndexVec(const geometry_msgs::Pose &base_pose,
+                                                     std::vector<std::pair<int, int>> &collision_index_vec,
+                                                     nav_msgs::Path &vis_car_path)
+{
+    // debug 可视化车辆轮廓
+    std::vector<geometry_msgs::PoseStamped> vis_car_pose;
+
+    //获取当前点角度下的车体轮廓位置数组
+    double cur_theta = tf2::getYaw(base_pose.orientation);
+    std::vector<geometry_msgs::Pose> car_pose_vec;
 
     //车体参数
     const double back = -1.0 * vehicle_cg2back;
     const double front = vehicle_length - vehicle_cg2back;
     const double right = -1.0 * vehicle_width / 2;
     const double left = vehicle_width / 2;
-
-    //获得当前正在执行的路径，得到前探距离上最近的那个路径点
-    if (_mpc_lane.waypoints.empty())
+    for (auto x = back; x <= front; x += _cost_map.info.resolution)
     {
-        return;
-    }
-    const mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
-
-    //获取当前位置在路径上的最近点
-    double min_dis = std::numeric_limits<int>::max();
-    int closet_index = -1;
-    geometry_msgs::Pose cur_pose = _current_pose_stamped.pose;
-    for (std::size_t i = 0; i < temp_lane_to_detect_collision.waypoints.size(); i++)
-    {
-        geometry_msgs::Pose temp_pose = temp_lane_to_detect_collision.waypoints[i].pose.pose;
-        double dis = std::hypot(temp_pose.position.x - cur_pose.position.x, temp_pose.position.y - cur_pose.position.y);
-        if (dis < min_dis)
-        {
-            closet_index = i;
-            min_dis = dis;
-        }
-    }
-
-    //检测碰撞的那个路径点
-    geometry_msgs::Pose base_pose;
-    //获得从最近点往前看lookahead_distance距离的点
-    double length = 0.0;
-    geometry_msgs::Pose pre_pose = temp_lane_to_detect_collision.waypoints[closet_index].pose.pose;
-    for (std::size_t i = closet_index + 1; i < temp_lane_to_detect_collision.waypoints.size(); i++)
-    {
-        geometry_msgs::Pose temp_pose = temp_lane_to_detect_collision.waypoints[i].pose.pose;
-        length += std::hypot(temp_pose.position.x - pre_pose.position.x, temp_pose.position.y - pre_pose.position.y);
-        pre_pose = temp_pose;
-
-        if (length >= lookahead_distance)
-        {
-            base_pose = temp_pose;
-            break;
-        }
-    }
-    if (length < lookahead_distance)
-    {
-        ROS_INFO("lookahead_distance is bigger than path length");
-        return;
-    }
-
-    // debug 可视化车辆轮廓
-    std::vector<geometry_msgs::PoseStamped> vis_car_pose;
-
-    //获取最近点角度下的车体轮廓位置数组
-    double cur_theta = tf2::getYaw(base_pose.orientation);
-    std::vector<geometry_msgs::Pose> car_pose_vec;
-    for (auto x = back; x <= front; x += map_resolution)
-    {
-        for (auto y = right; y < left; y += map_resolution)
+        for (auto y = right; y < left; y += _cost_map.info.resolution)
         {
             const double offset_x = x * std::cos(cur_theta) - y * std::sin(cur_theta);
             const double offset_y = x * std::sin(cur_theta) + y * std::cos(cur_theta);
@@ -199,131 +223,165 @@ void BehaviourStateMachine::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
             car_pose.position.y = base_pose.position.y + offset_y;
             car_pose.position.z = base_pose.position.z;
 
-            const auto car_pose_in_costmap_frame = transformPose(car_pose, getTransform(msg.header.frame_id, "map"));
-            car_pose_vec.push_back(global2local(msg, car_pose_in_costmap_frame));
+            const auto car_pose_in_costmap_frame = transformPose(car_pose, getTransform(_cost_map.header.frame_id, "map"));
+            car_pose_vec.push_back(global2local(_cost_map, car_pose_in_costmap_frame));
         }
     }
 
     //转换车体轮廓点到栅格地图索引
-    std::vector<std::pair<int, int>> collision_index_vec;
     for (auto p : car_pose_vec)
     {
         std::pair<int, int> car_index_xy;
-        car_index_xy.first = static_cast<int>(std::floor(p.position.x / map_resolution));
-        car_index_xy.second = static_cast<int>(std::floor(p.position.y / map_resolution));
+        car_index_xy.first = static_cast<int>(std::floor(p.position.x / _cost_map.info.resolution));
+        car_index_xy.second = static_cast<int>(std::floor(p.position.y / _cost_map.info.resolution));
         collision_index_vec.push_back(car_index_xy);
     }
 
     // debug 可视化车辆轮廓
-    vis_car_path.poses.clear();
     for (auto sp : vis_car_pose)
     {
         vis_car_path.poses.push_back(sp);
     }
-    vis_car_path.header.frame_id = "map";
-    _pub_vis_car_path.publish(vis_car_path);
+}
 
-    //判断在当前路径点是否会发生碰撞
-    bool is_collision = false;
-    for (auto car_index : collision_index_vec)
+void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &mpc_lane, int start, int end, int zero_vel_segment, bool is_coll)
+{
+    //到这里的_mpc_lane应该都是单段轨迹，即只前进或只后退
+    //对后1/zero_vel_segment的路径点速度赋0
+    int size = end - start + 1;
+    // ROS_INFO("------------------------------------------------------size:%d", size);
+
+    if (!is_coll) //无障碍物
     {
-        int coll_x = car_index.first;
-        int coll_y = car_index.second;
-
-        if (coll_x < 0 || coll_x >= map_width || coll_y < 0 || coll_y >= map_height)
+        //获得开始赋0的起始点位置
+        int zero_point_start_index = start + (size - (int)(((double)size / (double)zero_vel_segment) + 0.5)); //四舍五入
+        for (int i = zero_point_start_index; i <= end; i++)
         {
-            //越界
-            return;
+            mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
         }
-        if (msg.data[coll_y * map_width + coll_x])
+    }
+    else //有障碍物
+    {
+        //获得开始赋0的起始点位置
+        int zero_point_start_index = start + (size - (int)(((double)size / (double)zero_vel_segment)));
+        for (int i = zero_point_start_index; i <= end; i++)
         {
-            //碰撞
-            is_collision = true;
+            mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
+        }
+    }
+
+    //最后一个点的direction赋6（停止标志位）
+    mpc_lane.waypoints[size - 1].direction = 6;
+}
+
+void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e)
+{
+    /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
+
+    //获得当前正在执行的路径
+    if (_mpc_lane.waypoints.empty())
+    {
+        return;
+    }
+    const mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
+
+    //获取当前位置在路径上的最近点
+    int closest_index = -1;
+    getClosestIndex(temp_lane_to_detect_collision, closest_index);
+
+    //获得从最近点往前看lookahead_distance距离的点序列,pair存储点和离最近点的距离
+    //里面的每个点都用来检测碰撞
+    std::vector<std::pair<geometry_msgs::Pose, double>> base_pose_vec;
+    getCollisionPoseVec(closest_index, temp_lane_to_detect_collision, base_pose_vec);
+
+    // debug 可视化车辆轮廓
+    vis_car_path.poses.clear();
+
+    //遍历每个点
+    bool is_collision = false;
+    double collision_length_to_cur_pose = 0.0;
+    for (std::size_t i = 0; i < base_pose_vec.size(); i++)
+    {
+        geometry_msgs::Pose base_pose = base_pose_vec[i].first;
+        double point_length_to_cur_pose = base_pose_vec[i].second;
+
+        //计算当前点在栅格地图下的碰撞索引数组
+        std::vector<std::pair<int, int>> collision_index_vec;
+        computeCollisionIndexVec(base_pose, collision_index_vec, vis_car_path);
+
+        //判断在当前路径点是否会发生碰撞
+        for (auto car_index : collision_index_vec)
+        {
+            uint32_t coll_x_index = (uint32_t)car_index.first;
+            uint32_t coll_y_index = (uint32_t)car_index.second;
+
+            //不用做越界判断，因为混合A*初始路径就做过了越界判断
+            if (_cost_map.data[coll_y_index * _cost_map.info.width + coll_x_index])
+            {
+                //碰撞
+
+                //计算具体的碰撞点离当前位置的距离
+                double coll_x = static_cast<double>(coll_x_index + 0.5) * _cost_map.info.resolution;
+                double coll_y = static_cast<double>(coll_y_index + 0.5) * _cost_map.info.resolution;
+                geometry_msgs::Pose coll_pose;
+                coll_pose.position.x = coll_x;
+                coll_pose.position.y = coll_y;
+                coll_pose = local2global(_cost_map, coll_pose);
+                const auto coll_pose_in_map_frame = transformPose(coll_pose, getTransform("map", _cost_map.header.frame_id));
+                collision_length_to_cur_pose = point_length_to_cur_pose + std::hypot(coll_pose_in_map_frame.position.x - base_pose.position.x, coll_pose_in_map_frame.position.y - base_pose.position.y);
+
+                is_collision = true;
+                last_collision_car_index = closest_index;
+
+                //发生碰撞就跳出
+                break;
+            }
+        }
+        if (is_collision)
+        {
             break;
         }
     }
-    //_mpc_lane速度全置为0
-    if (is_collision)
+
+    /*-----对mpclane进行处理,并发送真实路径-----*/
+
+    if (is_collision) //重定义整条路径
     {
-        ROS_INFO("collision at x:%f,y:%f", base_pose.position.x, base_pose.position.y);
-        for (auto &wp : _mpc_lane.waypoints)
-        {
-            wp.twist.twist.linear.x = 0.0;
-        }
+        ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
+        //整条路径速度全部赋0
+        processMpcLane(_mpc_lane, 0, _mpc_lane.waypoints.size() - 1, _collision_zero_vel_segment, true);
     }
-    else //还原成原始路径
+    else //重定义当前位置到终点的路径
     {
         for (auto &wp : _mpc_lane.waypoints)
         {
             wp.twist.twist.linear.x = waypoints_velocity;
         }
-        processMpcLane(_mpc_lane);
+        //最后一次前探距离中发生碰撞的时候的点到终点中的路径，1/_normal_zero_vel_segment的速度赋0
+        // last_collision_car_index在每段轨迹中默认是0，即如果一次障碍物检测都没有发生的话，则一直发送最原始的路径（而不是从检测到障碍物从当前位置裁剪后的）
+        processMpcLane(_mpc_lane, last_collision_car_index, _mpc_lane.waypoints.size() - 1, _normal_zero_vel_segment, false);
     }
-}
+    _pub_mpc_lane.publish(_mpc_lane);
 
-void BehaviourStateMachine::callbackCurrentPose(const geometry_msgs::PoseStamped &msg)
-{
-    _current_pose_flag = true;
+    // debug 可视化车辆轮廓
+    vis_car_path.header.frame_id = "map";
+    _pub_vis_car_path.publish(vis_car_path);
 
-    _current_pose_stamped = msg;
-}
+    /*-----发送可视化路径-----*/
+    nav_msgs::Path vis_lane;
+    vis_lane.header.frame_id = "map";
+    vis_lane.header.stamp = ros::Time::now();
 
-void BehaviourStateMachine::callbackVehicleStatus(const mpc_msgs::VehicleStatus &msg)
-{
-    _vehicle_status = msg;
-}
-
-void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &mpc_lane)
-{
-    //到这里的_mpc_lane应该都是单段轨迹，即只前进或只后退
-    //对后1/_zero_vel_segment的路径点速度赋0
-    int size = _mpc_lane.waypoints.size();
-    // ROS_INFO("_mpc_lane.size:%d", (int)size);
-
-    if (size >= _zero_vel_segment)
+    // mpc里的点本来就是在map下的
+    for (std::size_t i = 0; i < _mpc_lane.waypoints.size(); i++)
     {
-        //获得开始赋0的起始点位置
-        int zero_point_start_index = size - (int)(((double)size / (double)_zero_vel_segment) + 0.5); //四舍五入
-        // ROS_INFO("(int)std::round(size / _zero_vel_segment:%d", (int)(((double)size / (double)_zero_vel_segment) + 0.5));
-        for (int i = zero_point_start_index - 1; i < size; i++)
-        {
-            _mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
-        }
-    }
-    else
-    { //如果size比_zero_vel_segment还小，给最后一个点速度赋0
-        _mpc_lane.waypoints[size - 1].twist.twist.linear.x = 0.0;
+        geometry_msgs::PoseStamped temp_pose;
+        temp_pose = _mpc_lane.waypoints[i].pose;
+
+        vis_lane.poses.push_back(temp_pose);
     }
 
-    //最后一个点的direction赋6（停止标志位）
-    _mpc_lane.waypoints[size - 1].direction = 6;
-}
-
-void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e)
-{
-    if (is_pub_mpc_lane)
-    {
-        /*-----对mpclane进行处理,并发送真实路径-----*/
-
-        processMpcLane(_mpc_lane);
-        _pub_mpc_lane.publish(_mpc_lane);
-
-        /*-----发送可视化路径-----*/
-        nav_msgs::Path vis_lane;
-        vis_lane.header.frame_id = "map";
-        vis_lane.header.stamp = ros::Time::now();
-
-        // mpc里的点本来就是在map下的
-        for (std::size_t i = 0; i < _mpc_lane.waypoints.size(); i++)
-        {
-            geometry_msgs::PoseStamped temp_pose;
-            temp_pose = _mpc_lane.waypoints[i].pose;
-
-            vis_lane.poses.push_back(temp_pose);
-        }
-
-        _pub_vis_mpc_lane.publish(vis_lane);
-    }
+    _pub_vis_mpc_lane.publish(vis_lane);
 }
 
 void BehaviourStateMachine::checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec)
@@ -437,7 +495,7 @@ Direction BehaviourStateMachine::getDirection(geometry_msgs::PoseStamped &cur, g
     //(-90,0),(0,90)为正方向，(90,180),(-180,-90)为负方向
     double theta_in_cur_frame = tf2::getYaw(pose_in_cur_frame.orientation);
     theta_in_cur_frame = theta_in_cur_frame * 180.0 / M_PI;
-    ROS_INFO("theta_in_cur_frame:%f", theta_in_cur_frame);
+    // ROS_INFO("theta_in_cur_frame:%f", theta_in_cur_frame);
 
     if (pose_in_cur_frame.position.y > 0)
     {
@@ -624,7 +682,7 @@ void BehaviourStateMachine::run()
             static geometry_msgs::PoseStamped pre_sub_goal;
             static std::vector<mpc_msgs::Lane> sub_lane_vec;
 
-            if (dynamic_id != 3) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
+            if (dynamic_id != 4) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
             {
 
                 //如果是复杂轨迹(有前进有后退)，先不考虑正常的子目标点生成，对它单独处理
@@ -635,9 +693,7 @@ void BehaviourStateMachine::run()
                     if (sub_lane_vec.empty())
                     {
                         is_complex_lane = false;
-
-                        dynamic_id++; //转移到下一个正常的子目标点
-
+                        dynamic_id++; //转移到下一个正常的子目标点(如果为3的话，其实就是跳转到最后的终点判断流程)
                         continue;
                     }
                     //如果接受到新的大目标点的了，重新进入正常流程判断
@@ -649,8 +705,6 @@ void BehaviourStateMachine::run()
 
                     //每次发送复杂轨迹数组的第一个(即单个简单轨迹)，并且把轨迹最后的点视为终点并判断是否到达
                     _mpc_lane = sub_lane_vec[0];
-                    //进入发送轨迹流程，mpclane发送标志位赋1
-                    is_pub_mpc_lane = true;
 
                     int sub_turn_index = sub_lane_vec[0].waypoints.size() - 1;
                     geometry_msgs::PoseStamped pre_complex_sub_goal; //当前子轨迹的终点
@@ -665,6 +719,9 @@ void BehaviourStateMachine::run()
                         //删除当前轨迹
                         sub_lane_vec.erase(sub_lane_vec.begin());
 
+                        //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
+                        last_collision_car_index = 0;
+
                         //直接进入下一次循环，避免在复杂轨迹处理完之前进入到正常流程
                         continue;
                     }
@@ -673,7 +730,7 @@ void BehaviourStateMachine::run()
                 //正常简单轨迹流程
                 if (dynamic_id == 0 && !is_complex_lane) //第一段
                 {
-                    ROS_INFO("---------------send first sub_goal------------------");
+                    ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
 
                     pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
 
@@ -683,7 +740,7 @@ void BehaviourStateMachine::run()
                     //如果规划失败了，退出正常流程
                     if (!ret)
                     {
-                        dynamic_id = 3;
+                        dynamic_id = 4;
                         continue;
                     }
 
@@ -696,8 +753,8 @@ void BehaviourStateMachine::run()
                     if (!is_complex_lane)
                     {
                         _mpc_lane = temp_lane;
-                        //进入发送轨迹流程，mpclane发送标志位赋1
-                        is_pub_mpc_lane = true;
+                        //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
+                        last_collision_car_index = 0;
                         dynamic_id++;
                     }
                     else
@@ -716,7 +773,15 @@ void BehaviourStateMachine::run()
 
                     if (length < _sub_goal_tolerance_distance && _vehicle_status.speed < 1e-5) //判断车辆是否到达前一段轨迹的终点
                     {
-                        ROS_INFO("---------------send next sub_goal------------------");
+                        //到达第三段轨迹的终点
+                        if (dynamic_id == 3)
+                        {
+                            ROS_INFO("---------------enter end point!------------------");
+                            dynamic_id++;
+                            continue;
+                        }
+
+                        ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
                         pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
 
                         mpc_msgs::Lane temp_lane;
@@ -725,7 +790,7 @@ void BehaviourStateMachine::run()
                         //如果规划失败了，退出正常流程
                         if (!ret)
                         {
-                            dynamic_id = 3;
+                            dynamic_id = 4;
                             continue;
                         }
 
@@ -738,8 +803,8 @@ void BehaviourStateMachine::run()
                         if (!is_complex_lane)
                         {
                             _mpc_lane = temp_lane;
-                            //进入发送轨迹流程，mpclane发送标志位赋1
-                            is_pub_mpc_lane = true;
+                            //下一段轨迹的最后一次在前探距离上发生碰撞时车体在路径上的位置索引初始化为0
+                            last_collision_car_index = 0;
                             dynamic_id++;
                         }
                         else
@@ -762,8 +827,8 @@ void BehaviourStateMachine::run()
                 geometry_msgs::PoseStamped empty_pose;
                 pre_sub_goal = empty_pose;
 
-                // mpclane发送标志位赋为0
-                is_pub_mpc_lane = false;
+                //清空_mpc_lane
+                _mpc_lane.waypoints.clear();
 
                 //重置复杂轨迹数组
                 sub_lane_vec.clear();

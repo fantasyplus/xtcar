@@ -67,8 +67,6 @@ private:
     geometry_msgs::PoseStamped _goal_pose_stamped;
     geometry_msgs::PoseStamped _current_pose_stamped;
     geometry_msgs::PoseStamped _rviz_start_pose_stamped;
-    // costmap的frame_id
-    std::string _costmap_frame_id;
 
     bool _costmap_flag;
     bool _current_pose_flag;
@@ -78,7 +76,7 @@ private:
 
     int id = 0;
     int pre_id = 0;
-    int dynamic_id = 3; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
+    int dynamic_id = 4; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
     int dynamic_complex_id = 1;
 
     bool is_static_map;   // ros参数
@@ -102,24 +100,25 @@ private:
     // srv返回的mpc路径
     mpc_msgs::Lane _mpc_lane;
 
-    //发送mpclane的定时器
-    ros::Timer _timer_pub_lane;
     //发送mpc路径的发布者
     ros::Publisher _pub_mpc_lane;
     //发送可视化mpc路径的发布者
     ros::Publisher _pub_vis_mpc_lane;
 
     //定义路径倒数1/_zero_vel_segment的路径点速度为0的参数
-    int _zero_vel_segment; // ros参数
+    int _normal_zero_vel_segment;    // ros参数
+    int _collision_zero_vel_segment; // ros参数
     double waypoints_velocity;
 
+    //发送mpclane的定时器
+    ros::Timer _timer_pub_lane;
     bool is_pub_mpc_lane = false;
     void callbackTimerPublishMpcLane(const ros::TimerEvent &e);
 
     bool is_complex_lane = false;
     bool use_complex_lane; // ros参数
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
-    void processMpcLane(mpc_msgs::Lane &mpc_lane);
+    void processMpcLane(mpc_msgs::Lane &mpc_lane, int start, int end, int zero_vel_segment, bool is_coll);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
@@ -140,7 +139,7 @@ private:
     void experimentalUse();
 
 private:
-    /*---------------------障碍物避碰急停相关---------------------*/
+    /*---------------------障碍物避碰相关---------------------*/
     double vehicle_length;  // ros参数
     double vehicle_width;   // ros参数
     double vehicle_cg2back; // ros参数
@@ -151,7 +150,22 @@ private:
     nav_msgs::Path vis_car_path;
     ros::Publisher _pub_vis_car_path;
 
+    //代价地图
+    nav_msgs::OccupancyGrid _cost_map;
+
+    //保存最后一次在前探距离上发生碰撞时车体在路径上的位置索引
+    static int last_collision_car_index;
+
+    void getClosestIndex(const mpc_msgs::Lane &temp_lane, int &closest_index);
+    void getCollisionPoseVec(int closest_index,
+                             const mpc_msgs::Lane &temp_lane,
+                             std::vector<std::pair<geometry_msgs::Pose, double>> &base_pose_vec);
+    void computeCollisionIndexVec(const geometry_msgs::Pose &base_pose,
+                                  std::vector<std::pair<int, int>> &collision_index_vec,
+                                  nav_msgs::Path &vis_car_path);
+
     geometry_msgs::Pose global2local(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_global);
+    geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local);
 
 private:
     /*---------------------TF相关---------------------*/
