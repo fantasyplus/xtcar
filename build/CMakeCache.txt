@@ -724,6 +724,12 @@ car_simulator_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/car_simulator
 car_simulator_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/car_simulator
 
 //Value Computed by CMake
+car_tf_broadcaster_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster
+
+//Value Computed by CMake
+car_tf_broadcaster_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/car_tf_broadcaster
+
+//Value Computed by CMake
 car_tf_broadcaster_xt_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster
 
 //Value Computed by CMake

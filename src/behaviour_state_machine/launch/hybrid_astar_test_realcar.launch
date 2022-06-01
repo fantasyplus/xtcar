@@ -95,7 +95,7 @@
 
     <arg name="use_rviz_start_cartf" default="false" />
 
-    <node name="car_tf" pkg="car_tf_broadcaster_xt" type="car_tf_broadcaster_xt" output="screen">
+    <node name="car_tf" pkg="car_tf_broadcaster" type="car_tf_broadcaster" output="screen">
         <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
         <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
         <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
@@ -115,18 +115,18 @@
     <!-- 上层控制节点 -->
     <arg name="is_static_map" default="false"/>
     <arg name="is_keep_sending" default="true"/>
-    <arg name="sub_goal_tolerance_distance" default="2.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
-    <arg name="zero_vel_segment" default="5" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="sub_goal_tolerance_distance" default="3.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="zero_vel_segment" default="4" doc="速度赋0的分母(给控制用),整数"/>
     <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
     <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
-    <arg name="second_vertical_distance" default="10.0" doc="第二个子目标点（纵向距离）"/>
+    <arg name="second_vertical_distance" default="15.0" doc="第二个子目标点（纵向距离）"/>
     <arg name="third_nearby_distance" default="5.0" doc="第三个子目标点（纵向距离）"/>
 
     <arg name="vehicle_length_coll" default="4.788"/>
     <arg name="vehicle_width_coll" default="2.198"/>
     <arg name="vehicle_cg2back_coll" default="1.367"/>
-    <arg name="lookahead_distance" default="5.0"/>
-    <arg name="waypoints_velocity_behav" default="2.0"/>
+    <arg name="lookahead_distance" default="20.0"/>
+    <arg name="waypoints_velocity_behav" default="1.2"/>
 
 
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
@@ -151,7 +151,7 @@
     <arg name="costmap_topic" default="global_cost_map" />
     <arg name="pose_topic" default="gnss_pose" />
     
-    <arg name="waypoints_velocity" default="2.0" />
+    <arg name="waypoints_velocity" default="1.2" />
     <arg name="update_rate" default="10" />
     
     <arg name="is_visual" default="true" />
@@ -241,7 +241,7 @@
     </node>
 
     <!-- 激光雷达驱动包 -->
-    <arg name="input_topic" default="/velodyne_points" />
+    <arg name="input_topic" default="/rslidar_points_recover" />
     <arg name="no_ground_point_topic" default="/points_no_ground"/>
     <arg name="ground_point_topic" default="/points_ground"/>
     <arg name="all_points_topic" default="/all_points"/>
@@ -266,136 +266,20 @@
     <arg name="th_dist" default="0.3"/>
 
     <!-- rslidar 驱动 -->
-    <arg name="model" default="RS16" />
-    <arg name="device_ip" default="192.168.1.200" />
-    <arg name="msop_port" default="6699" />
-    <arg name="difop_port" default="7788" />
-    <arg name="cut_angle" default="0" doc="If set at [0, 360), cut at specific angle feature activated, otherwise use the fixed packets number mode."/>
-    <arg name="lidar_param_path" default="$(find rslidar_pointcloud)/data/rs_lidar_16/"/>
-
-    <node  name="rslidar_node" pkg="rslidar_driver" type="rslidar_node" output="log" >
-        <param name="model" value="$(arg model)"/>
-        <param name="device_ip" value="$(arg device_ip)" />
-        <param name="msop_port" value="$(arg msop_port)" />
-        <param name="difop_port" value="$(arg difop_port)"/>
-        <param name="cut_angle" value="$(arg cut_angle)"/>
-        <!--param name="pcap" value="path_to_pcap"/-->
+    <node pkg="rslidar_sdk" name="rslidar_sdk_node" type="rslidar_sdk_node" output="screen">
+         <param name="config_path" value=""/>
     </node>
 
-    <node  name="cloud_node" pkg="rslidar_pointcloud" type="cloud_node" output="log" >
-        <param name="model" value="$(arg model)"/>
-        <param name="curves_path" value="$(arg lidar_param_path)/curves.csv" />
-        <param name="angle_path" value="$(arg lidar_param_path)/angle.csv" />
-        <param name="channel_path" value="$(arg lidar_param_path)/ChannelNum.csv" />
-        <param name="max_distance" value="200"/>
-        <param name="min_distance" value="0.4"/>
-        <param name="resolution_type" value="0.5cm"/>
-        <param name="intensity_mode" value="1"/>
-    </node>
+    <node pkg="multi_sensor_calib" type="multi_sensor_calib_node" name="multi_sensor_calib_node" output="screen"/>
 
-    <!-- mpc控制器 -->
-    <!-- <arg name="show_debug_info" default="false"/>
-    <arg name="ctrl_period" default="0.03"/>
-    <arg name="enable_path_smoothing" default="true"/>
-    <arg name="enable_yaw_recalculation" default="true"/>
-    <arg name="path_filter_moving_ave_num" default="35"/>
-    <arg name="path_smoothing_times" default="1"/>
-    <arg name="curvature_smoothing_num" default="35"/>
-    <arg name="traj_resample_dist" default="0.1"/>
-    <arg name="admisible_position_error" default="5.0"/>
-    <arg name="admisible_yaw_error_deg" default="90.0"/>
-    <arg name="output_interface" default="all"/>
-
-    <arg name="mpc_prediction_horizon" default="70"/>
-    <arg name="mpc_prediction_sampling_time" default="0.1"/>
-    <arg name="mpc_weight_lat_error" default="1.0"/>
-    <arg name="mpc_weight_heading_error" default="0.0"/>
-    <arg name="mpc_weight_heading_error_squared_vel_coeff" default="0.3"/>
-    <arg name="mpc_weight_steering_input" default="1.0"/>
-    <arg name="mpc_weight_steering_input_squared_vel_coeff" default="0.25"/>
-    <arg name="mpc_weight_lat_jerk" default="0.0"/>
-    <arg name="mpc_weight_terminal_lat_error" default="1.0"/>
-    <arg name="mpc_weight_terminal_heading_error" default="0.1"/>
-    <arg name="mpc_zero_ff_steer_deg" default="2.0"/>
-    <arg name="delay_compensation_time" default="0.0"/>
-
-    <arg name="steer_lim_deg" default="35.0"/>
-    <arg name="vehicle_model_wheelbase" default="2.8"/>
-
-    <arg name="vehicle_model_type_mpc" default="kinematics"/>
-    <arg name="vehicle_model_steer_tau" default="0.1"/>
-
-    <arg name="qp_solver_type" default="unconstraint_fast"/>
-    <arg name="qpoases_max_iter" default="500"/>
-
-    <arg name="steering_lpf_cutoff_hz" default="3.0"/>
-    <arg name="error_deriv_lpf_curoff_hz" default="5.0"/>
-
-    <arg name="out_twist_name" default="twist_raw"/>
-    <arg name="out_vehicle_cmd_name" default="ctrl_raw"/>
-    <arg name="in_waypoints_name" default="mpc_waypoints"/>
-    <arg name="in_selfpose_name" default="gnss_pose"/>
-    <arg name="in_vehicle_status_name" default="vehicle_status"/>
-
-    <node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="screen">
-        <param name="show_debug_info" value="$(arg show_debug_info)"/>
-        <param name="ctrl_period" value="$(arg ctrl_period)"/>
-        <param name="enable_path_smoothing" value="$(arg enable_path_smoothing)"/>
-        <param name="enable_yaw_recalculation" value="$(arg enable_yaw_recalculation)"/>
-        <param name="path_filter_moving_ave_num" value="$(arg path_filter_moving_ave_num)"/>
-        <param name="path_smoothing_times" value="$(arg path_smoothing_times)"/>
-        <param name="curvature_smoothing_num" value="$(arg curvature_smoothing_num)"/>
-        <param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
-        <param name="admisible_position_error" value="$(arg admisible_position_error)"/>
-        <param name="admisible_yaw_error_deg" value="$(arg admisible_yaw_error_deg)"/>
-        <param name="output_interface" value="$(arg output_interface)"/>
-
-        <param name="mpc_prediction_horizon" value="$(arg mpc_prediction_horizon)"/>
-        <param name="mpc_prediction_sampling_time" value="$(arg mpc_prediction_sampling_time)"/>
-        <param name="mpc_weight_lat_error" value="$(arg mpc_weight_lat_error)"/>
-        <param name="mpc_weight_heading_error" value="$(arg mpc_weight_heading_error)"/>
-        <param name="mpc_weight_heading_error_squared_vel_coeff" value="$(arg mpc_weight_heading_error_squared_vel_coeff)"/>
-        <param name="mpc_weight_steering_input" value="$(arg mpc_weight_steering_input)"/>
-        <param name="mpc_weight_steering_input_squared_vel_coeff" value="$(arg mpc_weight_steering_input_squared_vel_coeff)"/>
-        <param name="mpc_weight_lat_jerk" value="$(arg mpc_weight_lat_jerk)"/>
-        <param name="mpc_weight_terminal_lat_error" value="$(arg mpc_weight_terminal_lat_error)"/>
-        <param name="mpc_weight_terminal_heading_error" value="$(arg mpc_weight_terminal_heading_error)"/>
-        <param name="mpc_zero_ff_steer_deg" value="$(arg mpc_zero_ff_steer_deg)"/>
-        <param name="delay_compensation_time" value="$(arg delay_compensation_time)"/>
-
-        <param name="steer_lim_deg" value="$(arg steer_lim_deg)"/>
-        <param name="vehicle_model_wheelbase" value="$(arg vehicle_model_wheelbase)"/>
-
-        <param name="vehicle_model_type" value="$(arg vehicle_model_type_mpc)"/>
-        <param name="vehicle_model_steer_tau" value="$(arg vehicle_model_steer_tau)"/>
-
-        <param name="qp_solver_type" value="$(arg qp_solver_type)"/>
-        <param name="qpoases_max_iter" value="$(arg qpoases_max_iter)"/>
-
-        <param name="steering_lpf_cutoff_hz" value="$(arg steering_lpf_cutoff_hz)"/>
-        <param name="error_deriv_lpf_curoff_hz" value="$(arg error_deriv_lpf_curoff_hz)"/>
-
-        <param name="out_twist_name" value="$(arg out_twist_name)"/>
-        <param name="out_vehicle_cmd_name" value="$(arg out_vehicle_cmd_name)"/>
-        <param name="in_waypoints_name" value="$(arg in_waypoints_name)"/>
-        <param name="in_selfpose_name" value="$(arg in_selfpose_name)"/>
-        <param name="in_vehicle_status_name" value="$(arg in_vehicle_status_name)"/>
-    </node> -->    
-
-    <!-- run chasis send & recv control message via can0(STM32 can2) -->
-    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="socketcan_to_topic_node" output="screen"/>
-    <node pkg="chasis_driver" type="chasis_status_node" name="chasis_status_node" output="screen" /> 
-    <node pkg="chasis_driver" type="chasis_control_node" name="chasis_control_node" output="screen" /> 
-    <node pkg="socketcan_bridge" type="topic_to_socketcan_node" name="topic_to_socketcan_node" output="screen"/>
-    
     <!-- 1.启动 nodelet manager（管理器） -->
-    <node pkg="nodelet" type="nodelet" args="manager" name="rslidar_pre" output="log" />
+    <node pkg="nodelet" type="nodelet" args="manager" name="rslidar_pre" output="log" respawn="true"/>
     <!-- 2.添加节点voxel_filter -->
-    <node pkg="nodelet" type="nodelet" args="load voxel_filter/VoxelFilter rslidar_pre" name="voxel_filter" output="log">
+    <node pkg="nodelet" type="nodelet" args="load voxel_filter/VoxelFilter rslidar_pre" name="voxel_filter" output="log" respawn="true">
         <!-- <param name="value" value="100"/> -->
     </node>
     <!-- 3.添加节点ray_ground_filter xiaowang的输出是ergou的输入 -->
-    <node pkg="nodelet" type="nodelet" args="load plane_ground_filter/PlaneGround rslidar_pre" name="plane_ground_filter" output="log">
+    <node pkg="nodelet" type="nodelet" args="load plane_ground_filter/PlaneGround rslidar_pre" name="plane_ground_filter" output="log" respawn="true">
         <!-- <param name="value" value="-50"/> -->
         <param name="input_topic" value="$(arg input_topic)"/>
         <param name="no_ground_point_topic" value="$(arg no_ground_point_topic)"/>
@@ -414,5 +298,96 @@
 
         <remap from="/plane_ground_filter/filtered_points" to="/voxel_filter/filtered_points" />
     </node>
+
+    <!-- mpc控制器 -->
+  <arg name="ns" default="/"/>
+  <arg name="show_debug_info" default="false" doc="flag to display debug info" />
+  <arg name="ctrl_period" default="0.03" doc="control period [s]"/>
+  <arg name="traj_resample_dist" default="0.1" doc="ath resampling interval [m]"/>
+  <arg name="enable_yaw_recalculation" default="true" doc="flag for recalculation of yaw angle after resampling"/>
+  <arg name="admisible_position_error" default="5.0" doc="stop mpc calculation when error is larger than the following value"/>
+  <arg name="admisible_yaw_error_deg" default="90.0" doc="stop mpc calculation when error is larger than the following value"/>
+  <arg name="enable_path_smoothing" default="true" doc="flag for path smoothing"/>
+  <arg name="path_smoothing_times" default="1" doc="number of times of applying path smoothing filter"/>
+  <arg name="path_filter_moving_ave_num" default="35" doc="param of moving average filter for path smoothing "/>
+  <arg name="curvature_smoothing_num" default="35" doc="point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)"/>
+  <arg name="steering_lpf_cutoff_hz" default="3.0" doc="cutoff frequency of lowpass filter for steering command [Hz]"/>
+  <arg name="qp_solver_type" default="unconstraint_fast" doc="optimization solver type. option is unconstraint_fast, unconstraint, and qpoases_hotstart"/>
+  <arg name="qpoases_max_iter" default="500" doc="max iteration number for quadratic programming"/>
+  <arg name="vehicle_model_type" default="kinematics" doc="vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics"/>
+
+  <!-- MPC design parameters -->
+  <arg name="mpc_prediction_horizon" default="70" doc="prediction horizon step"/>
+  <arg name="mpc_prediction_sampling_time" default="0.1" doc="prediction horizon period [s]"/>
+  <arg name="mpc_weight_lat_error" default="0.1" doc="lateral error weight in matrix Q"/>
+  <arg name="mpc_weight_heading_error" default="0.0" doc="heading error weight in matrix Q"/>
+  <arg name="mpc_weight_heading_error_squared_vel_coeff" default="0.3" doc="heading error * velocity weight in matrix Q"/>
+  <arg name="mpc_weight_steering_input" default="1.0" doc="steering error weight in matrix R"/>
+  <arg name="mpc_weight_steering_input_squared_vel_coeff" default="0.25" doc="steering error * velocity weight in matrix R"/>
+  <arg name="mpc_weight_lat_jerk" default="0.0" doc="lateral jerk weight in matrix R"/>
+  <arg name="mpc_weight_terminal_lat_error" default="1.0" doc="terminal lateral error weight in matrix Q to improve mpc stability"/>
+  <arg name="mpc_weight_terminal_heading_error" default="0.1" doc="terminal heading error weight in matrix Q to improve mpc stability"/>
+  <arg name="mpc_zero_ff_steer_deg" default="2.0" doc="threshold that feed-forward angle becomes zero"/>
+  <arg name="delay_compensation_time" default="0.0" doc="steering input delay time for delay compensation"/>
+
+  <arg name="vehicle_model_steer_tau" default="0.3" doc="steering dynamics time constant (1d approzimation) [s]"/>
+  <arg name="vehicle_model_wheelbase" default="2.8" doc="wheel base length [m]"/>
+  <arg name="steer_lim_deg" default="500" doc="steering angle limit [deg]"/>
+  <arg name="steering_gear_ratio" default="14.6" doc="steering gear ratio"/>
+
+  <group ns="$(arg ns)">
+
+    <node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="log">
+
+      <!-- system -->
+      <param name="ctrl_cmd_interface" value="all"/>
+      <param name="in_waypoints_name" value="/mpc_waypoints"/>
+      <param name="in_vehicle_status_name" value="/vehicle_status"/>
+      <param name="in_selfpose_name" value="/gnss_pose"/>
+      <param name="out_twist_name" value="/twist_raw"/>
+      <param name="out_vehicle_cmd_name" value="/ctrl_raw"/>
+
+      <!-- paramters -->
+      <param name="ctrl_period" value="$(arg ctrl_period)"/>
+      <param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
+      <param name="admisible_position_error" value="$(arg admisible_position_error)"/>
+      <param name="admisible_yaw_error_deg" value="$(arg admisible_yaw_error_deg)"/>
+      <param name="path_smoothing_times" value="$(arg path_smoothing_times)"/>
+      <param name="show_debug_info" value="$(arg show_debug_info)"/>
+      <param name="enable_yaw_recalculation" value="$(arg enable_yaw_recalculation)"/>
+      <param name="enable_path_smoothing" value="$(arg enable_path_smoothing)"/>
+      <param name="path_filter_moving_ave_num" value="$(arg path_filter_moving_ave_num)"/>
+      <param name="curvature_smoothing_num" value="$(arg curvature_smoothing_num)"/>
+      <param name="steering_lpf_cutoff_hz" value="$(arg steering_lpf_cutoff_hz)"/>
+      <param name="qp_solver_type" value="$(arg qp_solver_type)"/>
+      <param name="qpoases_max_iter" value="$(arg qpoases_max_iter)"/>
+      <param name="vehicle_model_type" value="$(arg vehicle_model_type)"/>
+      <param name="mpc_prediction_horizon" value="$(arg mpc_prediction_horizon)"/>
+      <param name="mpc_prediction_sampling_time" value="$(arg mpc_prediction_sampling_time)"/>
+      <param name="mpc_weight_lat_error" value="$(arg mpc_weight_lat_error)"/>
+      <param name="mpc_weight_heading_error" value="$(arg mpc_weight_heading_error)"/>
+      <param name="mpc_weight_heading_error_squared_vel_coeff" value="$(arg mpc_weight_heading_error_squared_vel_coeff)"/>
+      <param name="mpc_weight_steering_input" value="$(arg mpc_weight_steering_input)"/>
+      <param name="mpc_weight_steering_input_squared_vel_coeff" value="$(arg mpc_weight_steering_input_squared_vel_coeff)"/>
+      <param name="mpc_weight_lat_jerk" value="$(arg mpc_weight_lat_jerk)"/>
+      <param name="mpc_weight_terminal_lat_error" value="$(arg mpc_weight_terminal_lat_error)"/>
+      <param name="mpc_weight_terminal_heading_error" value="$(arg mpc_weight_terminal_heading_error)"/>
+      <param name="mpc_zero_ff_steer_deg" value="$(arg mpc_zero_ff_steer_deg)"/>
+      <param name="delay_compensation_time" value="$(arg delay_compensation_time)"/>
+      <param name="vehicle_model_steer_tau" value="$(arg vehicle_model_steer_tau)"/>
+      <param name="vehicle_model_wheelbase" value="$(arg vehicle_model_wheelbase)"/>
+      <param name="steer_lim_deg" value="$(arg steer_lim_deg)"/>
+      <param name="steering_gear_ratio" value="$(arg steering_gear_ratio)"/>
+    </node>
+
+  </group>
+
+    <!-- run chasis send & recv control message via can0(STM32 can2) -->
+    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="socketcan_to_topic_node" output="screen"/>
+    <node pkg="chasis_driver" type="chasis_status_node" name="chasis_status_node" output="screen" /> 
+    <node pkg="chasis_driver" type="chasis_control_node" name="chasis_control_node" output="log" /> 
+    <node pkg="socketcan_bridge" type="topic_to_socketcan_node" name="topic_to_socketcan_node" output="screen"/>
+    
+
 
 </launch>

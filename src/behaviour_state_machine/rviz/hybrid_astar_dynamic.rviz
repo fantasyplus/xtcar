@@ -77,7 +77,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.10000000149011612
       Head Length: 0.10000000149011612
       Length: 0.30000001192092896
@@ -95,7 +95,7 @@ Visualization Manager:
       Shaft Length: 0.05000000074505806
       Topic: /initial_path
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -258,7 +258,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 32; 74; 135
-      Enabled: false
+      Enabled: true
       Head Diameter: 0.10000000149011612
       Head Length: 0.10000000149011612
       Length: 0.30000001192092896
@@ -276,7 +276,7 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /vis_mpc_waypoints
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -328,15 +328,15 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 20.304834365844727
+      Distance: 26.078418731689453
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 6.194748401641846
-        Y: -4.027749061584473
+        X: 14.05759334564209
+        Y: -7.621541976928711
         Z: -3.35777185682673e-5
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
@@ -364,5 +364,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1389
-  X: 2041
-  Y: 177
+  X: 2367
+  Y: 169

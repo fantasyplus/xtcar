@@ -43,17 +43,17 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcaster_xt.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcaster.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/car_tf_broadcaster_xt/cmake" TYPE FILE FILES
-    "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcaster_xtConfig.cmake"
-    "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcaster_xtConfig-version.cmake"
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/car_tf_broadcaster/cmake" TYPE FILE FILES
+    "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcasterConfig.cmake"
+    "/home/ros/fantasyplus/xtcar/build/car_tf_broadcaster/catkin_generated/installspace/car_tf_broadcasterConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/car_tf_broadcaster_xt" TYPE FILE FILES "/home/ros/fantasyplus/xtcar/src/car_tf_broadcaster/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/car_tf_broadcaster" TYPE FILE FILES "/home/ros/fantasyplus/xtcar/src/car_tf_broadcaster/package.xml")
 endif()
 
