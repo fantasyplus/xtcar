@@ -124,10 +124,14 @@
     <arg name="is_static_map" default="true"/>
     <arg name="is_keep_sending" default="false"/>
     <arg name="sub_goal_tolerance_distance" default="2.0" doc="对静态地图没有用"/>
+    <arg name="default_mode" default="3" doc="Scenario: StaticExec"/>
+
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen">
         <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
         <param name="is_keep_sending" type="bool" value="$(arg is_keep_sending)"/>
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
+        <param name="default_mode" type="int" value="$(arg default_mode)"/>
+
     </node>
 
     <!-- Hybrid A* node -->

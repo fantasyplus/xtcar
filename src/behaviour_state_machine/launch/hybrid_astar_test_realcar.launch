@@ -81,13 +81,21 @@
     </node>
 
     <!-- car_tf node -->
-    <arg name="lidar_trans_x" default="4.34" />
-    <arg name="lidar_trans_y" default="-0.58" />
+    <arg name="lidar_trans_x" default="4.34" doc="4.34"/>
+    <arg name="lidar_trans_y" default="-0.58" doc="-0.58"/>
     <arg name="lidar_trans_z" default="0.0" />
 
     <arg name="lidar_rotation_roll" default="0.0" />
     <arg name="lidar_rotation_pitch" default="0.0" />
     <arg name="lidar_rotation_yaw" default="0.0" />
+
+    <arg name="base_link_trans_x" default="0.0"/>
+    <arg name="base_link_trans_y" default="0.0"/>
+    <arg name="base_link_trans_z" default="0.0" />
+
+    <arg name="base_link_rotation_roll" default="0.0" />
+    <arg name="base_link_rotation_pitch" default="0.0" />
+    <arg name="base_link_rotation_yaw" default="0.0" />
 
     <arg name="map_frame" default="map" />
     <arg name="base_link_frame" default="base_link" />
@@ -104,6 +112,14 @@
         <param name="lidar_rotation_pitch" type="double" value="$(arg lidar_rotation_pitch)" />
         <param name="lidar_rotation_yaw" type="double" value="$(arg lidar_rotation_yaw)" />
         
+        <param name="base_link_trans_x" type="double" value="$(arg base_link_trans_x)" />
+        <param name="base_link_trans_y" type="double" value="$(arg base_link_trans_y)" />
+        <param name="base_link_trans_z" type="double" value="$(arg base_link_trans_z)" />
+
+        <param name="base_link_rotation_roll" type="double" value="$(arg base_link_rotation_roll)" />
+        <param name="base_link_rotation_pitch" type="double" value="$(arg base_link_rotation_pitch)" />
+        <param name="base_link_rotation_yaw" type="double" value="$(arg base_link_rotation_yaw)" />
+
         <param name="map_frame" type="string" value="$(arg map_frame)" />
         <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
         <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
@@ -113,10 +129,9 @@
     </node>
 
     <!-- 上层控制节点 -->
-    <arg name="is_static_map" default="false"/>
-    <arg name="is_keep_sending" default="true"/>
     <arg name="sub_goal_tolerance_distance" default="3.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
-    <arg name="zero_vel_segment" default="4" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="normal_zero_vel_segment" default="4" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="collision_zero_vel_segment" default="1" doc="速度赋0的分母(障碍物避碰用),整数"/>
     <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
     <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
     <arg name="second_vertical_distance" default="15.0" doc="第二个子目标点（纵向距离）"/>
@@ -126,14 +141,16 @@
     <arg name="vehicle_width_coll" default="2.198"/>
     <arg name="vehicle_cg2back_coll" default="1.367"/>
     <arg name="lookahead_distance" default="20.0"/>
-    <arg name="waypoints_velocity_behav" default="1.2"/>
+    <arg name="waypoints_velocity_behav" default="2.0"/>
 
+    <arg name="default_mode" default="1" doc="Scenario: MultiTrajPlanning"/>
+
+    <arg name="loop_rate" default="100.0"/>
 
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
-        <param name="is_static_map" type="bool" value="$(arg is_static_map)"/>
-        <param name="is_keep_sending" type="bool" value="$(arg is_keep_sending)"/>
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
-        <param name="zero_vel_segment" type="int" value="$(arg zero_vel_segment)"/>
+        <param name="normal_zero_vel_segment" type="int" value="$(arg normal_zero_vel_segment)"/>
+        <param name="collision_zero_vel_segment" type="int" value="$(arg collision_zero_vel_segment)"/>
         <param name="use_complex_lane" type="bool" value="$(arg use_complex_lane)"/>
         <param name="first_horizontal_distance" type="double" value="$(arg first_horizontal_distance)"/>
         <param name="second_vertical_distance" type="double" value="$(arg second_vertical_distance)"/>
@@ -143,7 +160,8 @@
         <param name="vehicle_cg2back" type="double" value="$(arg vehicle_cg2back_coll)"/>
         <param name="lookahead_distance" type="double" value="$(arg lookahead_distance)"/>
         <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
-
+        <param name="default_mode" type="int" value="$(arg default_mode)"/>
+        <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
     </node>
     
     <!-- Hybrid A* node -->
@@ -151,7 +169,7 @@
     <arg name="costmap_topic" default="global_cost_map" />
     <arg name="pose_topic" default="gnss_pose" />
     
-    <arg name="waypoints_velocity" default="1.2" />
+    <arg name="waypoints_velocity" default="2.0" />
     <arg name="update_rate" default="10" />
     
     <arg name="is_visual" default="true" />

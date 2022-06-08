@@ -133,7 +133,11 @@ vector
 -
 unordered_map
 -
+signal.h
+-
 ros/ros.h
+-
+ros/console.h
 -
 geometry_msgs/Pose.h
 -

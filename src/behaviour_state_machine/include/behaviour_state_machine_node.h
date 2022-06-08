@@ -6,9 +6,11 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <signal.h>
 
 // ros
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -39,6 +41,21 @@ enum class Direction
     None
 };
 
+enum class ScenarioStatus
+{
+    Stop,
+    MultiTrajPlanning,
+    PathTracing,
+    StaticExec
+};
+
+void MySigintHandler(int sig)
+{
+    ROS_INFO("shutting down!");
+    ros::shutdown();
+    exit(0);
+}
+
 class BehaviourStateMachine
 {
 public:
@@ -58,35 +75,22 @@ private:
     ros::Subscriber _sub_rviz_start_pose;
     ros::Subscriber _sub_vehicle_status;
 
-    ros::Publisher _pub_rviz_start_pose;
-
     ros::Timer _timer_tf;
 
+    double loop_rate;
+
 private:
+    /*---------------------回调函数相关---------------------*/
+
     //各类pose
     geometry_msgs::PoseStamped _goal_pose_stamped;
     geometry_msgs::PoseStamped _current_pose_stamped;
     geometry_msgs::PoseStamped _rviz_start_pose_stamped;
 
-    bool _costmap_flag;
-    bool _current_pose_flag;
+    bool _current_pose_flag = false;
     bool _goal_pose_flag = false;
-    bool _publish_tf_flag;
-    bool _rviz_start_flag = false;
 
-    int id = 0;
-    int pre_id = 0;
-    int dynamic_id = 4; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
-    int dynamic_complex_id = 1;
-
-    bool is_static_map;   // ros参数
-    bool is_keep_sending; // ros参数
-
-    double _sub_goal_tolerance_distance; // ros参数
     mpc_msgs::VehicleStatus _vehicle_status;
-
-private:
-    /*---------------------各类回调函数---------------------*/
 
     void callbackGoalPose(const geometry_msgs::PoseStamped &msg);
     void callbackCostMap(const nav_msgs::OccupancyGrid &msg);
@@ -97,6 +101,7 @@ private:
     void callbackTimerPublishTargetTF(const ros::TimerEvent &e);
 
 private:
+    /*---------------------发送mpc_lane相关---------------------*/
     // srv返回的mpc路径
     mpc_msgs::Lane _mpc_lane;
 
@@ -108,7 +113,13 @@ private:
     //定义路径倒数1/_zero_vel_segment的路径点速度为0的参数
     int _normal_zero_vel_segment;    // ros参数
     int _collision_zero_vel_segment; // ros参数
-    double waypoints_velocity;
+    int id = 0;
+    int pre_id = 0;
+    int dynamic_id = 4; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
+    int dynamic_complex_id = 1;
+
+    double _sub_goal_tolerance_distance; // ros参数
+    double waypoints_velocity;           // ros参数
 
     //发送mpclane的定时器
     ros::Timer _timer_pub_lane;
@@ -117,6 +128,7 @@ private:
 
     bool is_complex_lane = false;
     bool use_complex_lane; // ros参数
+
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
     void processMpcLane(mpc_msgs::Lane &mpc_lane, int start, int end, int zero_vel_segment, bool is_coll);
 
@@ -124,6 +136,7 @@ private:
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
 
 private:
+    /*---------------------获取目标点方向和子目标点生成相关---------------------*/
     Direction dir;
     std::vector<geometry_msgs::PoseStamped> sub_goal_vec;
     double first_horizontal_distance; // ros参数
@@ -135,8 +148,6 @@ private:
     std::vector<geometry_msgs::PoseStamped> multipleTargetGenerator(Direction &dir);
 
     double getDistance(geometry_msgs::PoseStamped &p1, geometry_msgs::PoseStamped &p2);
-
-    void experimentalUse();
 
 private:
     /*---------------------障碍物避碰相关---------------------*/
@@ -168,6 +179,17 @@ private:
     geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local);
 
 private:
+    /*---------------------模式切换相关---------------------*/
+    int default_mode = -1; // ros参数
+    int mode;
+
+    ros::Timer _timer_static_exec;
+    void callbackTimerStaticExec(const ros::TimerEvent &e);
+
+    ros::Timer _timer_multi_traj;
+    void callbackTimerMultiTrajPlanning(const ros::TimerEvent &e);
+
+private:
     /*---------------------TF相关---------------------*/
     tf::TransformBroadcaster _tf_broadcaster;
     std::shared_ptr<tf2_ros::Buffer> _tf_buffer;
@@ -178,8 +200,6 @@ private:
 
     geometry_msgs::TransformStamped getTransform(const std::string &target,
                                                  const std::string &source);
-
-    void publishTF();
 };
 
 #endif
