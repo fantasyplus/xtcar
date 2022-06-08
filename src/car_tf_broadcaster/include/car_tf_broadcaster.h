@@ -36,7 +36,9 @@ private:
 private:
     double lidar_trans_x, lidar_trans_y, lidar_trans_z;
     double lidar_rotation_roll, lidar_rotation_pitch, lidar_rotation_yaw;
-    std::string map_frame, base_link_frame, lidar_frame;
+    double base_link_trans_x, base_link_trans_y, base_link_trans_z;
+    double base_link_rotation_roll, base_link_rotation_pitch, base_link_rotation_yaw;
+    std::string map_frame, gps_frame, base_link_frame, lidar_frame;
     std::string pose_topic;
 
     geometry_msgs::PoseStamped _gnss_pose;

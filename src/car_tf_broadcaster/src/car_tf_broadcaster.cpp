@@ -56,27 +56,50 @@ void CarTF::callbackTimerPublishTF(const ros::TimerEvent &e)
 
 void CarTF::publishTF()
 {
-    // map->base_link
+    // map->gps
+    geometry_msgs::TransformStamped gps_transform;
+
+    gps_transform.header.frame_id = map_frame;
+    gps_transform.header.stamp = ros::Time::now();
+
+    gps_transform.child_frame_id = gps_frame;
+
+    geometry_msgs::Pose gnss_pose;
+    if (use_rviz_start)
+    {
+        gnss_pose = _rivz_start_pose.pose.pose;
+    }
+    else
+    {
+        gnss_pose = _gnss_pose.pose;
+    }
+    gps_transform.transform.translation.x = gnss_pose.position.x;
+    gps_transform.transform.translation.y = gnss_pose.position.y;
+    gps_transform.transform.translation.z = gnss_pose.position.z;
+    gps_transform.transform.rotation = gnss_pose.orientation;
+
+    _tf_broadcaster.sendTransform(gps_transform);
+
+    // gps->base_link
     geometry_msgs::TransformStamped base_link_transform;
 
-    base_link_transform.header.frame_id = map_frame;
+    base_link_transform.header.frame_id = gps_frame;
     base_link_transform.header.stamp = ros::Time::now();
 
     base_link_transform.child_frame_id = base_link_frame;
 
-    geometry_msgs::Pose base_link_pose;
-    if (use_rviz_start)
-    {
-        base_link_pose = _rivz_start_pose.pose.pose;
-    }
-    else
-    {
-        base_link_pose = _gnss_pose.pose;
-    }
-    base_link_transform.transform.translation.x = base_link_pose.position.x;
-    base_link_transform.transform.translation.y = base_link_pose.position.y;
-    base_link_transform.transform.translation.z = base_link_pose.position.z;
-    base_link_transform.transform.rotation = base_link_pose.orientation;
+    base_link_transform.transform.translation.x = base_link_trans_x;
+    base_link_transform.transform.translation.y = base_link_trans_y;
+    base_link_transform.transform.translation.z = base_link_trans_z;
+
+    geometry_msgs::Quaternion q_gps_base_link;
+    q_gps_base_link = tf::createQuaternionMsgFromRollPitchYaw(base_link_rotation_roll,
+                                                base_link_rotation_pitch,
+                                                base_link_rotation_yaw);
+    base_link_transform.transform.rotation.w = q_gps_base_link.w;
+    base_link_transform.transform.rotation.x = q_gps_base_link.x;
+    base_link_transform.transform.rotation.y = q_gps_base_link.y;
+    base_link_transform.transform.rotation.z = q_gps_base_link.z;
 
     _tf_broadcaster.sendTransform(base_link_transform);
 
@@ -92,14 +115,14 @@ void CarTF::publishTF()
     lidar_transform.transform.translation.y = lidar_trans_y;
     lidar_transform.transform.translation.z = lidar_trans_z;
 
-    geometry_msgs::Quaternion q;
-    q = tf::createQuaternionMsgFromRollPitchYaw(lidar_rotation_roll,
+    geometry_msgs::Quaternion q_base_link_lidar_rs;
+    q_base_link_lidar_rs = tf::createQuaternionMsgFromRollPitchYaw(lidar_rotation_roll,
                                                 lidar_rotation_pitch,
                                                 lidar_rotation_yaw);
-    lidar_transform.transform.rotation.w = q.w;
-    lidar_transform.transform.rotation.x = q.x;
-    lidar_transform.transform.rotation.y = q.y;
-    lidar_transform.transform.rotation.z = q.z;
+    lidar_transform.transform.rotation.w = q_base_link_lidar_rs.w;
+    lidar_transform.transform.rotation.x = q_base_link_lidar_rs.x;
+    lidar_transform.transform.rotation.y = q_base_link_lidar_rs.y;
+    lidar_transform.transform.rotation.z = q_base_link_lidar_rs.z;
 
     _tf_broadcaster.sendTransform(lidar_transform);
 
@@ -136,7 +159,14 @@ CarTF::CarTF() : _nh(""), _private_nh("~")
     _private_nh.param<double>("lidar_rotation_roll", lidar_rotation_roll, 0.0);
     _private_nh.param<double>("lidar_rotation_pitch", lidar_rotation_pitch, 0.0);
     _private_nh.param<double>("lidar_rotation_yaw", lidar_rotation_yaw, 0.0);
+    _private_nh.param<double>("base_link_trans_x", base_link_trans_x, 0.0);
+    _private_nh.param<double>("base_link_trans_y", base_link_trans_y, 0.0);
+    _private_nh.param<double>("base_link_trans_z", base_link_trans_z, 0.0);
+    _private_nh.param<double>("base_link_rotation_roll", base_link_rotation_roll, 0.0);
+    _private_nh.param<double>("base_link_rotation_pitch", base_link_rotation_pitch, 0.0);
+    _private_nh.param<double>("base_link_rotation_yaw", base_link_rotation_yaw, 0.0);
     _private_nh.param<std::string>("map_frame", map_frame, "map");
+    _private_nh.param<std::string>("gps_frame", gps_frame, "gps");
     _private_nh.param<std::string>("base_link_frame", base_link_frame, "base_link");
     _private_nh.param<std::string>("lidar_frame_id", lidar_frame, "rslidar");
     _private_nh.param<std::string>("pose_topic", pose_topic, "gnss_pose");
@@ -147,7 +177,7 @@ CarTF::CarTF() : _nh(""), _private_nh("~")
     _sub_goal_pose = _nh.subscribe("move_base_simple/goal", 1, &CarTF::callbackGoalPose, this);
     _sub_cost_map = _nh.subscribe("global_cost_map", 1, &CarTF::callbackCostMap, this);
 
-    _timer_tf = _nh.createTimer(ros::Duration(0.2), &CarTF::callbackTimerPublishTF, this);
+    _timer_tf = _nh.createTimer(ros::Duration(0.02), &CarTF::callbackTimerPublishTF, this);
 
     _tf_buffer = std::make_shared<tf2_ros::Buffer>();
     _tf_listener = std::make_shared<tf2_ros::TransformListener>(*_tf_buffer);

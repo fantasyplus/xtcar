@@ -4,8 +4,6 @@ int BehaviourStateMachine::last_collision_car_index = 0;
 
 BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
 {
-    _private_nh.param<bool>("is_static_map", is_static_map, true);
-    _private_nh.param<bool>("is_keep_sending", is_keep_sending, false);
     _private_nh.param<double>("sub_goal_tolerance_distance", _sub_goal_tolerance_distance, 1.0);
     _private_nh.param<int>("normal_zero_vel_segment", _normal_zero_vel_segment, 5);
     _private_nh.param<int>("collision_zero_vel_segment", _collision_zero_vel_segment, 1);
@@ -18,31 +16,30 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<double>("vehicle_cg2back", vehicle_cg2back, 1.367);
     _private_nh.param<double>("lookahead_distance", lookahead_distance, 5.0);
     _private_nh.param<double>("waypoints_velocity", waypoints_velocity, 2.0);
+    _private_nh.param<int>("default_mode", default_mode, -1);
+    _private_nh.param<double>("loop_rate", loop_rate, 100);
 
-    /*---------------------subscribe---------------------*/
+    /*---------------------subscriber---------------------*/
     _sub_costmap = _nh.subscribe("global_cost_map", 1, &BehaviourStateMachine::callbackCostMap, this);
     _sub_goal_pose = _nh.subscribe("move_base_simple/goal", 1, &BehaviourStateMachine::callbackGoalPose, this);
-    if (is_static_map)
-    {
-        _sub_rviz_start_pose = _nh.subscribe("initialpose", 1, &BehaviourStateMachine::callbackRvizStartPose, this);
-    }
-    else
-    {
-        _sub_current_pose = _nh.subscribe("gnss_pose", 1, &BehaviourStateMachine::callbackCurrentPose, this);
-    }
-
+    _sub_rviz_start_pose = _nh.subscribe("initialpose", 1, &BehaviourStateMachine::callbackRvizStartPose, this);
+    _sub_current_pose = _nh.subscribe("gnss_pose", 1, &BehaviourStateMachine::callbackCurrentPose, this);
     _sub_vehicle_status = _nh.subscribe("vehicle_status", 1, &BehaviourStateMachine::callbackVehicleStatus, this);
 
-    /*---------------------advertise---------------------*/
-    _pub_rviz_start_pose = _nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1, true);
+    /*---------------------advertiser---------------------*/
     _pub_mpc_lane = _nh.advertise<mpc_msgs::Lane>("mpc_waypoints", 1, true);
     _pub_vis_mpc_lane = _nh.advertise<nav_msgs::Path>("vis_mpc_waypoints", 1, true);
-
     // debug 可视化车辆轮廓
     _pub_vis_car_path = _nh.advertise<nav_msgs::Path>("vis_car_path", 1, true);
 
+    /*---------------------timer---------------------*/
+    double dt = 1 / loop_rate;
     //实时检测障碍物避碰且发布mpclane的定时器
-    _timer_pub_lane = _nh.createTimer(ros::Duration(0.1), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
+    _timer_pub_lane = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
+    //静态地图测试的定时器
+    _timer_static_exec = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerStaticExec, this);
+    //多段轨迹生成状态机的定时器
+    _timer_multi_traj = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerMultiTrajPlanning, this);
 
     /*---------------------serviceClient---------------------*/
     _goal_pose_client = _nh.serviceClient<behaviour_state_machine::GoalPose>("goal_pose_srv");
@@ -119,8 +116,6 @@ void BehaviourStateMachine::callbackVehicleStatus(const mpc_msgs::VehicleStatus 
 
 void BehaviourStateMachine::callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg)
 {
-    _rviz_start_flag = true;
-
     _rviz_start_pose_stamped.header = msg.header;
     _rviz_start_pose_stamped.pose = msg.pose.pose;
 }
@@ -135,7 +130,7 @@ void BehaviourStateMachine::callbackGoalPose(const geometry_msgs::PoseStamped &m
     _goal_pose_stamped = msg;
 
     //每次接受到新的目标点才重新生成三段轨迹
-    if (!is_static_map && _current_pose_flag) // 在动态地图下才会进入三段轨迹的生成
+    if (_current_pose_flag)
     {
         dir = getDirection(_current_pose_stamped, _goal_pose_stamped);
         sub_goal_vec = multipleTargetGenerator(dir);
@@ -279,11 +274,11 @@ void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e
     /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
 
     //获得当前正在执行的路径
-    if (_mpc_lane.waypoints.empty())
+    mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
+    if (temp_lane_to_detect_collision.waypoints.empty())
     {
         return;
     }
-    const mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
 
     //获取当前位置在路径上的最近点
     int closest_index = -1;
@@ -349,23 +344,24 @@ void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e
     {
         ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
         //整条路径速度全部赋0
-        processMpcLane(_mpc_lane, 0, _mpc_lane.waypoints.size() - 1, _collision_zero_vel_segment, true);
+        processMpcLane(temp_lane_to_detect_collision, 0, temp_lane_to_detect_collision.waypoints.size() - 1, _collision_zero_vel_segment, true);
     }
     else //重定义当前位置到终点的路径
     {
-        for (auto &wp : _mpc_lane.waypoints)
+        for (auto &wp : temp_lane_to_detect_collision.waypoints)
         {
             wp.twist.twist.linear.x = waypoints_velocity;
         }
         //最后一次前探距离中发生碰撞的时候的点到终点中的路径，1/_normal_zero_vel_segment的速度赋0
         // last_collision_car_index在每段轨迹中默认是0，即如果一次障碍物检测都没有发生的话，则一直发送最原始的路径（而不是从检测到障碍物从当前位置裁剪后的）
-        processMpcLane(_mpc_lane, last_collision_car_index, _mpc_lane.waypoints.size() - 1, _normal_zero_vel_segment, false);
+        processMpcLane(temp_lane_to_detect_collision, last_collision_car_index, temp_lane_to_detect_collision.waypoints.size() - 1, _normal_zero_vel_segment, false);
     }
-    _pub_mpc_lane.publish(_mpc_lane);
+    _pub_mpc_lane.publish(temp_lane_to_detect_collision);
 
     // debug 可视化车辆轮廓
     vis_car_path.header.frame_id = "map";
-    _pub_vis_car_path.publish(vis_car_path);
+    if (dynamic_id != 4)
+        _pub_vis_car_path.publish(vis_car_path);
 
     /*-----发送可视化路径-----*/
     nav_msgs::Path vis_lane;
@@ -380,8 +376,8 @@ void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e
 
         vis_lane.poses.push_back(temp_pose);
     }
-
-    _pub_vis_mpc_lane.publish(vis_lane);
+    if (dynamic_id != 4)
+        _pub_vis_mpc_lane.publish(vis_lane);
 }
 
 void BehaviourStateMachine::checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec)
@@ -611,232 +607,274 @@ std::vector<geometry_msgs::PoseStamped> BehaviourStateMachine::multipleTargetGen
     return sub_goal_vec;
 }
 
-void BehaviourStateMachine::experimentalUse()
-{
-    //保留点 ratio=0.5 319ms opennode:2692
-    //不加thetacost 2066ms opennode:2094
-    // geometry_msgs::PoseWithCovarianceStamped temp_start;
-    // temp_start.header.stamp = ros::Time::now();
-    // temp_start.header.frame_id = "map";
-    // temp_start.pose.pose.position.x = 27.391078949;
-    // temp_start.pose.pose.position.y = 18.884557724;
-    // temp_start.pose.pose.position.z = 0.0;
-    // temp_start.pose.pose.orientation.x = 0.0;
-    // temp_start.pose.pose.orientation.y = 0.0;
-    // temp_start.pose.pose.orientation.z = 1.0;
-    // temp_start.pose.pose.orientation.w = -4.37113900019e-08;
-    // _pub_rviz_start_pose.publish(temp_start);
-
-    // _goal_pose_stamped.header.stamp = ros::Time::now();
-    // _goal_pose_stamped.header.frame_id = "map";
-    // _goal_pose_stamped.pose.position.x = 29.698841095;
-    // _goal_pose_stamped.pose.position.y = 77.3743591309;
-    // _goal_pose_stamped.pose.position.z = 0.0;
-    // _goal_pose_stamped.pose.orientation.x = 0.0;
-    // _goal_pose_stamped.pose.orientation.y = 0.0;
-    // _goal_pose_stamped.pose.orientation.z = 0.721826900025;
-    // _goal_pose_stamped.pose.orientation.w = 0.692073642324;
-
-    sendGoalSrv(_goal_pose_stamped);
-}
-
 void BehaviourStateMachine::run()
 {
-    ros::Rate loop_rate(50);
+    signal(SIGINT, MySigintHandler);
 
+    ROS_INFO("--------Choose a mode first!-------");
+    ROS_INFO("--------0:Stop-------");
+    ROS_INFO("--------1:MultiTrajPlanning-------");
+    ROS_INFO("--------2:PathTracing-------");
+    ROS_INFO("--------3:StaticExec-------");
+    if (default_mode == -1)
+    {
+        ROS_INFO("Choose The Scenario");
+        std::cin >> mode;
+        switch (mode)
+        {
+        case 0:
+            ROS_INFO("Change to Scenario: Stop");
+            break;
+        case 1:
+            ROS_INFO("Change to Scenario: MultiTrajPlanning");
+            break;
+        case 2:
+            ROS_INFO("Change to Scenario: PathTracing");
+            break;
+        case 3:
+            ROS_INFO("Change to Scenario: StaticExec");
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch (default_mode)
+        {
+        case 0:
+            ROS_INFO("Default Scenario: Stop");
+            break;
+        case 1:
+            ROS_INFO("Default Scenario: MultiTrajPlanning");
+            break;
+        case 2:
+            ROS_INFO("Default Scenario: PathTracing");
+            break;
+        case 3:
+            ROS_INFO("Default Scenario: StaticExec");
+            break;
+        default:
+            break;
+        }
+        mode = default_mode;
+    }
+    ros::Rate rate(loop_rate);
     while (ros::ok())
     {
         ros::spinOnce();
 
-        if (!is_static_map) //动态地图下的前置判断
+        rate.sleep();
+    }
+}
+
+void BehaviourStateMachine::callbackTimerStaticExec(const ros::TimerEvent &e)
+{
+    if (mode != (int)ScenarioStatus::StaticExec)
+    {
+        return;
+    }
+    //每次接受到新的目标点才发送srv
+    if (id != pre_id)
+    {
+        pre_id = id;
+
+        //实验用
+        //保留点 ratio=0.5 319ms opennode:2692
+        //不加thetacost 2066ms opennode:2094
+        // geometry_msgs::PoseWithCovarianceStamped temp_start;
+        // temp_start.header.stamp = ros::Time::now();
+        // temp_start.header.frame_id = "map";
+        // temp_start.pose.pose.position.x = 27.391078949;
+        // temp_start.pose.pose.position.y = 18.884557724;
+        // temp_start.pose.pose.position.z = 0.0;
+        // temp_start.pose.pose.orientation.x = 0.0;
+        // temp_start.pose.pose.orientation.y = 0.0;
+        // temp_start.pose.pose.orientation.z = 1.0;
+        // temp_start.pose.pose.orientation.w = -4.37113900019e-08;
+        // _pub_rviz_start_pose.publish(temp_start);
+
+        // _goal_pose_stamped.header.stamp = ros::Time::now();
+        // _goal_pose_stamped.header.frame_id = "map";
+        // _goal_pose_stamped.pose.position.x = 29.698841095;
+        // _goal_pose_stamped.pose.position.y = 77.3743591309;
+        // _goal_pose_stamped.pose.position.z = 0.0;
+        // _goal_pose_stamped.pose.orientation.x = 0.0;
+        // _goal_pose_stamped.pose.orientation.y = 0.0;
+        // _goal_pose_stamped.pose.orientation.z = 0.721826900025;
+        // _goal_pose_stamped.pose.orientation.w = 0.692073642324;
+
+        sendGoalSrv(_goal_pose_stamped);
+    }
+}
+
+void BehaviourStateMachine::callbackTimerMultiTrajPlanning(const ros::TimerEvent &e)
+{
+    if (mode != (int)ScenarioStatus::MultiTrajPlanning)
+    {
+        return;
+    }
+
+    static geometry_msgs::PoseStamped pre_sub_goal;
+    static std::vector<mpc_msgs::Lane> sub_lane_vec;
+
+    if (dynamic_id != 4) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
+    {
+
+        //如果是复杂轨迹(有前进有后退)，先不考虑正常的子目标点生成，对它单独处理
+        //不处理完这段轨迹是不会进入后面的流程的
+        if (is_complex_lane && use_complex_lane)
         {
-            if (!_current_pose_flag || !_goal_pose_flag)
+            //如果复杂轨迹数组为空了，说明处理完该段轨迹了，进入正常的流程
+            if (sub_lane_vec.empty())
             {
-                continue;
+                is_complex_lane = false;
+                dynamic_id++; //转移到下一个正常的子目标点(如果为3的话，其实就是跳转到最后的终点判断流程)
+                return;
+            }
+            //如果接受到新的大目标点的了，重新进入正常流程判断
+            if (dynamic_complex_id == 0)
+            {
+                is_complex_lane = false;
+                return;
+            }
+
+            //每次发送复杂轨迹数组的第一个(即单个简单轨迹)，并且把轨迹最后的点视为终点并判断是否到达
+            _mpc_lane = sub_lane_vec[0];
+
+            int sub_turn_index = sub_lane_vec[0].waypoints.size() - 1;
+            geometry_msgs::PoseStamped pre_complex_sub_goal; //当前子轨迹的终点
+            pre_complex_sub_goal = sub_lane_vec[0].waypoints[sub_turn_index].pose;
+
+            double length = getDistance(_current_pose_stamped, pre_complex_sub_goal);
+            // ROS_INFO("remain length:%f", length);
+
+            if (length < _sub_goal_tolerance_distance && _vehicle_status.speed < 1e-5) //判断车辆是否到达前一段轨迹的终点
+            {
+                ROS_INFO("arrive at no.%d pre_complex_sub_goal", (int)sub_lane_vec.size());
+                //删除当前轨迹
+                sub_lane_vec.erase(sub_lane_vec.begin());
+
+                //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
+                last_collision_car_index = 0;
+
+                //直接进入下一次循环，避免在复杂轨迹处理完之前进入到正常流程
+                return;
             }
         }
 
-        //每次接受到新的目标点才发送srv
-        if (id != pre_id && !is_keep_sending)
+        //正常简单轨迹流程
+        if (dynamic_id == 0 && !is_complex_lane) //第一段
         {
-            pre_id = id;
+            ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
 
-            if (is_static_map)
+            pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
+
+            mpc_msgs::Lane temp_lane;
+            bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送第一个子目标点并将返回轨迹保存到temp_lane中
+
+            //如果规划失败了，退出正常流程
+            if (!ret)
             {
-                //实验用
-                int cnt = 1;
-                while (cnt--)
-                {
-                    experimentalUse();
-                }
-            }
-        }
-        else if (is_keep_sending) //不停的判断，如果满足条件就发送
-        {
-            if (is_static_map)
-            {
-                ROS_INFO("-----must set is_static_map to false-----");
-                continue;
+                dynamic_id = 4;
+                return;
             }
 
-            static geometry_msgs::PoseStamped pre_sub_goal;
-            static std::vector<mpc_msgs::Lane> sub_lane_vec;
-
-            if (dynamic_id != 4) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
+            if (use_complex_lane)
             {
+                checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
+            }
 
-                //如果是复杂轨迹(有前进有后退)，先不考虑正常的子目标点生成，对它单独处理
-                //不处理完这段轨迹是不会进入后面的流程的
-                if (is_complex_lane && use_complex_lane)
-                {
-                    //如果复杂轨迹数组为空了，说明处理完该段轨迹了，进入正常的流程
-                    if (sub_lane_vec.empty())
-                    {
-                        is_complex_lane = false;
-                        dynamic_id++; //转移到下一个正常的子目标点(如果为3的话，其实就是跳转到最后的终点判断流程)
-                        continue;
-                    }
-                    //如果接受到新的大目标点的了，重新进入正常流程判断
-                    if (dynamic_complex_id == 0)
-                    {
-                        is_complex_lane = false;
-                        continue;
-                    }
-
-                    //每次发送复杂轨迹数组的第一个(即单个简单轨迹)，并且把轨迹最后的点视为终点并判断是否到达
-                    _mpc_lane = sub_lane_vec[0];
-
-                    int sub_turn_index = sub_lane_vec[0].waypoints.size() - 1;
-                    geometry_msgs::PoseStamped pre_complex_sub_goal; //当前子轨迹的终点
-                    pre_complex_sub_goal = sub_lane_vec[0].waypoints[sub_turn_index].pose;
-
-                    double length = getDistance(_current_pose_stamped, pre_complex_sub_goal);
-                    // ROS_INFO("remain length:%f", length);
-
-                    if (length < _sub_goal_tolerance_distance && _vehicle_status.speed < 1e-5) //判断车辆是否到达前一段轨迹的终点
-                    {
-                        ROS_INFO("arrive at no.%d pre_complex_sub_goal", (int)sub_lane_vec.size());
-                        //删除当前轨迹
-                        sub_lane_vec.erase(sub_lane_vec.begin());
-
-                        //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
-                        last_collision_car_index = 0;
-
-                        //直接进入下一次循环，避免在复杂轨迹处理完之前进入到正常流程
-                        continue;
-                    }
-                }
-
-                //正常简单轨迹流程
-                if (dynamic_id == 0 && !is_complex_lane) //第一段
-                {
-                    ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
-
-                    pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
-
-                    mpc_msgs::Lane temp_lane;
-                    bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送第一个子目标点并将返回轨迹保存到temp_lane中
-
-                    //如果规划失败了，退出正常流程
-                    if (!ret)
-                    {
-                        dynamic_id = 4;
-                        continue;
-                    }
-
-                    if (use_complex_lane)
-                    {
-                        checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
-                    }
-
-                    //如果不是复杂轨迹，直接把整条轨迹发出去
-                    if (!is_complex_lane)
-                    {
-                        _mpc_lane = temp_lane;
-                        //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
-                        last_collision_car_index = 0;
-                        dynamic_id++;
-                    }
-                    else
-                    {
-                        ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
-                        dynamic_complex_id = 1;
-                        continue;
-                    }
-                }
-                else if (dynamic_id > 0 && !is_complex_lane) //剩下两段
-                {
-
-                    //得到距离子目标点的长度(如果前一段是复杂轨迹的话，那么车辆应该已经到前一段的终点了)
-                    double length = getDistance(_current_pose_stamped, pre_sub_goal);
-                    // ROS_INFO("remain length:%f", length);
-
-                    if (length < _sub_goal_tolerance_distance && _vehicle_status.speed < 1e-5) //判断车辆是否到达前一段轨迹的终点
-                    {
-                        //到达第三段轨迹的终点
-                        if (dynamic_id == 3)
-                        {
-                            ROS_INFO("---------------enter end point!------------------");
-                            dynamic_id++;
-                            continue;
-                        }
-
-                        ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
-                        pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
-
-                        mpc_msgs::Lane temp_lane;
-                        bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送子目标点并将返回轨迹保存到temp_lane中
-
-                        //如果规划失败了，退出正常流程
-                        if (!ret)
-                        {
-                            dynamic_id = 4;
-                            continue;
-                        }
-
-                        if (use_complex_lane)
-                        {
-                            checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
-                        }
-
-                        //如果不是复杂轨迹，直接把整条轨迹发出去
-                        if (!is_complex_lane)
-                        {
-                            _mpc_lane = temp_lane;
-                            //下一段轨迹的最后一次在前探距离上发生碰撞时车体在路径上的位置索引初始化为0
-                            last_collision_car_index = 0;
-                            dynamic_id++;
-                        }
-                        else
-                        {
-                            ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
-                            dynamic_complex_id = 1;
-                            continue;
-                        }
-                    }
-                    else //没到的话就跳过
-                    {
-                        // ROS_INFO("haven't get sub_goal");
-                        continue;
-                    }
-                }
+            //如果不是复杂轨迹，直接把整条轨迹发出去
+            if (!is_complex_lane)
+            {
+                _mpc_lane = temp_lane;
+                //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
+                last_collision_car_index = 0;
+                dynamic_id++;
             }
             else
             {
-                //重置静态变量，为下一次接受大目标点做准备
-                geometry_msgs::PoseStamped empty_pose;
-                pre_sub_goal = empty_pose;
-
-                //清空_mpc_lane
-                _mpc_lane.waypoints.clear();
-
-                //重置复杂轨迹数组
-                sub_lane_vec.clear();
-                continue;
+                ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
+                dynamic_complex_id = 1;
+                return;
             }
         }
+        else if (dynamic_id > 0 && !is_complex_lane) //剩下两段
+        {
 
-        loop_rate.sleep();
+            //得到距离子目标点的长度(如果前一段是复杂轨迹的话，那么车辆应该已经到前一段的终点了)
+            double length = getDistance(_current_pose_stamped, pre_sub_goal);
+            // ROS_INFO("remain length:%f", length);
+
+            if (length < _sub_goal_tolerance_distance && _vehicle_status.speed < 1e-5) //判断车辆是否到达前一段轨迹的终点
+            {
+                //到达第三段轨迹的终点
+                if (dynamic_id == 3)
+                {
+                    ROS_INFO("---------------enter end point!------------------");
+                    dynamic_id++;
+                    return;
+                }
+
+                ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
+                pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
+
+                mpc_msgs::Lane temp_lane;
+                bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送子目标点并将返回轨迹保存到temp_lane中
+
+                //如果规划失败了，退出正常流程
+                if (!ret)
+                {
+                    dynamic_id = 4;
+                    return;
+                }
+
+                if (use_complex_lane)
+                {
+                    checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
+                }
+
+                //如果不是复杂轨迹，直接把整条轨迹发出去
+                if (!is_complex_lane)
+                {
+                    _mpc_lane = temp_lane;
+                    //下一段轨迹的最后一次在前探距离上发生碰撞时车体在路径上的位置索引初始化为0
+                    last_collision_car_index = 0;
+                    dynamic_id++;
+                }
+                else
+                {
+                    ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
+                    dynamic_complex_id = 1;
+                    return;
+                }
+            }
+            else //没到的话就跳过
+            {
+                // ROS_INFO("haven't get sub_goal");
+                return;
+            }
+        }
+    }
+    else
+    {
+        //重置静态变量，为下一次接受大目标点做准备
+        geometry_msgs::PoseStamped empty_pose;
+        pre_sub_goal = empty_pose;
+
+        //清空_mpc_lane
+        // _mpc_lane.waypoints.clear();
+
+        //重置复杂轨迹数组
+        sub_lane_vec.clear();
+
+        //清空可视化的东西
+        nav_msgs::Path empty_path;
+        empty_path.header.frame_id = "map";
+        _pub_vis_car_path.publish(empty_path);
+        _pub_vis_mpc_lane.publish(empty_path);
+        return;
     }
 }
 
