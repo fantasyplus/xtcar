@@ -87,6 +87,16 @@ install/strip/fast: preinstall/fast
 	/home/ros/.local/lib/python3.6/site-packages/cmake/data/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -143,16 +153,6 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -397,6 +397,21 @@ behaviour_state_machine_generate_messages_lisp/fast:
 .PHONY : behaviour_state_machine_generate_messages_lisp/fast
 
 # Convenience name for target.
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule:
+	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule
+.PHONY : behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule
+
+# Convenience name for target.
+scenario_selector: behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule
+
+.PHONY : scenario_selector
+
+# fast build rule for target.
+scenario_selector/fast:
+	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/build
+.PHONY : scenario_selector/fast
+
+# Convenience name for target.
 behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/rule:
 	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/rule
 .PHONY : behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/rule
@@ -483,6 +498,33 @@ src/behaviour_state_machine_node.cpp.s:
 	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.s
 .PHONY : src/behaviour_state_machine_node.cpp.s
 
+src/scenario_selector.o: src/scenario_selector.cpp.o
+
+.PHONY : src/scenario_selector.o
+
+# target to build an object file
+src/scenario_selector.cpp.o:
+	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/src/scenario_selector.cpp.o
+.PHONY : src/scenario_selector.cpp.o
+
+src/scenario_selector.i: src/scenario_selector.cpp.i
+
+.PHONY : src/scenario_selector.i
+
+# target to preprocess a source file
+src/scenario_selector.cpp.i:
+	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/src/scenario_selector.cpp.i
+.PHONY : src/scenario_selector.cpp.i
+
+src/scenario_selector.s: src/scenario_selector.cpp.s
+
+.PHONY : src/scenario_selector.s
+
+# target to generate assembly for a file
+src/scenario_selector.cpp.s:
+	cd /home/ros/fantasyplus/xtcar/build && $(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/src/scenario_selector.cpp.s
+.PHONY : src/scenario_selector.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -514,9 +556,13 @@ help:
 	@echo "... nav_msgs_generate_messages_nodejs"
 	@echo "... nav_msgs_generate_messages_py"
 	@echo "... behaviour_state_machine"
+	@echo "... scenario_selector"
 	@echo "... src/behaviour_state_machine_node.o"
 	@echo "... src/behaviour_state_machine_node.i"
 	@echo "... src/behaviour_state_machine_node.s"
+	@echo "... src/scenario_selector.o"
+	@echo "... src/scenario_selector.i"
+	@echo "... src/scenario_selector.s"
 .PHONY : help
 
 

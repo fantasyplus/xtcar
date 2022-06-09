@@ -94,6 +94,7 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_sta
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/rosconsole/macros_generated.h
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/std_msgs/Empty.h
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/std_msgs/Header.h
+behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/std_msgs/Int8.h
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/tf/LinearMath/Transform.h
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/tf/exceptions.h
 behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_state_machine_node.cpp.o: /opt/ros/melodic/include/tf/tf.h

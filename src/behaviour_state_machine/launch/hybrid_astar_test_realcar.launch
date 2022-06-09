@@ -143,7 +143,7 @@
     <arg name="lookahead_distance" default="20.0"/>
     <arg name="waypoints_velocity_behav" default="2.0"/>
 
-    <arg name="default_mode" default="1" doc="Scenario: MultiTrajPlanning"/>
+    <arg name="mode" default="1" doc="Scenario: MultiTrajPlanning"/>
 
     <arg name="loop_rate" default="100.0"/>
 
@@ -160,7 +160,7 @@
         <param name="vehicle_cg2back" type="double" value="$(arg vehicle_cg2back_coll)"/>
         <param name="lookahead_distance" type="double" value="$(arg lookahead_distance)"/>
         <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
-        <param name="default_mode" type="int" value="$(arg default_mode)"/>
+        <param name="mode" type="int" value="$(arg mode)"/>
         <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
     </node>
     
