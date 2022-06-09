@@ -16,7 +16,7 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<double>("vehicle_cg2back", vehicle_cg2back, 1.367);
     _private_nh.param<double>("lookahead_distance", lookahead_distance, 5.0);
     _private_nh.param<double>("waypoints_velocity", waypoints_velocity, 2.0);
-    _private_nh.param<int>("default_mode", default_mode, -1);
+    _private_nh.param<int>("mode", mode, -1);
     _private_nh.param<double>("loop_rate", loop_rate, 100);
 
     /*---------------------subscriber---------------------*/
@@ -25,6 +25,7 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _sub_rviz_start_pose = _nh.subscribe("initialpose", 1, &BehaviourStateMachine::callbackRvizStartPose, this);
     _sub_current_pose = _nh.subscribe("gnss_pose", 1, &BehaviourStateMachine::callbackCurrentPose, this);
     _sub_vehicle_status = _nh.subscribe("vehicle_status", 1, &BehaviourStateMachine::callbackVehicleStatus, this);
+    _sub_scenario_mode = _nh.subscribe("scenario_mode", 1, &BehaviourStateMachine::callbackScenarioMode, this);
 
     /*---------------------advertiser---------------------*/
     _pub_mpc_lane = _nh.advertise<mpc_msgs::Lane>("mpc_waypoints", 1, true);
@@ -94,6 +95,11 @@ geometry_msgs::Pose BehaviourStateMachine::global2local(const nav_msgs::Occupanc
     transform.transform = tf2::toMsg(tf_origin.inverse());
 
     return transformPose(pose_global, transform);
+}
+
+void BehaviourStateMachine::callbackScenarioMode(const std_msgs::Int8 &msg)
+{
+    mode = static_cast<int>(msg.data) - 0x30;
 }
 
 void BehaviourStateMachine::callbackCostMap(const nav_msgs::OccupancyGrid &msg)
@@ -616,49 +622,7 @@ void BehaviourStateMachine::run()
     ROS_INFO("--------1:MultiTrajPlanning-------");
     ROS_INFO("--------2:PathTracing-------");
     ROS_INFO("--------3:StaticExec-------");
-    if (default_mode == -1)
-    {
-        ROS_INFO("Choose The Scenario");
-        std::cin >> mode;
-        switch (mode)
-        {
-        case 0:
-            ROS_INFO("Change to Scenario: Stop");
-            break;
-        case 1:
-            ROS_INFO("Change to Scenario: MultiTrajPlanning");
-            break;
-        case 2:
-            ROS_INFO("Change to Scenario: PathTracing");
-            break;
-        case 3:
-            ROS_INFO("Change to Scenario: StaticExec");
-            break;
-        default:
-            break;
-        }
-    }
-    else
-    {
-        switch (default_mode)
-        {
-        case 0:
-            ROS_INFO("Default Scenario: Stop");
-            break;
-        case 1:
-            ROS_INFO("Default Scenario: MultiTrajPlanning");
-            break;
-        case 2:
-            ROS_INFO("Default Scenario: PathTracing");
-            break;
-        case 3:
-            ROS_INFO("Default Scenario: StaticExec");
-            break;
-        default:
-            break;
-        }
-        mode = default_mode;
-    }
+
     ros::Rate rate(loop_rate);
     while (ros::ok())
     {

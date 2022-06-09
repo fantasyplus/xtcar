@@ -49,3 +49,15 @@ target_link_libraries(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME} 
   ${catkin_EXPORTED_TARGETS}
 )
+
+add_executable(scenario_selector
+    src/scenario_selector.cpp
+)
+
+target_link_libraries(scenario_selector
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(scenario_selector
+  ${catkin_EXPORTED_TARGETS}
+)

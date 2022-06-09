@@ -1877,6 +1877,19 @@ behaviour_state_machine_generate_messages_lisp/fast:
 .PHONY : behaviour_state_machine_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named scenario_selector
+
+# Build rule for target.
+scenario_selector: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 scenario_selector
+.PHONY : scenario_selector
+
+# fast build rule for target.
+scenario_selector/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/build
+.PHONY : scenario_selector/fast
+
+#=============================================================================
 # Target rules for targets named behaviour_state_machine_genpy
 
 # Build rule for target.
@@ -2200,6 +2213,7 @@ help:
 	@echo "... mpc_follower"
 	@echo "... mpc_read_traj"
 	@echo "... mpc_save_traj"
+	@echo "... scenario_selector"
 	@echo "... try"
 .PHONY : help
 

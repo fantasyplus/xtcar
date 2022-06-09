@@ -121,6 +121,7 @@ clean: car_simulator/clean
 # Recursive "all" directory target.
 behaviour_state_machine/all: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages.dir/all
 behaviour_state_machine/all: behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/all
+behaviour_state_machine/all: behaviour_state_machine/CMakeFiles/scenario_selector.dir/all
 
 .PHONY : behaviour_state_machine/all
 
@@ -144,6 +145,7 @@ behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/nav_msgs_gener
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_gencpp.dir/clean
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_geneus.dir/clean
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/clean
+behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/scenario_selector.dir/clean
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/clean
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_genlisp.dir/clean
 behaviour_state_machine/clean: behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_nodejs.dir/clean
@@ -1838,7 +1840,7 @@ mpc/mpc_follower/CMakeFiles/mpc_follower.dir/clean:
 mpc/mpc_follower/CMakeFiles/try.dir/all:
 	$(MAKE) $(MAKESILENT) -f mpc/mpc_follower/CMakeFiles/try.dir/build.make mpc/mpc_follower/CMakeFiles/try.dir/depend
 	$(MAKE) $(MAKESILENT) -f mpc/mpc_follower/CMakeFiles/try.dir/build.make mpc/mpc_follower/CMakeFiles/try.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=77,78,79,80,81,82,83,84,85,86,87,88,89,90 "Built target try"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=79,80,81,82,83,84,85,86,87,88,89,90,91,92 "Built target try"
 .PHONY : mpc/mpc_follower/CMakeFiles/try.dir/all
 
 # Build rule for subdir invocation for target.
@@ -4257,6 +4259,82 @@ behaviour_state_machine_generate_messages_lisp: behaviour_state_machine/CMakeFil
 behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/clean:
 	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/clean
 .PHONY : behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/clean
+
+#=============================================================================
+# Target rules for target behaviour_state_machine/CMakeFiles/scenario_selector.dir
+
+# All Build rule for target.
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/roscpp_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/roscpp_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/roscpp_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/roscpp_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: mpc/mpc_msgs/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_generate_messages_cpp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: car_tf_broadcaster/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_py.dir/all
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/all: behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/depend
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=77,78 "Built target scenario_selector"
+.PHONY : behaviour_state_machine/CMakeFiles/scenario_selector.dir/all
+
+# Build rule for subdir invocation for target.
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ros/fantasyplus/xtcar/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine/CMakeFiles/scenario_selector.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ros/fantasyplus/xtcar/build/CMakeFiles 0
+.PHONY : behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule
+
+# Convenience name for target.
+scenario_selector: behaviour_state_machine/CMakeFiles/scenario_selector.dir/rule
+
+.PHONY : scenario_selector
+
+# clean rule for target.
+behaviour_state_machine/CMakeFiles/scenario_selector.dir/clean:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/clean
+.PHONY : behaviour_state_machine/CMakeFiles/scenario_selector.dir/clean
 
 #=============================================================================
 # Target rules for target behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir

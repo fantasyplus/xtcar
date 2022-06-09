@@ -10,7 +10,7 @@
 
 // ros
 #include <ros/ros.h>
-#include <ros/console.h>
+#include <std_msgs/Int8.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -74,6 +74,7 @@ private:
     ros::Subscriber _sub_current_pose;
     ros::Subscriber _sub_rviz_start_pose;
     ros::Subscriber _sub_vehicle_status;
+    ros::Subscriber _sub_scenario_mode;
 
     ros::Timer _timer_tf;
 
@@ -97,8 +98,8 @@ private:
     void callbackCurrentPose(const geometry_msgs::PoseStamped &msg);
     void callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg);
     void callbackVehicleStatus(const mpc_msgs::VehicleStatus &msg);
+    void callbackScenarioMode(const std_msgs::Int8 &msg);
 
-    void callbackTimerPublishTargetTF(const ros::TimerEvent &e);
 
 private:
     /*---------------------发送mpc_lane相关---------------------*/
@@ -180,8 +181,7 @@ private:
 
 private:
     /*---------------------模式切换相关---------------------*/
-    int default_mode = -1; // ros参数
-    int mode;
+    int mode;// ros参数
 
     ros::Timer _timer_static_exec;
     void callbackTimerStaticExec(const ros::TimerEvent &e);

@@ -95,6 +95,7 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_sta
  /opt/ros/melodic/include/rosconsole/macros_generated.h
  /opt/ros/melodic/include/std_msgs/Empty.h
  /opt/ros/melodic/include/std_msgs/Header.h
+ /opt/ros/melodic/include/std_msgs/Int8.h
  /opt/ros/melodic/include/tf/LinearMath/Transform.h
  /opt/ros/melodic/include/tf/exceptions.h
  /opt/ros/melodic/include/tf/tf.h
