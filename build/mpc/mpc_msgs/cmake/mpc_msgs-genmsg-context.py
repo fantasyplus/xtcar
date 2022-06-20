@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.context.in
 
-messages_str = "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
+messages_str = "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg;/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
 services_str = ""
 pkg_name = "mpc_msgs"
 dependencies_str = "std_msgs;geometry_msgs;sensor_msgs"

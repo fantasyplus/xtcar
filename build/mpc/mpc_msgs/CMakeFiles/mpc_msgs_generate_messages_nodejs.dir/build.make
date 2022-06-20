@@ -73,9 +73,11 @@ CMAKE_BINARY_DIR = /home/ros/fantasyplus/xtcar/build
 include mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs.dir/progress.make
 
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Lane.js
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskControl.js
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskStatus.js
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/ControlCommand.js
-mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js
 
 
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Lane.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
@@ -92,6 +94,21 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Javascript code from mpc_msgs/Lane.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
 
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskControl.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskControl.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Javascript code from mpc_msgs/TaskControl.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Javascript code from mpc_msgs/VehicleStatus.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskStatus.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
+/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskStatus.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating Javascript code from mpc_msgs/TaskStatus.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
+
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
@@ -102,24 +119,21 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Javascript code from mpc_msgs/Waypoint.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Generating Javascript code from mpc_msgs/Waypoint.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
 
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/ControlCommand.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
 /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/ControlCommand.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Javascript code from mpc_msgs/ControlCommand.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Generating Javascript code from mpc_msgs/ControlCommand.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
-
-/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js: /opt/ros/melodic/lib/gennodejs/gen_nodejs.py
-/home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating Javascript code from mpc_msgs/VehicleStatus.msg"
-	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg
 
 mpc_msgs_generate_messages_nodejs: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs
 mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Lane.js
+mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskControl.js
+mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js
+mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/TaskStatus.js
 mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/Waypoint.js
 mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/ControlCommand.js
-mpc_msgs_generate_messages_nodejs: /home/ros/fantasyplus/xtcar/devel/share/gennodejs/ros/mpc_msgs/msg/VehicleStatus.js
 mpc_msgs_generate_messages_nodejs: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_nodejs.dir/build.make
 
 .PHONY : mpc_msgs_generate_messages_nodejs

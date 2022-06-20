@@ -20,6 +20,8 @@ add_message_files(
   Lane.msg
   VehicleStatus.msg
   ControlCommand.msg
+  TaskControl.msg
+  TaskStatus.msg
 )
 
 generate_messages(

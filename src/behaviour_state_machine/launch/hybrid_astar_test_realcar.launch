@@ -129,23 +129,26 @@
     </node>
 
     <!-- 上层控制节点 -->
-    <arg name="sub_goal_tolerance_distance" default="3.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
-    <arg name="normal_zero_vel_segment" default="4" doc="速度赋0的分母(给控制用),整数"/>
+    <arg name="sub_goal_tolerance_distance" default="1.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="normal_zero_vel_segment" default="15" doc="速度赋0的分母(给控制用),整数"/>
     <arg name="collision_zero_vel_segment" default="1" doc="速度赋0的分母(障碍物避碰用),整数"/>
     <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
-    <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
-    <arg name="second_vertical_distance" default="15.0" doc="第二个子目标点（纵向距离）"/>
-    <arg name="third_nearby_distance" default="5.0" doc="第三个子目标点（纵向距离）"/>
+    <arg name="first_horizontal_distance" default="2.5" doc="第一个子目标点（横向距离）"/>
+    <arg name="second_vertical_distance" default="30.0" doc="第二个子目标点（纵向距离）"/>
+    <arg name="third_nearby_distance" default="20.0" doc="第三个子目标点（纵向距离）"/>
 
     <arg name="vehicle_length_coll" default="4.788"/>
     <arg name="vehicle_width_coll" default="2.198"/>
     <arg name="vehicle_cg2back_coll" default="1.367"/>
-    <arg name="lookahead_distance" default="20.0"/>
-    <arg name="waypoints_velocity_behav" default="2.0"/>
+    <arg name="lookahead_distance" default="10.0"/>
+    <arg name="waypoints_velocity_behav" default="1.0"/>
 
     <arg name="mode" default="1" doc="Scenario: MultiTrajPlanning"/>
 
     <arg name="loop_rate" default="100.0"/>
+
+    <arg name="read_file_path" default="/home/nvidia/suv_car/src/mpc_traj_files/mpc_traj.txt"/>
+    <arg name="save_file_path" default="/home/nvidia/suv_car/src/mpc_traj_files/mpc_traj.txt"/>
 
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
@@ -162,6 +165,9 @@
         <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
         <param name="mode" type="int" value="$(arg mode)"/>
         <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
+        <param name="read_file_path" type="string" value="$(arg read_file_path)"/>
+        <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
+
     </node>
     
     <!-- Hybrid A* node -->
@@ -169,7 +175,7 @@
     <arg name="costmap_topic" default="global_cost_map" />
     <arg name="pose_topic" default="gnss_pose" />
     
-    <arg name="waypoints_velocity" default="2.0" />
+    <arg name="waypoints_velocity" default="1.0" />
     <arg name="update_rate" default="10" />
     
     <arg name="is_visual" default="true" />
@@ -318,7 +324,7 @@
     </node>
 
     <!-- mpc控制器 -->
-  <arg name="ns" default="/"/>
+  <!-- <arg name="ns" default="/"/>
   <arg name="show_debug_info" default="false" doc="flag to display debug info" />
   <arg name="ctrl_period" default="0.03" doc="control period [s]"/>
   <arg name="traj_resample_dist" default="0.1" doc="ath resampling interval [m]"/>
@@ -334,7 +340,6 @@
   <arg name="qpoases_max_iter" default="500" doc="max iteration number for quadratic programming"/>
   <arg name="vehicle_model_type" default="kinematics" doc="vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics"/>
 
-  <!-- MPC design parameters -->
   <arg name="mpc_prediction_horizon" default="70" doc="prediction horizon step"/>
   <arg name="mpc_prediction_sampling_time" default="0.1" doc="prediction horizon period [s]"/>
   <arg name="mpc_weight_lat_error" default="0.1" doc="lateral error weight in matrix Q"/>
@@ -357,7 +362,6 @@
 
     <node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="log">
 
-      <!-- system -->
       <param name="ctrl_cmd_interface" value="all"/>
       <param name="in_waypoints_name" value="/mpc_waypoints"/>
       <param name="in_vehicle_status_name" value="/vehicle_status"/>
@@ -365,7 +369,6 @@
       <param name="out_twist_name" value="/twist_raw"/>
       <param name="out_vehicle_cmd_name" value="/ctrl_raw"/>
 
-      <!-- paramters -->
       <param name="ctrl_period" value="$(arg ctrl_period)"/>
       <param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
       <param name="admisible_position_error" value="$(arg admisible_position_error)"/>
@@ -398,13 +401,13 @@
       <param name="steering_gear_ratio" value="$(arg steering_gear_ratio)"/>
     </node>
 
-  </group>
+  </group> -->
 
     <!-- run chasis send & recv control message via can0(STM32 can2) -->
-    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="socketcan_to_topic_node" output="screen"/>
-    <node pkg="chasis_driver" type="chasis_status_node" name="chasis_status_node" output="screen" /> 
+    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="socketcan_to_topic_node" output="log"/>
+    <node pkg="chasis_driver" type="chasis_status_node" name="chasis_status_node" output="log" /> 
     <node pkg="chasis_driver" type="chasis_control_node" name="chasis_control_node" output="log" /> 
-    <node pkg="socketcan_bridge" type="topic_to_socketcan_node" name="topic_to_socketcan_node" output="screen"/>
+    <node pkg="socketcan_bridge" type="topic_to_socketcan_node" name="topic_to_socketcan_node" output="log"/>
     
 
 

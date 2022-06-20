@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "mpc_msgs: 4 messages, 0 services")
+message(STATUS "mpc_msgs: 6 messages, 0 services")
 
 set(MSG_I_FLAGS "-Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg;-Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg")
 
@@ -22,14 +22,24 @@ add_custom_target(_mpc_msgs_generate_messages_check_deps_${_filename}
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" "mpc_msgs/Waypoint:geometry_msgs/TwistStamped:geometry_msgs/Twist:geometry_msgs/Vector3:geometry_msgs/Pose:std_msgs/Header:geometry_msgs/Point:geometry_msgs/PoseStamped:geometry_msgs/Quaternion"
 )
 
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_custom_target(_mpc_msgs_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" ""
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" ""
 )
 
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
 add_custom_target(_mpc_msgs_generate_messages_check_deps_${_filename}
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" "geometry_msgs/TwistStamped:geometry_msgs/Twist:geometry_msgs/Vector3:geometry_msgs/Pose:std_msgs/Header:geometry_msgs/Point:geometry_msgs/PoseStamped:geometry_msgs/Quaternion"
+)
+
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_custom_target(_mpc_msgs_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" ""
+)
+
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+add_custom_target(_mpc_msgs_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "mpc_msgs" "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" ""
 )
 
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
@@ -50,6 +60,24 @@ _generate_msg_cpp(mpc_msgs
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
 )
 _generate_msg_cpp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_cpp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_cpp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_cpp(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg"
   "${MSG_I_FLAGS}"
   "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg"
@@ -57,12 +85,6 @@ _generate_msg_cpp(mpc_msgs
 )
 _generate_msg_cpp(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
-)
-_generate_msg_cpp(mpc_msgs
-  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/mpc_msgs
@@ -84,9 +106,13 @@ add_dependencies(mpc_msgs_generate_messages mpc_msgs_generate_messages_cpp)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_cpp _mpc_msgs_generate_messages_check_deps_${_filename})
@@ -107,6 +133,24 @@ _generate_msg_eus(mpc_msgs
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
 )
 _generate_msg_eus(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_eus(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_eus(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_eus(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg"
   "${MSG_I_FLAGS}"
   "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg"
@@ -114,12 +158,6 @@ _generate_msg_eus(mpc_msgs
 )
 _generate_msg_eus(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
-)
-_generate_msg_eus(mpc_msgs
-  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/mpc_msgs
@@ -141,9 +179,13 @@ add_dependencies(mpc_msgs_generate_messages mpc_msgs_generate_messages_eus)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_eus _mpc_msgs_generate_messages_check_deps_${_filename})
@@ -164,6 +206,24 @@ _generate_msg_lisp(mpc_msgs
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
 )
 _generate_msg_lisp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_lisp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_lisp(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_lisp(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg"
   "${MSG_I_FLAGS}"
   "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg"
@@ -171,12 +231,6 @@ _generate_msg_lisp(mpc_msgs
 )
 _generate_msg_lisp(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
-)
-_generate_msg_lisp(mpc_msgs
-  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/mpc_msgs
@@ -198,9 +252,13 @@ add_dependencies(mpc_msgs_generate_messages mpc_msgs_generate_messages_lisp)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_lisp _mpc_msgs_generate_messages_check_deps_${_filename})
@@ -221,6 +279,24 @@ _generate_msg_nodejs(mpc_msgs
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
 )
 _generate_msg_nodejs(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_nodejs(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_nodejs(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_nodejs(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg"
   "${MSG_I_FLAGS}"
   "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg"
@@ -228,12 +304,6 @@ _generate_msg_nodejs(mpc_msgs
 )
 _generate_msg_nodejs(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
-)
-_generate_msg_nodejs(mpc_msgs
-  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/mpc_msgs
@@ -255,9 +325,13 @@ add_dependencies(mpc_msgs_generate_messages mpc_msgs_generate_messages_nodejs)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_nodejs _mpc_msgs_generate_messages_check_deps_${_filename})
@@ -278,6 +352,24 @@ _generate_msg_py(mpc_msgs
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
 )
 _generate_msg_py(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_py(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_py(mpc_msgs
+  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
+)
+_generate_msg_py(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg"
   "${MSG_I_FLAGS}"
   "/opt/ros/melodic/share/geometry_msgs/cmake/../msg/TwistStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Twist.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Vector3.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Pose.msg;/opt/ros/melodic/share/std_msgs/cmake/../msg/Header.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Point.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/PoseStamped.msg;/opt/ros/melodic/share/geometry_msgs/cmake/../msg/Quaternion.msg"
@@ -285,12 +377,6 @@ _generate_msg_py(mpc_msgs
 )
 _generate_msg_py(mpc_msgs
   "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
-)
-_generate_msg_py(mpc_msgs
-  "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/mpc_msgs
@@ -312,9 +398,13 @@ add_dependencies(mpc_msgs_generate_messages mpc_msgs_generate_messages_py)
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg" NAME_WE)
+add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg" NAME_WE)
 add_dependencies(mpc_msgs_generate_messages_py _mpc_msgs_generate_messages_check_deps_${_filename})

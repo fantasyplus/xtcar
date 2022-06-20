@@ -235,8 +235,8 @@ void GridMap::publish(ros::Publisher pub)
     map.info.origin.orientation.y = 0.0;
     map.info.origin.orientation.z = 0.0;
     map.info.origin.orientation.w = 1.0;
-    unsigned char res_grid[51200];
-    memset(res_grid, 0, 51200);
+    unsigned char res_grid[grid_size_x_ * grid_size_y_];
+    memset(res_grid, 0, grid_size_x_ * grid_size_y_);
 
     for (int i = 0; i < grid_size_x_; ++i)
     {
@@ -262,7 +262,7 @@ void GridMap::publish(ros::Publisher pub)
 
     cv::erode(img, img, element);
 
-    std::vector<signed char> a(51200);
+    std::vector<signed char> a(grid_size_x_ * grid_size_y_);
     for (size_t nrow = 0; nrow < grid_size_y_; nrow++)
     {
         for (size_t ncol = 0; ncol < grid_size_x_; ncol++)

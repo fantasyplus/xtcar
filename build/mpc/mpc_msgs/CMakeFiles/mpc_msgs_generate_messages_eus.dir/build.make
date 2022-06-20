@@ -73,9 +73,11 @@ CMAKE_BINARY_DIR = /home/ros/fantasyplus/xtcar/build
 include mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus.dir/progress.make
 
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Lane.l
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskControl.l
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskStatus.l
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/ControlCommand.l
-mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/manifest.l
 
 
@@ -93,6 +95,21 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from mpc_msgs/Lane.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
 
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskControl.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskControl.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp code from mpc_msgs/TaskControl.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating EusLisp code from mpc_msgs/VehicleStatus.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskStatus.l: /opt/ros/melodic/lib/geneus/gen_eus.py
+/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskStatus.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating EusLisp code from mpc_msgs/TaskStatus.msg"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
+
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /opt/ros/melodic/lib/geneus/gen_eus.py
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
@@ -103,28 +120,25 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xt
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp code from mpc_msgs/Waypoint.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Generating EusLisp code from mpc_msgs/Waypoint.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
 
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/ControlCommand.l: /opt/ros/melodic/lib/geneus/gen_eus.py
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/ControlCommand.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating EusLisp code from mpc_msgs/ControlCommand.msg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Generating EusLisp code from mpc_msgs/ControlCommand.msg"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
 
-/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l: /opt/ros/melodic/lib/geneus/gen_eus.py
-/home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating EusLisp code from mpc_msgs/VehicleStatus.msg"
-	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg
-
 /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/manifest.l: /opt/ros/melodic/lib/geneus/gen_eus.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Generating EusLisp manifest code for mpc_msgs"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Generating EusLisp manifest code for mpc_msgs"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs mpc_msgs std_msgs geometry_msgs sensor_msgs
 
 mpc_msgs_generate_messages_eus: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus
 mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Lane.l
+mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskControl.l
+mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l
+mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/TaskStatus.l
 mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/Waypoint.l
 mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/ControlCommand.l
-mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/msg/VehicleStatus.l
 mpc_msgs_generate_messages_eus: /home/ros/fantasyplus/xtcar/devel/share/roseus/ros/mpc_msgs/manifest.l
 mpc_msgs_generate_messages_eus: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_eus.dir/build.make
 

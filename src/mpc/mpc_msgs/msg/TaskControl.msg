@@ -1,0 +1,2 @@
+uint8 traj_end
+uint8 traj_turn

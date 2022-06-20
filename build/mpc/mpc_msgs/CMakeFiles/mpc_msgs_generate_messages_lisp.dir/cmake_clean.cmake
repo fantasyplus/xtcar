@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/ControlCommand.lisp"
   "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/Lane.lisp"
+  "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/TaskControl.lisp"
+  "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/TaskStatus.lisp"
   "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/VehicleStatus.lisp"
   "/home/ros/fantasyplus/xtcar/devel/share/common-lisp/ros/mpc_msgs/msg/Waypoint.lisp"
   "CMakeFiles/mpc_msgs_generate_messages_lisp"
