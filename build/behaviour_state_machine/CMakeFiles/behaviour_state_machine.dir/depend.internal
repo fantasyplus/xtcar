@@ -7,6 +7,8 @@ behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/src/behaviour_sta
  /home/ros/fantasyplus/xtcar/devel/include/behaviour_state_machine/GoalPoseResponse.h
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/ControlCommand.h
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/Lane.h
+ /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/TaskControl.h
+ /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/TaskStatus.h
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/VehicleStatus.h
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/Waypoint.h
  /home/ros/fantasyplus/xtcar/src/behaviour_state_machine/include/behaviour_state_machine_node.h

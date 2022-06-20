@@ -73,9 +73,11 @@ CMAKE_BINARY_DIR = /home/ros/fantasyplus/xtcar/build
 include mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py.dir/progress.make
 
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Lane.py
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
+mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py
-mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
 mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py
 
 
@@ -93,6 +95,21 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python from MSG mpc_msgs/Lane"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
 
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python from MSG mpc_msgs/TaskControl"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Python from MSG mpc_msgs/VehicleStatus"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
+
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating Python from MSG mpc_msgs/TaskStatus"
+	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
+
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /opt/ros/melodic/share/geometry_msgs/msg/TwistStamped.msg
@@ -103,32 +120,31 @@ mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtc
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /opt/ros/melodic/share/geometry_msgs/msg/Point.msg
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /opt/ros/melodic/share/geometry_msgs/msg/PoseStamped.msg
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py: /opt/ros/melodic/share/geometry_msgs/msg/Quaternion.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python from MSG mpc_msgs/Waypoint"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Generating Python from MSG mpc_msgs/Waypoint"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Waypoint.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
 
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Python from MSG mpc_msgs/ControlCommand"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Generating Python from MSG mpc_msgs/ControlCommand"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
-
-/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
-/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py: /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating Python from MSG mpc_msgs/VehicleStatus"
-	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg -Impc_msgs:/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -Isensor_msgs:/opt/ros/melodic/share/sensor_msgs/cmake/../msg -p mpc_msgs -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg
 
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Lane.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
+/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py
 /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py
-/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Generating Python msg __init__.py for mpc_msgs"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ros/fantasyplus/xtcar/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Generating Python msg __init__.py for mpc_msgs"
 	cd /home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs && ../../catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg --initpy
 
 mpc_msgs_generate_messages_py: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py
 mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Lane.py
+mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py
+mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
+mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py
 mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py
 mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py
-mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py
 mpc_msgs_generate_messages_py: /home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py
 mpc_msgs_generate_messages_py: mpc/mpc_msgs/CMakeFiles/mpc_msgs_generate_messages_py.dir/build.make
 

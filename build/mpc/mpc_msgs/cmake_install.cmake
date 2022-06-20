@@ -48,6 +48,8 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/Lane.msg"
     "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/VehicleStatus.msg"
     "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/ControlCommand.msg"
+    "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskControl.msg"
+    "/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs/msg/TaskStatus.msg"
     )
 endif()
 

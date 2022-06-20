@@ -7,6 +7,9 @@
 #include <vector>
 #include <unordered_map>
 #include <signal.h>
+#include <thread> 
+#include <mutex>
+#include <fstream>
 
 // ros
 #include <ros/ros.h>
@@ -29,6 +32,8 @@
 #include "mpc_msgs/Waypoint.h"
 #include "mpc_msgs/ControlCommand.h"
 #include "mpc_msgs/VehicleStatus.h"
+#include "mpc_msgs/TaskControl.h"
+#include "mpc_msgs/TaskStatus.h"
 
 enum class Direction
 {
@@ -75,6 +80,7 @@ private:
     ros::Subscriber _sub_rviz_start_pose;
     ros::Subscriber _sub_vehicle_status;
     ros::Subscriber _sub_scenario_mode;
+    ros::Subscriber _sub_task_status;
 
     ros::Timer _timer_tf;
 
@@ -94,12 +100,12 @@ private:
     mpc_msgs::VehicleStatus _vehicle_status;
 
     void callbackGoalPose(const geometry_msgs::PoseStamped &msg);
-    void callbackCostMap(const nav_msgs::OccupancyGrid &msg);
+    void callbackCostMap(const nav_msgs::OccupancyGridConstPtr &msg);
     void callbackCurrentPose(const geometry_msgs::PoseStamped &msg);
     void callbackRvizStartPose(const geometry_msgs::PoseWithCovarianceStamped &msg);
     void callbackVehicleStatus(const mpc_msgs::VehicleStatus &msg);
     void callbackScenarioMode(const std_msgs::Int8 &msg);
-
+    void callbackTaskStatus(const mpc_msgs::TaskStatus &msg);
 
 private:
     /*---------------------发送mpc_lane相关---------------------*/
@@ -163,7 +169,7 @@ private:
     ros::Publisher _pub_vis_car_path;
 
     //代价地图
-    nav_msgs::OccupancyGrid _cost_map;
+    nav_msgs::OccupancyGridConstPtr _cost_map_ptr;
 
     //保存最后一次在前探距离上发生碰撞时车体在路径上的位置索引
     static int last_collision_car_index;
@@ -181,13 +187,33 @@ private:
 
 private:
     /*---------------------模式切换相关---------------------*/
-    int mode;// ros参数
+    //跟底层通宵状态切换的消息
+    mpc_msgs::TaskControl task_control;
+    ros::Publisher _pub_task_control;
+
+    int mode; // ros参数
 
     ros::Timer _timer_static_exec;
     void callbackTimerStaticExec(const ros::TimerEvent &e);
 
     ros::Timer _timer_multi_traj;
     void callbackTimerMultiTrajPlanning(const ros::TimerEvent &e);
+
+    ros::Timer _timer_path_tracing;
+    void callbackTImerPathTracing(const ros::TimerEvent &e);
+
+private:
+    /*---------------------读写路径相关---------------------*/
+    std::string read_file_path; // ros 参数
+    std::string save_file_path; // ros 参数
+
+    void readTrajFile(mpc_msgs::Lane &send_lane);
+
+    void saveTrajFile(const mpc_msgs::Lane save_lane);
+
+    mpc_msgs::TaskStatus task_status;
+    bool task_status_flag;
+    void threadSendLastTraj();
 
 private:
     /*---------------------TF相关---------------------*/

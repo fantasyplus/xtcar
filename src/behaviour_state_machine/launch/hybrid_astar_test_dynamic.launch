@@ -15,18 +15,18 @@
     <arg name="base_frame" default="rslidar" />  
     <arg name="grid_topic" default="global_cost_map" />
 
-    <arg name="min_x" default="-2000.0" />
+    <arg name="min_x" default="-4000.0" />
     <arg name="max_x" default="6000.0" />
     <arg name="min_y" default="-2000.0" />
     <arg name="max_y" default="2000.0" />
     <arg name="min_z" default="-200.0" />
     <arg name="max_z" default="100.0" />
 
-    <arg name="grid_size_x" default="320" />
+    <arg name="grid_size_x" default="400" />
     <arg name="grid_size_y" default="160" />
     <arg name="resolution_x" default="25" />
     <arg name="resolution_y" default="25" />
-    <arg name="offset_x" default="80" />
+    <arg name="offset_x" default="160" />
     <arg name="offset_y" default="80" />
 
     <arg name="hang_z_gap" default="80.0" />
@@ -131,6 +131,9 @@
 
     <arg name="loop_rate" default="100.0"/>
 
+    <arg name="read_file_path" default="/home/nvidia/suv_car/src/mpc_traj_files/mpc_traj.txt"/>
+    <arg name="save_file_path" default="/home/nvidia/suv_car/src/mpc_traj_files/mpc_traj.txt"/>
+
     <node name="behaviour_state_machine" pkg="behaviour_state_machine" type="behaviour_state_machine" output="screen" respawn="true">
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
         <param name="normal_zero_vel_segment" type="int" value="$(arg normal_zero_vel_segment)"/>
@@ -146,6 +149,9 @@
         <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
         <param name="mode" type="int" value="$(arg mode)"/>
         <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
+        <param name="read_file_path" type="string" value="$(arg read_file_path)"/>
+        <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
+
     </node>
 
     <!-- Hybrid A* node -->

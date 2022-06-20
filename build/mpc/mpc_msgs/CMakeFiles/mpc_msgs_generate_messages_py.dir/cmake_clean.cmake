@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_ControlCommand.py"
   "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Lane.py"
+  "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskControl.py"
+  "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_TaskStatus.py"
   "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_VehicleStatus.py"
   "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/_Waypoint.py"
   "/home/ros/fantasyplus/xtcar/devel/lib/python2.7/dist-packages/mpc_msgs/msg/__init__.py"
