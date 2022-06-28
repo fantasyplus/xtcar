@@ -9,7 +9,10 @@
 rm -rf build/ devel/
 ```
 ```
-catkin_make
+catkin_make -DCATKIN_WHITELIST_PACKAGES="mpc_msgs"
+```
+```
+catkin_make -DCATKIN_WHITELIST_PACKAGES=""
 ```
 ```
 source devel/setup.bash
