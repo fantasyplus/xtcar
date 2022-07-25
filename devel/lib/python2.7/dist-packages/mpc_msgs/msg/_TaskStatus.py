@@ -8,12 +8,13 @@ import struct
 
 
 class TaskStatus(genpy.Message):
-  _md5sum = "b511025659d92736cbd31617b8452ad5"
+  _md5sum = "713ed9c21811428b0f7a78688cdf9573"
   _type = "mpc_msgs/TaskStatus"
   _has_header = False  # flag to mark the presence of a Header object
-  _full_text = """uint8 task_end"""
-  __slots__ = ['task_end']
-  _slot_types = ['uint8']
+  _full_text = """uint8 task_end
+uint8 task_error"""
+  __slots__ = ['task_end','task_error']
+  _slot_types = ['uint8','uint8']
 
   def __init__(self, *args, **kwds):
     """
@@ -23,7 +24,7 @@ class TaskStatus(genpy.Message):
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       task_end
+       task_end,task_error
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -34,8 +35,11 @@ class TaskStatus(genpy.Message):
       # message fields cannot be None, assign default values for those that are
       if self.task_end is None:
         self.task_end = 0
+      if self.task_error is None:
+        self.task_error = 0
     else:
       self.task_end = 0
+      self.task_error = 0
 
   def _get_types(self):
     """
@@ -49,8 +53,8 @@ class TaskStatus(genpy.Message):
     :param buff: buffer, ``StringIO``
     """
     try:
-      _x = self.task_end
-      buff.write(_get_struct_B().pack(_x))
+      _x = self
+      buff.write(_get_struct_2B().pack(_x.task_end, _x.task_error))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -63,9 +67,10 @@ class TaskStatus(genpy.Message):
       codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       end = 0
+      _x = self
       start = end
-      end += 1
-      (self.task_end,) = _get_struct_B().unpack(str[start:end])
+      end += 2
+      (_x.task_end, _x.task_error,) = _get_struct_2B().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -78,8 +83,8 @@ class TaskStatus(genpy.Message):
     :param numpy: numpy python module
     """
     try:
-      _x = self.task_end
-      buff.write(_get_struct_B().pack(_x))
+      _x = self
+      buff.write(_get_struct_2B().pack(_x.task_end, _x.task_error))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -93,9 +98,10 @@ class TaskStatus(genpy.Message):
       codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       end = 0
+      _x = self
       start = end
-      end += 1
-      (self.task_end,) = _get_struct_B().unpack(str[start:end])
+      end += 2
+      (_x.task_end, _x.task_error,) = _get_struct_2B().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -104,9 +110,9 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
-_struct_B = None
-def _get_struct_B():
-    global _struct_B
-    if _struct_B is None:
-        _struct_B = struct.Struct("<B")
-    return _struct_B
+_struct_2B = None
+def _get_struct_2B():
+    global _struct_2B
+    if _struct_2B is None:
+        _struct_2B = struct.Struct("<2B")
+    return _struct_2B

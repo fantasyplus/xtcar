@@ -1,13 +1,11 @@
 #include "behaviour_state_machine_node.h"
 
-int BehaviourStateMachine::last_collision_car_index = 0;
 
 BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
 {
     _private_nh.param<double>("sub_goal_tolerance_distance", _sub_goal_tolerance_distance, 30.0);
-    _private_nh.param<int>("normal_zero_vel_segment", _normal_zero_vel_segment, 5);
-    _private_nh.param<int>("collision_zero_vel_segment", _collision_zero_vel_segment, 1);
     _private_nh.param<bool>("use_complex_lane", use_complex_lane, false);
+    _private_nh.param<bool>("use_gear", use_gear, false);
     _private_nh.param<double>("first_horizontal_distance", first_horizontal_distance, 2.0);
     _private_nh.param<double>("second_vertical_distance", second_vertical_distance, 10.0);
     _private_nh.param<double>("third_nearby_distance", third_nearby_distance, 5.0);
@@ -36,23 +34,35 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     // debug 可视化车辆轮廓
     _pub_vis_car_path = _nh.advertise<nav_msgs::Path>("vis_car_path", 1, false);
     _pub_task_control = _nh.advertise<mpc_msgs::TaskControl>("task_control", 1, false);
+    _pub_rviz_start_pose = _nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1, false);
 
     /*---------------------timer---------------------*/
     double dt = 1 / loop_rate;
-    //实时检测障碍物避碰且发布mpclane的定时器
-    _timer_pub_lane = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerPublishMpcLane, this);
     //静态地图测试的定时器
     _timer_static_exec = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerStaticExec, this);
-    //多段轨迹生成状态机的定时器
-    _timer_multi_traj = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTimerMultiTrajPlanning, this);
-    //跟随固定轨迹的定时器
-    _timer_path_tracing = _nh.createTimer(ros::Duration(dt), &BehaviourStateMachine::callbackTImerPathTracing, this);
 
     /*---------------------serviceClient---------------------*/
     _goal_pose_client = _nh.serviceClient<behaviour_state_machine::GoalPose>("goal_pose_srv");
 
     _tf_buffer = std::make_shared<tf2_ros::Buffer>();
     _tf_listener = std::make_shared<tf2_ros::TransformListener>(*_tf_buffer);
+
+    /*---------------------thread---------------------*/
+    //开启一个后台线程，专门用于发布与底层通信的topic
+    std::thread send_status_topic = std::thread(std::bind(&BehaviourStateMachine::threadSendStatusTopic, this));
+    send_status_topic.detach();
+
+    //多段轨迹生成状态机的线程(前场)
+    std::thread multi_traj_planning = std::thread(std::bind(&BehaviourStateMachine::threadMultiTrajPlanning, this));
+    multi_traj_planning.detach();
+
+    //发布mpclane的线程,包括障碍物检测和指定点停车
+    std::thread publish_mpc_lane = std::thread(std::bind(&BehaviourStateMachine::threadPublishMpcLane, this));
+    publish_mpc_lane.detach();
+
+    //跟随固定轨迹的线程(后场)
+    std::thread path_tracing = std::thread(std::bind(&BehaviourStateMachine::threadPathTracing, this));
+    path_tracing.detach();
 }
 
 geometry_msgs::Pose BehaviourStateMachine::transformPose(const geometry_msgs::Pose &pose,
@@ -101,6 +111,14 @@ geometry_msgs::Pose BehaviourStateMachine::global2local(const nav_msgs::Occupanc
     transform.transform = tf2::toMsg(tf_origin.inverse());
 
     return transformPose(pose_global, transform);
+}
+
+void BehaviourStateMachine::threadSendStatusTopic()
+{
+    while (true)
+    {
+        _pub_task_control.publish(task_control);
+    }
 }
 
 void BehaviourStateMachine::callbackTaskStatus(const mpc_msgs::TaskStatus &msg)
@@ -256,154 +274,142 @@ void BehaviourStateMachine::computeCollisionIndexVec(const geometry_msgs::Pose &
     }
 }
 
-void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &mpc_lane, int start, int end, int zero_vel_segment, bool is_coll)
+void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &mpc_lane, bool is_coll)
 {
     //到这里的_mpc_lane应该都是单段轨迹，即只前进或只后退
-    //对后1/zero_vel_segment的路径点速度赋0
-    int size = end - start + 1;
 
     if (!is_coll) //无障碍物
     {
-        //如果mpc路径比速度分段的分母还要小，路径最后一个点的速度置为0
-        if ((int)mpc_lane.waypoints.size() >= zero_vel_segment)
-        {
-            mpc_lane.waypoints[mpc_lane.waypoints.size() - 1].twist.twist.linear.x = 0.0;
-            return;
-        }
-
-        //获得开始赋0的起始点位置
-        int zero_point_start_index = start + (size - (int)(((double)size / (double)zero_vel_segment) + 0.5)); //四舍五入
-        for (int i = zero_point_start_index; i <= end; i++)
-        {
-            mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
-        }
+        //最后两个点速度为0
+        int n = mpc_lane.waypoints.size();
+        mpc_lane.waypoints[n - 1].twist.twist.linear.x = 0.0;
+        mpc_lane.waypoints[n - 2].twist.twist.linear.x = 0.0;
     }
     else //有障碍物
     {
-        //获得开始赋0的起始点位置
-        int zero_point_start_index = start + (size - (int)(((double)size / (double)zero_vel_segment)));
-        for (int i = zero_point_start_index; i <= end; i++)
+        //整条路径速度全部赋0
+        for (auto &wp : mpc_lane.waypoints)
         {
-            mpc_lane.waypoints[i].twist.twist.linear.x = 0.0;
+            wp.twist.twist.linear.x = 0.0;
         }
     }
 }
 
-void BehaviourStateMachine::callbackTimerPublishMpcLane(const ros::TimerEvent &e)
+void BehaviourStateMachine::threadPublishMpcLane()
 {
-    /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
-
-    //获得当前正在执行的路径
-    mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
-    if (temp_lane_to_detect_collision.waypoints.empty())
+    while (true)
     {
-        return;
-    }
+        /*-----实时检测当前路径上是否有障碍物，有则停车-----*/
 
-    //获取当前位置在路径上的最近点
-    int closest_index = -1;
-    getClosestIndex(temp_lane_to_detect_collision, closest_index);
-
-    //获得从最近点往前看lookahead_distance距离的点序列,pair存储点和离最近点的距离
-    //里面的每个点都用来检测碰撞
-    std::vector<std::pair<geometry_msgs::Pose, double>> base_pose_vec;
-    getCollisionPoseVec(closest_index, temp_lane_to_detect_collision, base_pose_vec);
-
-    // debug 可视化车辆轮廓
-    vis_car_path.poses.clear();
-
-    //遍历每个点
-    bool is_collision = false;
-    double collision_length_to_cur_pose = 0.0;
-    for (std::size_t i = 0; i < base_pose_vec.size(); i++)
-    {
-        geometry_msgs::Pose base_pose = base_pose_vec[i].first;
-        double point_length_to_cur_pose = base_pose_vec[i].second;
-
-        //计算当前点在栅格地图下的碰撞索引数组
-        std::vector<std::pair<int, int>> collision_index_vec;
-        computeCollisionIndexVec(base_pose, collision_index_vec, vis_car_path);
-
-        //判断在当前路径点是否会发生碰撞
-        for (auto car_index : collision_index_vec)
+        //获得当前正在执行的路径
+        //路径为空则不执行
+        mpc_msgs::Lane temp_lane_to_detect_collision = _mpc_lane;
+        if (temp_lane_to_detect_collision.waypoints.empty())
         {
-            uint32_t coll_x_index = (uint32_t)car_index.first;
-            uint32_t coll_y_index = (uint32_t)car_index.second;
+            continue;
+        }
 
-            //不用做越界判断，因为混合A*初始路径就做过了越界判断
-            if (_cost_map_ptr->data[coll_y_index * _cost_map_ptr->info.width + coll_x_index])
+        //获取当前位置在路径上的最近点
+        int closest_index = -1;
+        getClosestIndex(temp_lane_to_detect_collision, closest_index);
+
+        //获得从最近点往前看lookahead_distance距离的点序列,pair存储点和离最近点的距离
+        //里面的每个点都用来检测碰撞
+        std::vector<std::pair<geometry_msgs::Pose, double>> base_pose_vec;
+        getCollisionPoseVec(closest_index, temp_lane_to_detect_collision, base_pose_vec);
+
+        // debug 可视化车辆轮廓
+        vis_car_path.poses.clear();
+
+        //遍历每个点
+        bool is_collision = false;
+        double collision_length_to_cur_pose = 0.0;
+        for (std::size_t i = 0; i < base_pose_vec.size(); i++)
+        {
+            geometry_msgs::Pose base_pose = base_pose_vec[i].first;
+            double point_length_to_cur_pose = base_pose_vec[i].second;
+
+            //计算当前点在栅格地图下的碰撞索引数组
+            std::vector<std::pair<int, int>> collision_index_vec;
+            computeCollisionIndexVec(base_pose, collision_index_vec, vis_car_path);
+
+            //判断在当前路径点是否会发生碰撞
+            for (auto car_index : collision_index_vec)
             {
-                //碰撞
+                uint32_t coll_x_index = (uint32_t)car_index.first;
+                uint32_t coll_y_index = (uint32_t)car_index.second;
 
-                //计算具体的碰撞点离当前位置的距离
-                double coll_x = static_cast<double>(coll_x_index + 0.5) * _cost_map_ptr->info.resolution;
-                double coll_y = static_cast<double>(coll_y_index + 0.5) * _cost_map_ptr->info.resolution;
-                geometry_msgs::Pose coll_pose;
-                coll_pose.position.x = coll_x;
-                coll_pose.position.y = coll_y;
-                coll_pose = local2global(*_cost_map_ptr, coll_pose);
-                const auto coll_pose_in_map_frame = transformPose(coll_pose, getTransform("map", _cost_map_ptr->header.frame_id));
-                collision_length_to_cur_pose = point_length_to_cur_pose + std::hypot(coll_pose_in_map_frame.position.x - base_pose.position.x, coll_pose_in_map_frame.position.y - base_pose.position.y);
+                //不用做越界判断，因为混合A*初始路径就做过了越界判断
+                if (_cost_map_ptr->data[coll_y_index * _cost_map_ptr->info.width + coll_x_index])
+                {
+                    //计算具体的碰撞点离当前位置的距离
+                    double coll_x = static_cast<double>(coll_x_index + 0.5) * _cost_map_ptr->info.resolution;
+                    double coll_y = static_cast<double>(coll_y_index + 0.5) * _cost_map_ptr->info.resolution;
+                    geometry_msgs::Pose coll_pose;
+                    coll_pose.position.x = coll_x;
+                    coll_pose.position.y = coll_y;
+                    coll_pose = local2global(*_cost_map_ptr, coll_pose);
+                    const auto coll_pose_in_map_frame = transformPose(coll_pose, getTransform("map", _cost_map_ptr->header.frame_id));
+                    collision_length_to_cur_pose = point_length_to_cur_pose +
+                                                   std::hypot(coll_pose_in_map_frame.position.x - base_pose.position.x,
+                                                              coll_pose_in_map_frame.position.y - base_pose.position.y);
 
-                is_collision = true;
-                last_collision_car_index = closest_index;
+                    is_collision = true;
 
-                //发生碰撞就跳出
+                    //发生碰撞就跳出
+                    break;
+                }
+            }
+            if (is_collision)
+            {
                 break;
             }
         }
-        if (is_collision)
+
+        /*-----对mpclane进行处理,并发送真实路径-----*/
+
+        if (is_collision) //有障碍物或者指定点停车
         {
-            break;
+            ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
+            //整条路径速度全部赋0
+            processMpcLane(temp_lane_to_detect_collision, true);
         }
-    }
-
-    /*-----对mpclane进行处理,并发送真实路径-----*/
-
-    if (is_collision) //重定义整条路径
-    {
-        ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
-        //整条路径速度全部赋0
-        processMpcLane(temp_lane_to_detect_collision, 0, temp_lane_to_detect_collision.waypoints.size() - 1, _collision_zero_vel_segment, true);
-    }
-    else //重定义当前位置到终点的路径
-    {
-        for (auto &wp : temp_lane_to_detect_collision.waypoints)
+        else //无障碍物
         {
-            wp.twist.twist.linear.x = waypoints_velocity;
+            // for (auto &wp : temp_lane_to_detect_collision.waypoints)
+            // {
+            //     wp.twist.twist.linear.x = waypoints_velocity;
+            // }
+            //最后两个点赋0
+            processMpcLane(temp_lane_to_detect_collision, false);
         }
-        //最后一次前探距离中发生碰撞的时候的点到终点中的路径，1/_normal_zero_vel_segment的速度赋0
-        // last_collision_car_index在每段轨迹中默认是0，即如果一次障碍物检测都没有发生的话，则一直发送最原始的路径（而不是从检测到障碍物从当前位置裁剪后的）
-        processMpcLane(temp_lane_to_detect_collision, last_collision_car_index, temp_lane_to_detect_collision.waypoints.size() - 1, _normal_zero_vel_segment, false);
+        _pub_mpc_lane.publish(temp_lane_to_detect_collision);
+
+        //保存当前路径作为文件
+        if (dynamic_id != 4) //三段轨迹规划完之后就不用保存了
+            saveTrajFile(temp_lane_to_detect_collision);
+
+        // debug 可视化车辆轮廓
+        vis_car_path.header.frame_id = "map";
+
+        _pub_vis_car_path.publish(vis_car_path);
+
+        /*-----发送可视化路径-----*/
+        nav_msgs::Path vis_lane;
+        vis_lane.header.frame_id = "map";
+        vis_lane.header.stamp = ros::Time::now();
+
+        // mpc里的点本来就是在map下的
+        for (std::size_t i = 0; i < temp_lane_to_detect_collision.waypoints.size(); i++)
+        {
+            geometry_msgs::PoseStamped temp_pose;
+            temp_pose = temp_lane_to_detect_collision.waypoints[i].pose;
+
+            vis_lane.poses.push_back(temp_pose);
+        }
+
+        _pub_vis_mpc_lane.publish(vis_lane);
     }
-    _pub_mpc_lane.publish(temp_lane_to_detect_collision);
-
-    //保存当前路径作为文件
-    if (dynamic_id != 4) //三段轨迹规划完之后就不用保存了
-        saveTrajFile(temp_lane_to_detect_collision);
-
-    // debug 可视化车辆轮廓
-    vis_car_path.header.frame_id = "map";
-
-    // if (dynamic_id != 4)
-    _pub_vis_car_path.publish(vis_car_path);
-
-    /*-----发送可视化路径-----*/
-    nav_msgs::Path vis_lane;
-    vis_lane.header.frame_id = "map";
-    vis_lane.header.stamp = ros::Time::now();
-
-    // mpc里的点本来就是在map下的
-    for (std::size_t i = 0; i < temp_lane_to_detect_collision.waypoints.size(); i++)
-    {
-        geometry_msgs::PoseStamped temp_pose;
-        temp_pose = temp_lane_to_detect_collision.waypoints[i].pose;
-
-        vis_lane.poses.push_back(temp_pose);
-    }
-
-    // if (dynamic_id != 4)
-    _pub_vis_mpc_lane.publish(vis_lane);
 }
 
 void BehaviourStateMachine::checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec)
@@ -644,190 +650,172 @@ void BehaviourStateMachine::callbackTimerStaticExec(const ros::TimerEvent &e)
     {
         pre_id = id;
 
-        //实验用
-        //保留点 ratio=0.5 319ms opennode:2692
-        //不加thetacost 2066ms opennode:2094
-        // geometry_msgs::PoseWithCovarianceStamped temp_start;
-        // temp_start.header.stamp = ros::Time::now();
-        // temp_start.header.frame_id = "map";
-        // temp_start.pose.pose.position.x = 27.391078949;
-        // temp_start.pose.pose.position.y = 18.884557724;
-        // temp_start.pose.pose.position.z = 0.0;
-        // temp_start.pose.pose.orientation.x = 0.0;
-        // temp_start.pose.pose.orientation.y = 0.0;
-        // temp_start.pose.pose.orientation.z = 1.0;
-        // temp_start.pose.pose.orientation.w = -4.37113900019e-08;
-        // _pub_rviz_start_pose.publish(temp_start);
+        //保留点 ratio=0.9 4057ms opennode:6346
+        //不加thetacost 7256ms opennode:6833
+        geometry_msgs::PoseWithCovarianceStamped temp_start;
+        temp_start.header.stamp = ros::Time::now();
+        temp_start.header.frame_id = "map";
+        temp_start.pose.pose.position.x = 46.2528533936;
+        temp_start.pose.pose.position.y = 43.434928894;
+        temp_start.pose.pose.position.z = 0.0;
+        temp_start.pose.pose.orientation.x = 0.0;
+        temp_start.pose.pose.orientation.y = 0.0;
+        temp_start.pose.pose.orientation.z = -0.714587677837;
+        temp_start.pose.pose.orientation.w = 0.699545888904;
+        _pub_rviz_start_pose.publish(temp_start);
 
-        // _goal_pose_stamped.header.stamp = ros::Time::now();
-        // _goal_pose_stamped.header.frame_id = "map";
-        // _goal_pose_stamped.pose.position.x = 29.698841095;
-        // _goal_pose_stamped.pose.position.y = 77.3743591309;
-        // _goal_pose_stamped.pose.position.z = 0.0;
-        // _goal_pose_stamped.pose.orientation.x = 0.0;
-        // _goal_pose_stamped.pose.orientation.y = 0.0;
-        // _goal_pose_stamped.pose.orientation.z = 0.721826900025;
-        // _goal_pose_stamped.pose.orientation.w = 0.692073642324;
+        _goal_pose_stamped.header.stamp = ros::Time::now();
+        _goal_pose_stamped.header.frame_id = "map";
+        _goal_pose_stamped.pose.position.x = 79.6534118652;
+        _goal_pose_stamped.pose.position.y = 74.056060791;
+        _goal_pose_stamped.pose.position.z = 0.0;
+        _goal_pose_stamped.pose.orientation.x = 0.0;
+        _goal_pose_stamped.pose.orientation.y = 0.0;
+        _goal_pose_stamped.pose.orientation.z = 0.707106796641;
+        _goal_pose_stamped.pose.orientation.w = 0.707106765732;
 
         sendGoalSrv(_goal_pose_stamped);
     }
 }
 
-void BehaviourStateMachine::callbackTimerMultiTrajPlanning(const ros::TimerEvent &e)
+void BehaviourStateMachine::threadMultiTrajPlanning()
 {
-    if (mode != (int)ScenarioStatus::MultiTrajPlanning)
+    while (true)
     {
-        return;
-    }
-
-    static geometry_msgs::PoseStamped pre_sub_goal;
-    static std::vector<mpc_msgs::Lane> sub_lane_vec;
-
-    if (dynamic_id != 4) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
-    {
-
-        //如果是复杂轨迹(有前进有后退)，先不考虑正常的子目标点生成，对它单独处理
-        //不处理完这段轨迹是不会进入后面的流程的
-        if (is_complex_lane && use_complex_lane)
+        if (mode != (int)ScenarioStatus::MultiTrajPlanning)
         {
-            //如果复杂轨迹数组为空了，说明处理完该段轨迹了，进入正常的流程
-            if (sub_lane_vec.empty())
-            {
-                is_complex_lane = false;
-                dynamic_id++; //转移到下一个正常的子目标点(如果为3的话，其实就是跳转到最后的终点判断流程)
-                return;
-            }
-            //如果接受到新的大目标点的了，重新进入正常流程判断
-            if (dynamic_complex_id == 0)
-            {
-                is_complex_lane = false;
-                return;
-            }
-
-            //每次发送复杂轨迹数组的第一个(即单个简单轨迹)，并且把轨迹最后的点视为终点并判断是否到达
-            _mpc_lane = sub_lane_vec[0];
-
-            //发送任务状态字给底层
-            task_control.traj_end = 0;
-            task_control.traj_turn = 0;
-            _pub_task_control.publish(task_control);
-
-            int sub_turn_index = sub_lane_vec[0].waypoints.size() - 1;
-            geometry_msgs::PoseStamped pre_complex_sub_goal; //当前子轨迹的终点
-            pre_complex_sub_goal = sub_lane_vec[0].waypoints[sub_turn_index].pose;
-
-            double length = getDistance(_current_pose_stamped, pre_complex_sub_goal);
-            // ROS_INFO("remain length:%f", length);
-
-            if (length < _sub_goal_tolerance_distance && (_vehicle_status.speed == 0.0 || _vehicle_status.acc == 0.0)) //判断车辆是否到达前一段轨迹的终点
-            {
-                ROS_INFO("arrive at no.%d pre_complex_sub_goal", (int)sub_lane_vec.size());
-
-                //发送任务状态字给底层
-                task_control.traj_end = 0;
-                task_control.traj_turn = 1;
-                _pub_task_control.publish(task_control);
-
-                //删除当前轨迹
-                sub_lane_vec.erase(sub_lane_vec.begin());
-
-                //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
-                last_collision_car_index = 0;
-
-                //直接进入下一次循环，避免在复杂轨迹处理完之前进入到正常流程
-                return;
-            }
+            continue;
         }
 
-        //正常简单轨迹流程
-        if (dynamic_id == 0 && !is_complex_lane) //第一段
+        static geometry_msgs::PoseStamped pre_sub_goal;
+        static std::vector<mpc_msgs::Lane> sub_lane_vec;
+
+        //在初始状态，一直返回不进入后面的流程
+        if (task_control.traj_end == 0)
         {
-            ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
 
-            //发送任务状态字给底层
-            task_control.traj_end = 0;
-            task_control.traj_turn = 0;
-            _pub_task_control.publish(task_control);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-            pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
-
-            mpc_msgs::Lane temp_lane;
-            bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送第一个子目标点并将返回轨迹保存到temp_lane中
-
-            //如果规划失败了，退出正常流程
-            if (!ret)
+            if (dynamic_id == 0)
             {
-                dynamic_id = 4;
-                return;
+                //收到大目标点，进入三段轨迹流程
+                //发送任务状态字给底层(进入三段轨迹)
+                task_control.traj_end = 1;
+
+                continue;
             }
 
-            if (use_complex_lane)
+            ROS_INFO("---------------initial state------------------");
+
+            //清空_mpc_lane
+            _mpc_lane.waypoints.clear();
+
+            //清空可视化的东西
+            int cnt = 10;
+            while (cnt--)
             {
-                checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
+                nav_msgs::Path empty_path;
+                empty_path.header.frame_id = "map";
+                _pub_vis_car_path.publish(empty_path);
+                _pub_vis_mpc_lane.publish(empty_path);
             }
 
-            //如果不是复杂轨迹，直接把整条轨迹发出去
-            if (!is_complex_lane)
-            {
-                _mpc_lane = temp_lane;
-                //下一段轨迹的"最后一次在前探距离上发生碰撞时车体在路径上的位置索引"初始化为0
-                last_collision_car_index = 0;
-                dynamic_id++;
-            }
-            else
-            {
-                ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
-                dynamic_complex_id = 1;
-                return;
-            }
+            continue;
         }
-        else if (dynamic_id > 0 && !is_complex_lane) //剩下两段
+
+        if (dynamic_id != 4 && task_control.traj_end == 1) //发送3段轨迹（子目标点）且车辆执行完毕后就停止，直到接受到新的大目标点
         {
 
-            //得到距离子目标点的长度(如果前一段是复杂轨迹的话，那么车辆应该已经到前一段的终点了)
-            double length = getDistance(_current_pose_stamped, pre_sub_goal);
-            // ROS_INFO("remain length:%f", length);
-
-            if (length < _sub_goal_tolerance_distance && (_vehicle_status.speed == 0.0 || _vehicle_status.acc == 0.0)) //判断车辆是否到达前一段轨迹的终点
+            //如果收到了重置信号，返回初始状态
+            if ((int)task_status.task_error == 1)
             {
-
-                //发送任务状态字给底层
+                //发送任务状态字给底层(直接返回初始状态)
                 task_control.traj_end = 0;
-                task_control.traj_turn = 1;
-                _pub_task_control.publish(task_control);
 
-                //到达第三段轨迹的终点
-                if (dynamic_id == 3)
+                continue;
+            }
+
+            //如果是复杂轨迹(有前进有后退)，先不考虑正常的子目标点生成，对它单独处理
+            //不处理完这段轨迹是不会进入后面的流程的
+            if (is_complex_lane && use_complex_lane)
+            {
+                //如果复杂轨迹数组为空了，说明处理完该段轨迹了，进入正常的流程
+                if (sub_lane_vec.empty())
                 {
-                    ROS_INFO("---------------enter multi traj end point!------------------");
-
-                    //发送任务状态字给底层
-                    task_control.traj_end = 1;
-                    task_control.traj_turn = 0;
-                    _pub_task_control.publish(task_control);
-
-                    //++之后三段轨迹规划结束
-                    dynamic_id++;
-
-                    //分离出一个单独的线程，处理最后一段两车跟随的逻辑
-                    task_status_flag = false;
-                    std::thread send_last_traj(std::bind(&BehaviourStateMachine::threadSendLastTraj, this));
-                    send_last_traj.detach();
-
-                    return;
+                    is_complex_lane = false;
+                    dynamic_id++; //转移到下一个正常的子目标点(如果为3的话，其实就是跳转到最后的终点判断流程)
+                    continue;
                 }
 
+                //如果接受到新的大目标点的了，重新进入正常流程判断
+                if (dynamic_complex_id == 0)
+                {
+                    is_complex_lane = false;
+
+                    continue;
+                }
+
+                //每次发送复杂轨迹数组的第一个(即单个简单轨迹)，并且把轨迹最后的点视为终点并判断是否到达
+                _mpc_lane = sub_lane_vec[0];
+
+                int sub_turn_index = sub_lane_vec[0].waypoints.size() - 1;
+                geometry_msgs::PoseStamped pre_complex_sub_goal; //当前子轨迹的终点
+                pre_complex_sub_goal = sub_lane_vec[0].waypoints[sub_turn_index].pose;
+
+                double length = getDistance(_current_pose_stamped, pre_complex_sub_goal);
+                // ROS_INFO("remain length:%f", length);
+
+                if (length < _sub_goal_tolerance_distance && (_vehicle_status.speed == 0.0 || _vehicle_status.acc == 0.0)) //判断车辆是否到达前一段轨迹的终点
+                {
+                    ROS_INFO("arrive at no.%d pre_complex_sub_goal", (int)sub_lane_vec.size());
+
+                    //如果位置和速度满足子目标点要求，等待档位切换到P档再进行下一步
+                    waitingCarChangeToParkingGear(use_gear);
+
+                    //删除当前轨迹
+                    sub_lane_vec.erase(sub_lane_vec.begin());
+
+                    //直接进入下一次循环，避免在复杂轨迹处理完之前进入到正常流程
+                    continue;
+                }
+            }
+
+            //正常简单轨迹流程
+            if (dynamic_id == 0 && !is_complex_lane) //第一段
+            {
                 ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
-                pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
 
+                pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下第一段的子目标点
+
+                bool ret = false;
                 mpc_msgs::Lane temp_lane;
-                bool ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane); //发送子目标点并将返回轨迹保存到temp_lane中
+                //尝试10次规划
+                int retry_cnt = 10;
+                while (retry_cnt--)
+                {
+                    ROS_INFO("---------------try %d times planning------------------", 10 - retry_cnt);
 
-                //如果规划失败了，退出正常流程
+                    //发送第一个子目标点并将返回轨迹保存到temp_lane中
+                    ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane);
+
+                    //如果规划成功，退出
+                    if (ret)
+                    {
+                        break;
+                    }
+                }
+
+                //如果规划失败了，回到初始状态
                 if (!ret)
                 {
+                    ROS_INFO("---------------Hybrid Astar Planning Failed------------------");
+
                     dynamic_id = 4;
-                    return;
+
+                    //发送任务状态字给底层(直接返回初始状态)
+                    task_control.traj_end = 0;
+
+                    continue;
                 }
 
                 if (use_complex_lane)
@@ -839,37 +827,139 @@ void BehaviourStateMachine::callbackTimerMultiTrajPlanning(const ros::TimerEvent
                 if (!is_complex_lane)
                 {
                     _mpc_lane = temp_lane;
-                    //下一段轨迹的最后一次在前探距离上发生碰撞时车体在路径上的位置索引初始化为0
-                    last_collision_car_index = 0;
                     dynamic_id++;
                 }
                 else
                 {
                     ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
                     dynamic_complex_id = 1;
-                    return;
+                    continue;
                 }
             }
-            else //没到的话就跳过
+            else if (dynamic_id > 0 && !is_complex_lane) //剩下两段
             {
-                //发送任务状态字给底层
-                task_control.traj_end = 0;
-                task_control.traj_turn = 0;
-                _pub_task_control.publish(task_control);
+
+                //得到距离子目标点的长度(如果前一段是复杂轨迹的话，那么车辆应该已经到前一段的终点了)
+                double length = getDistance(_current_pose_stamped, pre_sub_goal);
+                // ROS_INFO("remain length:%f", length);
+
+                if (length < _sub_goal_tolerance_distance && (_vehicle_status.speed == 0.0 || _vehicle_status.acc == 0.0)) //判断车辆是否到达前一段轨迹的终点
+                {
+                    //如果位置和速度满足子目标点要求，等待档位切换到P档再进行下一步
+                    waitingCarChangeToParkingGear(use_gear);
+
+                    //到达第三段轨迹的终点
+                    if (dynamic_id == 3)
+                    {
+                        ROS_INFO("---------------enter multi trajs end point!------------------");
+
+                        //发送任务状态字给底层(三段轨迹结束，进入两车对准)
+                        task_control.traj_end = 2;
+
+                        //++之后三段轨迹规划结束
+                        dynamic_id++;
+
+                        //清空_mpc_lane
+                        _mpc_lane.waypoints.clear();
+
+                        //分离出一个单独的线程，处理最后一段两车跟随的逻辑
+                        std::thread send_last_traj(std::bind(&BehaviourStateMachine::threadSendLastTraj, this));
+                        send_last_traj.detach();
+
+                        continue;
+                    }
+
+                    ROS_INFO("---------------send No.%d sub_goal------------------", dynamic_id + 1);
+                    pre_sub_goal = sub_goal_vec[dynamic_id]; //记录下新一段轨迹的子目标点
+
+                    bool ret = false;
+                    mpc_msgs::Lane temp_lane;
+                    //尝试10次规划
+                    int retry_cnt = 10;
+                    while (retry_cnt--)
+                    {
+                        ROS_INFO("---------------try %d times planning------------------", 10 - retry_cnt);
+
+                        //发送第一个子目标点并将返回轨迹保存到temp_lane中
+                        ret = sendGoalSrv(sub_goal_vec[dynamic_id], temp_lane);
+
+                        //如果规划成功，退出
+                        if (ret)
+                        {
+                            break;
+                        }
+                    }
+
+                    //如果规划失败了，回到初始状态
+                    if (!ret)
+                    {
+                        ROS_INFO("---------------Hybrid Astar Planning Failed------------------");
+
+                        dynamic_id = 4;
+
+                        //发送任务状态字给底层(直接返回初始状态)
+                        task_control.traj_end = 0;
+
+                        continue;
+                    }
+
+                    if (use_complex_lane)
+                    {
+                        checkIsComplexLaneAndPrase(temp_lane, sub_lane_vec);
+                    }
+
+                    //如果不是复杂轨迹，直接把整条轨迹发出去
+                    if (!is_complex_lane)
+                    {
+                        _mpc_lane = temp_lane;
+                        dynamic_id++;
+                    }
+                    else
+                    {
+                        ROS_INFO("have %d complex sub goal", (int)sub_lane_vec.size());
+                        dynamic_complex_id = 1;
+                        continue;
+                    }
+                }
+                else //没到的话就跳过
+                {
+                    continue;
+                }
+            }
+        }
+        else
+        {
+            //重置静态变量，为下一次接受大目标点做准备
+            geometry_msgs::PoseStamped empty_pose;
+            pre_sub_goal = empty_pose;
+
+            //重置复杂轨迹数组
+            sub_lane_vec.clear();
+
+            continue;
+        }
+    }
+}
+
+void BehaviourStateMachine::waitingCarChangeToParkingGear(bool is_use_gear)
+{
+    while (true)
+    {
+        if (is_use_gear)
+        {
+            if (_vehicle_status.gear != 3)
+            {
+                ROS_INFO("---------------waiting gear changed------------------");
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                continue;
+            }
+            else
+            {
                 return;
             }
         }
-    }
-    else
-    {
-        //重置静态变量，为下一次接受大目标点做准备
-        geometry_msgs::PoseStamped empty_pose;
-        pre_sub_goal = empty_pose;
-
-        //重置复杂轨迹数组
-        sub_lane_vec.clear();
-
-        return;
+        else
+            return;
     }
 }
 
@@ -953,29 +1043,30 @@ void BehaviourStateMachine::readTrajFile(mpc_msgs::Lane &send_lane)
 
 void BehaviourStateMachine::threadSendLastTraj()
 {
-    //收到1代表小车和大车位姿细调完成，进入发送跟随轨迹阶段
     while (true)
     {
 
-        // std::cout << std::this_thread::get_id() << std::endl;
-        ROS_INFO("waiting car pose adjust completed......need task_end==1 , now task_end==%d", (int)task_status.task_end);
+        ROS_INFO("waiting car pose adjust completed......need task_end==2 , now task_end==%d", (int)task_status.task_end);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        //如果在跟随过程中重发大目标点了，直接结束当前跟随线程
-        if (dynamic_id != 4)
+        //如果收到了重置信号，返回初始状态
+        if ((int)task_status.task_error == 1 || dynamic_id != 4)
         {
             ROS_WARN("end follow thread");
+
+            //发送任务状态字给底层(直接返回初始状态)
+            task_control.traj_end = 0;
+
             return;
         }
 
-        if ((int)task_status.task_end != 1 && !task_status_flag)
+        if ((int)task_status.task_end != 2)
         {
             continue;
         }
         else
         {
-            task_status_flag = true;
             break;
         }
     }
@@ -990,28 +1081,44 @@ void BehaviourStateMachine::threadSendLastTraj()
 
     ROS_INFO("---------------send last follow lane------------------ , size:%d", (int)send_lane.waypoints.size());
 
-    //发送最后一段固定轨迹
+    //发送最后一段两车跟随轨迹
     _mpc_lane = send_lane;
+
+    //等待档位切换到P档再进行下一步
+    waitingCarChangeToParkingGear(use_gear);
+
+    //发送任务状态字给底层(两车对准结束，进入两车跟随)
+    task_control.traj_end = 3;
 
     while (true)
     {
 
-        // std::cout << std::this_thread::get_id() << std::endl;
-        ROS_INFO("waiting two car follow lane completed......need task_end==2 , now task_end==%d", (int)task_status.task_end);
+        ROS_INFO("waiting two car follow lane completed......need task_end==3 , now task_end==%d", (int)task_status.task_end);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        //如果在跟随过程中重发大目标点了，直接结束当前跟随线程
-        if (dynamic_id != 4)
+        //如果收到了重置信号，返回初始状态
+        if ((int)task_status.task_error == 1 || dynamic_id != 4)
         {
             ROS_WARN("end follow thread");
+
+            //发送任务状态字给底层(直接返回初始状态)
+            task_control.traj_end = 0;
+
             return;
         }
 
         //收到2代表两车跟随轨迹完成，进入最终的结束阶段并结束该线程
-        if ((int)task_status.task_end == 2)
+        if ((int)task_status.task_end == 3)
         {
             ROS_INFO("---------------enter last traj end point---------------");
+
+            //等待档位切换到P档再进行下一步
+            waitingCarChangeToParkingGear(use_gear);
+
+            //发送任务状态字给底层(两车跟随结束，返回初始状态)
+            task_control.traj_end = 0;
+
             //清空_mpc_lane
             _mpc_lane.waypoints.clear();
 
@@ -1030,19 +1137,22 @@ void BehaviourStateMachine::threadSendLastTraj()
     }
 }
 
-void BehaviourStateMachine::callbackTImerPathTracing(const ros::TimerEvent &e)
+void BehaviourStateMachine::threadPathTracing()
 {
-    if (mode != (int)ScenarioStatus::PathTracing)
+    while (true)
     {
-        return;
-    }
+        if (mode != (int)ScenarioStatus::PathTracing)
+        {
+            continue;
+        }
 
-    mpc_msgs::Lane send_lane;
-    readTrajFile(send_lane);
-    if (send_lane.waypoints.empty())
-    {
-        ROS_ERROR("can't open traj_file in callbackTImerPathTracing()");
-        return;
+        mpc_msgs::Lane send_lane;
+        readTrajFile(send_lane);
+        if (send_lane.waypoints.empty())
+        {
+            ROS_ERROR("can't open traj_file in callbackTImerPathTracing()");
+            continue;
+        }
     }
 }
 
