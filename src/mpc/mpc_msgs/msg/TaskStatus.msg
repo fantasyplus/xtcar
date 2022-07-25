@@ -1,1 +1,2 @@
 uint8 task_end
+uint8 task_error

@@ -24,10 +24,12 @@ struct TaskStatus_
   typedef TaskStatus_<ContainerAllocator> Type;
 
   TaskStatus_()
-    : task_end(0)  {
+    : task_end(0)
+    , task_error(0)  {
     }
   TaskStatus_(const ContainerAllocator& _alloc)
-    : task_end(0)  {
+    : task_end(0)
+    , task_error(0)  {
   (void)_alloc;
     }
 
@@ -35,6 +37,9 @@ struct TaskStatus_
 
    typedef uint8_t _task_end_type;
   _task_end_type task_end;
+
+   typedef uint8_t _task_error_type;
+  _task_error_type task_error;
 
 
 
@@ -65,7 +70,8 @@ return s;
 template<typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator==(const ::mpc_msgs::TaskStatus_<ContainerAllocator1> & lhs, const ::mpc_msgs::TaskStatus_<ContainerAllocator2> & rhs)
 {
-  return lhs.task_end == rhs.task_end;
+  return lhs.task_end == rhs.task_end &&
+    lhs.task_error == rhs.task_error;
 }
 
 template<typename ContainerAllocator1, typename ContainerAllocator2>
@@ -122,12 +128,12 @@ struct MD5Sum< ::mpc_msgs::TaskStatus_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "b511025659d92736cbd31617b8452ad5";
+    return "713ed9c21811428b0f7a78688cdf9573";
   }
 
   static const char* value(const ::mpc_msgs::TaskStatus_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xb511025659d92736ULL;
-  static const uint64_t static_value2 = 0xcbd31617b8452ad5ULL;
+  static const uint64_t static_value1 = 0x713ed9c21811428bULL;
+  static const uint64_t static_value2 = 0x0f7a78688cdf9573ULL;
 };
 
 template<class ContainerAllocator>
@@ -147,6 +153,7 @@ struct Definition< ::mpc_msgs::TaskStatus_<ContainerAllocator> >
   static const char* value()
   {
     return "uint8 task_end\n"
+"uint8 task_error\n"
 ;
   }
 
@@ -166,6 +173,7 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.task_end);
+      stream.next(m.task_error);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -186,6 +194,8 @@ struct Printer< ::mpc_msgs::TaskStatus_<ContainerAllocator> >
   {
     s << indent << "task_end: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.task_end);
+    s << indent << "task_error: ";
+    Printer<uint8_t>::stream(s, indent + "  ", v.task_error);
   }
 };
 

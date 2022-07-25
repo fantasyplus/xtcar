@@ -19,6 +19,7 @@ class TaskStatus {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
       this.task_end = null;
+      this.task_error = null;
     }
     else {
       if (initObj.hasOwnProperty('task_end')) {
@@ -27,6 +28,12 @@ class TaskStatus {
       else {
         this.task_end = 0;
       }
+      if (initObj.hasOwnProperty('task_error')) {
+        this.task_error = initObj.task_error
+      }
+      else {
+        this.task_error = 0;
+      }
     }
   }
 
@@ -34,6 +41,8 @@ class TaskStatus {
     // Serializes a message object of type TaskStatus
     // Serialize message field [task_end]
     bufferOffset = _serializer.uint8(obj.task_end, buffer, bufferOffset);
+    // Serialize message field [task_error]
+    bufferOffset = _serializer.uint8(obj.task_error, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -43,11 +52,13 @@ class TaskStatus {
     let data = new TaskStatus(null);
     // Deserialize message field [task_end]
     data.task_end = _deserializer.uint8(buffer, bufferOffset);
+    // Deserialize message field [task_error]
+    data.task_error = _deserializer.uint8(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
-    return 1;
+    return 2;
   }
 
   static datatype() {
@@ -57,13 +68,14 @@ class TaskStatus {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'b511025659d92736cbd31617b8452ad5';
+    return '713ed9c21811428b0f7a78688cdf9573';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
     uint8 task_end
+    uint8 task_error
     `;
   }
 
@@ -78,6 +90,13 @@ class TaskStatus {
     }
     else {
       resolved.task_end = 0
+    }
+
+    if (msg.task_error !== undefined) {
+      resolved.task_error = msg.task_error;
+    }
+    else {
+      resolved.task_error = 0
     }
 
     return resolved;

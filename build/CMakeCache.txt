@@ -103,7 +103,7 @@ CATKIN_SKIP_TESTING:BOOL=OFF
 CATKIN_SYMLINK_INSTALL:BOOL=OFF
 
 //List of ';' separated packages to build
-CATKIN_WHITELIST_PACKAGES:STRING=
+CATKIN_WHITELIST_PACKAGES:STRING=behaviour_state_machine_truck
 
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
@@ -705,11 +705,16 @@ autoware_build_flags_DIR:PATH=/home/ros/autoware.ai/install/autoware_build_flags
 //Value Computed by CMake
 behaviour_state_machine_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/behaviour_state_machine
 
-//The directory containing a CMake configuration file for behaviour_state_machine.
-behaviour_state_machine_DIR:PATH=/home/ros/fantasyplus/xtcar/devel/share/behaviour_state_machine/cmake
+behaviour_state_machine_DIR:PATH=
 
 //Value Computed by CMake
 behaviour_state_machine_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/behaviour_state_machine
+
+//Value Computed by CMake
+behaviour_state_machine_truck_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/behaviour_state_machine_truck
+
+//Value Computed by CMake
+behaviour_state_machine_truck_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/behaviour_state_machine_truck
 
 //The directory containing a CMake configuration file for bond.
 bond_DIR:PATH=/opt/ros/melodic/share/bond/cmake
@@ -848,7 +853,7 @@ hybrid_astar_node_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/hybrid_astar
 kdl_conversions_DIR:PATH=/opt/ros/melodic/share/kdl_conversions/cmake
 
 //Path to a library.
-lib:FILEPATH=/home/ros/autoware.ai/install/vehicle_sim_model/lib/libvehicle_sim_model.so
+lib:FILEPATH=/opt/ros/melodic/lib/libtf2.so
 
 //The directory containing a CMake configuration file for message_filters.
 message_filters_DIR:PATH=/opt/ros/melodic/share/message_filters/cmake
@@ -868,8 +873,7 @@ mpc_follower_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/mpc/mpc_follower
 //Value Computed by CMake
 mpc_msgs_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/mpc/mpc_msgs
 
-//The directory containing a CMake configuration file for mpc_msgs.
-mpc_msgs_DIR:PATH=/home/ros/fantasyplus/xtcar/devel/share/mpc_msgs/cmake
+mpc_msgs_DIR:PATH=
 
 //Value Computed by CMake
 mpc_msgs_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/mpc/mpc_msgs
@@ -1164,7 +1168,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

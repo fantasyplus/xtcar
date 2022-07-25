@@ -7,10 +7,10 @@
 #include <vector>
 #include <unordered_map>
 #include <signal.h>
-#include <thread> 
+#include <thread>
 #include <mutex>
 #include <fstream>
-
+ 
 // ros
 #include <ros/ros.h>
 #include <std_msgs/Int8.h>
@@ -128,10 +128,8 @@ private:
     double _sub_goal_tolerance_distance; // ros参数
     double waypoints_velocity;           // ros参数
 
-    //发送mpclane的定时器
-    ros::Timer _timer_pub_lane;
-    bool is_pub_mpc_lane = false;
-    void callbackTimerPublishMpcLane(const ros::TimerEvent &e);
+    //发送mpclane的线程
+    void threadPublishMpcLane();
 
     bool is_complex_lane = false;
     bool use_complex_lane; // ros参数
@@ -187,20 +185,20 @@ private:
 
 private:
     /*---------------------模式切换相关---------------------*/
-    //跟底层通宵状态切换的消息
-    mpc_msgs::TaskControl task_control;
-    ros::Publisher _pub_task_control;
+
+    bool use_gear; // ros参数（是否加入档位判断）
 
     int mode; // ros参数
 
     ros::Timer _timer_static_exec;
     void callbackTimerStaticExec(const ros::TimerEvent &e);
 
-    ros::Timer _timer_multi_traj;
-    void callbackTimerMultiTrajPlanning(const ros::TimerEvent &e);
-
     ros::Timer _timer_path_tracing;
     void callbackTImerPathTracing(const ros::TimerEvent &e);
+
+    void threadMultiTrajPlanning();
+
+    void waitingCarChangeToParkingGear(bool is_use_gear);
 
 private:
     /*---------------------读写路径相关---------------------*/
@@ -212,8 +210,15 @@ private:
     void saveTrajFile(const mpc_msgs::Lane save_lane);
 
     mpc_msgs::TaskStatus task_status;
-    bool task_status_flag;
     void threadSendLastTraj();
+
+private:
+    /*---------------------底层通信相关---------------------*/
+    //跟底层通信状态切换的消息
+    std::mutex task_mutex;
+    mpc_msgs::TaskControl task_control;
+    ros::Publisher _pub_task_control;
+    void threadSendStatusTopic();
 
 private:
     /*---------------------TF相关---------------------*/

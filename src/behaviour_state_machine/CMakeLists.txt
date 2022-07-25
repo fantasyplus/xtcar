@@ -15,14 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   std_msgs
   message_generation
-)
+) 
 
 #添加srv文件相关
 add_service_files(
   FILES
   GoalPose.srv
 )
-
+ 
 generate_messages(
   DEPENDENCIES
   std_msgs geometry_msgs mpc_msgs

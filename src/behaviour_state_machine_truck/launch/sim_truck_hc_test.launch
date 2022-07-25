@@ -1,0 +1,252 @@
+<launch>
+    <!-- 打印时显示节点 -->
+    <env name="ROSCONSOLE_FORMAT" value="[${node}]: ${message}"/>
+
+    <!-- 使用仿真时间 -->
+    <param name="use_sim_time" value="true"/>
+
+    <!-- 回放雷达数据包 -->
+    <node name="lidar_data_replay" pkg="rosbag" type="play" 
+          args="/home/ros/fantasyplus/rosbag/suv/costmap_xt_4_26.bag --loop --clock --topics /points_no_ground /gnss_pose -s 10" 
+          output="log"/>
+
+    <!-- costmap生成 --> 
+    <arg name="input_point_topic" default="points_no_ground" />  
+    <arg name="base_frame" default="rslidar" />  
+    <arg name="grid_topic" default="global_cost_map" />
+
+    <arg name="min_x" default="-2000.0" />
+    <arg name="max_x" default="6000.0" />
+    <arg name="min_y" default="-2000.0" />
+    <arg name="max_y" default="2000.0" />
+    <arg name="min_z" default="-200.0" />
+    <arg name="max_z" default="100.0" />
+
+    <arg name="grid_size_x" default="320" />
+    <arg name="grid_size_y" default="160" />
+    <arg name="resolution_x" default="25" />
+    <arg name="resolution_y" default="25" />
+    <arg name="offset_x" default="80" />
+    <arg name="offset_y" default="80" />
+
+    <arg name="hang_z_gap" default="80.0" />
+    <arg name="hd_threshold" default="15.0" />
+    <arg name="rough_threshold" default="20.0" />
+    
+
+    <node pkg="grid_map" type="grid_map_node" name="grid_map_node_main" output="log">
+        <param name="input_point_topic" value="$(arg input_point_topic)" />
+        <param name="base_frame" value="$(arg base_frame)" />
+        <param name="grid_topic" value="$(arg grid_topic)" />
+
+        <param name="min_x" value="$(arg min_x)" />
+        <param name="max_x" value="$(arg max_x)" />
+        <param name="min_y" value="$(arg min_y)" />
+        <param name="max_y" value="$(arg max_y)" />
+        <param name="max_z" value="$(arg max_z)" />
+
+        <param name="grid_size_x" value="$(arg grid_size_x)" />
+        <param name="grid_size_y" value="$(arg grid_size_y)" />
+        <param name="resolution_x" value="$(arg resolution_x)" />
+        <param name="resolution_y" value="$(arg resolution_y)" />
+        <param name="offset_x" value="$(arg offset_x)" />
+        <param name="offset_y" value="$(arg offset_y)" />
+
+        <param name="hang_z_gap" value="$(arg hang_z_gap)" />
+        <param name="hd_threshold" value="$(arg hd_threshold)" />
+        <param name="rough_threshold" value="$(arg rough_threshold)" />
+
+    </node>
+
+    <!-- run rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find behaviour_state_machine_truck)/rviz/hybrid_astar_dynamic.rviz" required="true"/>
+
+    <!-- run tf-->
+    <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
+
+    <!-- car_tf node -->
+    <arg name="lidar_trans_x" default="4.34" doc="4.34"/>
+    <arg name="lidar_trans_y" default="-0.58" doc="-0.58"/>
+    <arg name="lidar_trans_z" default="0.0" />
+
+    <arg name="lidar_rotation_roll" default="0.0" />
+    <arg name="lidar_rotation_pitch" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="0.0" />
+
+    <arg name="base_link_trans_x" default="0.0"/>
+    <arg name="base_link_trans_y" default="0.0"/>
+    <arg name="base_link_trans_z" default="0.0" />
+
+    <arg name="base_link_rotation_roll" default="0.0" />
+    <arg name="base_link_rotation_pitch" default="0.0" />
+    <arg name="base_link_rotation_yaw" default="0.0" />
+
+    <arg name="map_frame" default="map" />
+    <arg name="base_link_frame" default="base_link" />
+    <arg name="lidar_frame_id" default="rslidar" />
+
+    <arg name="use_rviz_start_cartf" default="false" />
+
+    <node name="car_tf" pkg="car_tf_broadcaster" type="car_tf_broadcaster" output="screen">
+        <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
+        <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
+        <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
+
+        <param name="lidar_rotation_roll" type="double" value="$(arg lidar_rotation_roll)" />
+        <param name="lidar_rotation_pitch" type="double" value="$(arg lidar_rotation_pitch)" />
+        <param name="lidar_rotation_yaw" type="double" value="$(arg lidar_rotation_yaw)" />
+        
+        <param name="base_link_trans_x" type="double" value="$(arg base_link_trans_x)" />
+        <param name="base_link_trans_y" type="double" value="$(arg base_link_trans_y)" />
+        <param name="base_link_trans_z" type="double" value="$(arg base_link_trans_z)" />
+
+        <param name="base_link_rotation_roll" type="double" value="$(arg base_link_rotation_roll)" />
+        <param name="base_link_rotation_pitch" type="double" value="$(arg base_link_rotation_pitch)" />
+        <param name="base_link_rotation_yaw" type="double" value="$(arg base_link_rotation_yaw)" />
+
+        <param name="map_frame" type="string" value="$(arg map_frame)" />
+        <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
+        <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
+
+        <param name="use_rviz_start" type="bool" value="$(arg use_rviz_start_cartf)" />
+
+    </node>
+
+    <!-- 上层控制节点 -->
+    <!-- 通用 -->
+    <arg name="use_gear" default="false" doc="是否加入到达目标点时的档位判断"/>
+    <arg name="follow_file_path" default="/home/ros/fantasyplus/xtcar/src/mpc/traj/mpc_traj.txt"/>
+    <arg name="save_file_path" default="/home/ros/fantasyplus/xtcar/src/mpc/traj/mpc_traj.txt"/>
+    <arg name="waypoints_velocity_behav" default="1.0"/>
+    <arg name="mode" default="2"/>
+    <arg name="loop_rate" default="100.0"/>
+
+    <!-- 前场参数 -->
+    <arg name="sub_goal_tolerance_distance" default="30" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
+    <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
+    <arg name="second_vertical_distance" default="5.0" doc="第二个子目标点（纵向距离）"/>
+    <arg name="third_nearby_distance" default="5.0" doc="第三个子目标点（纵向距离）"/>
+
+    <!-- 避障参数 -->
+    <arg name="vehicle_length_coll" default="4.788"/>
+    <arg name="vehicle_width_coll" default="2.198"/>
+    <arg name="vehicle_cg2back_coll" default="1.367"/>
+    <arg name="lookahead_distance" default="20.0"/>
+
+    <!-- 后场参数 -->
+    <arg name="stop_distance" default="50.0"/>
+    <arg name="stop_theta" default="180.0"/>
+
+    <node name="behaviour_state_machine_truck" pkg="behaviour_state_machine_truck" type="behaviour_state_machine_truck" output="screen" respawn="true">
+        <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
+        <param name="use_complex_lane" type="bool" value="$(arg use_complex_lane)"/>
+        <param name="use_gear" type="bool" value="$(arg use_gear)"/>
+        <param name="first_horizontal_distance" type="double" value="$(arg first_horizontal_distance)"/>
+        <param name="second_vertical_distance" type="double" value="$(arg second_vertical_distance)"/>
+        <param name="third_nearby_distance" type="double" value="$(arg third_nearby_distance)"/>
+        <param name="vehicle_length" type="double" value="$(arg vehicle_length_coll)"/>
+        <param name="vehicle_width" type="double" value="$(arg vehicle_width_coll)"/>
+        <param name="vehicle_cg2back" type="double" value="$(arg vehicle_cg2back_coll)"/>
+        <param name="lookahead_distance" type="double" value="$(arg lookahead_distance)"/>
+        <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
+        <param name="mode" type="int" value="$(arg mode)"/>
+        <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
+        <param name="follow_file_path" type="string" value="$(arg follow_file_path)"/>
+        <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
+        <param name="stop_distance" type="double" value="$(arg stop_distance)"/>
+        <param name="stop_theta" type="double" value="$(arg stop_theta)"/>
+
+    </node>
+
+    <!-- Hybrid A* node -->
+    <!-- common configurations -->
+    <arg name="costmap_topic" default="global_cost_map" />
+    <arg name="pose_topic" default="gnss_pose" />
+    
+    <arg name="waypoints_velocity" default="1.0" />
+    <arg name="update_rate" default="10" />
+    
+    <arg name="is_visual" default="true" />
+    <arg name="use_rviz_start" default="false" />
+
+    <arg name="time_limit" default="10000.0" />
+
+    <arg name="vehicle_length" default="4.788" />
+    <arg name="vehicle_width" default="2.198" />
+    <arg name="vehicle_cg2back" default="1.367" />
+
+    <arg name="max_turning_radius" default="20.0" />
+    <arg name="min_turning_radius" default="4.36" />
+    <arg name="turning_radius_size" default="11" />
+    <arg name="theta_size" default="72" />
+
+    <arg name="reverse_weight" default="10.0" />
+    <arg name="turning_weight" default="2.0" />
+
+    <arg name="goal_lateral_tolerance" default="0.5" />
+    <arg name="goal_longitudinal_tolerance" default="0.5" />
+    <arg name="goal_angular_tolerance" default="0.015708" />
+    <arg name="obstacle_threshold" default="100" />
+
+    <arg name="use_back" default="true" />
+    <arg name="use_reeds_shepp" default="true" />
+    <arg name="use_obstacle_heuristic" default="false" />
+    <arg name="use_smoother" default="false" />
+
+    <arg name="alpha" default="0.1" />
+    <arg name="obstacle_weight" default="0.5" />
+    <arg name="curvature_weight" default="0.0" />
+    <arg name="smoothness_weight" default="0.0" />
+    <arg name="obstacle_distance_max" default="1.0" />
+
+    <arg name="analytic_expansion_ratio" default="3.5" />
+    <arg name="analytic_expansion_max_length" default="30" />
+
+
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen">
+
+      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="pose_topic" value="$(arg pose_topic)"/>
+      <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
+      <param name="update_rate" value="$(arg update_rate)" />
+      <param name="is_visual" value="$(arg is_visual)" />
+      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      
+
+      <param name="time_limit" value="$(arg time_limit)" />
+
+      <param name="vehicle_length" value="$(arg vehicle_length)" />
+      <param name="vehicle_width" value="$(arg vehicle_width)" />
+      <param name="vehicle_cg2back" value="$(arg vehicle_cg2back)" />
+
+      <param name="max_turning_radius" value="$(arg max_turning_radius)" />
+      <param name="min_turning_radius" value="$(arg min_turning_radius)" />
+      <param name="turning_radius_size" value="$(arg turning_radius_size)" />
+      <param name="theta_size" value="$(arg theta_size)" />
+
+      <param name="reverse_weight" value="$(arg reverse_weight)" />
+      <param name="turning_weight" value="$(arg turning_weight)" />
+      <param name="goal_lateral_tolerance" value="$(arg goal_lateral_tolerance)" />
+      <param name="goal_longitudinal_tolerance" value="$(arg goal_longitudinal_tolerance)" />
+      <param name="goal_angular_tolerance" value="$(arg goal_angular_tolerance)" />
+      <param name="obstacle_threshold" value="$(arg obstacle_threshold)" />
+
+      <param name="use_back" value="$(arg use_back)" />
+      <param name="use_reeds_shepp" value="$(arg use_reeds_shepp)" />
+      <param name="use_obstacle_heuristic" value="$(arg use_obstacle_heuristic)" />
+      <param name="use_smoother" value="$(arg use_smoother)" />
+
+      <param name="alpha" value="$(arg alpha)" />
+      <param name="obstacle_weight" value="$(arg obstacle_weight)" />
+      <param name="curvature_weight" value="$(arg curvature_weight)" />
+      <param name="smoothness_weight" value="$(arg smoothness_weight)" />
+      <param name="obstacle_distance_max" value="$(arg obstacle_distance_max)" />
+
+      <param name="analytic_expansion_ratio" value="$(arg analytic_expansion_ratio)" />
+      <param name="analytic_expansion_max_length" value="$(arg analytic_expansion_max_length)" />
+
+
+    </node>
+
+</launch>
