@@ -27,7 +27,7 @@
 #include <nav_msgs/Path.h>
 
 //自定义
-#include "behaviour_state_machine/GoalPose.h"
+#include "behaviour_state_machine_truck/GoalPose.h"
 #include "mpc_msgs/Lane.h"
 #include "mpc_msgs/Waypoint.h"
 #include "mpc_msgs/ControlCommand.h"
@@ -54,6 +54,14 @@ enum class ScenarioStatus
     StaticExec
 };
 
+enum class SpecialPoseStatus
+{
+    Nothing,
+    StopPosition,
+    ClimbEnd,
+    DownslopeStart
+};
+
 void MySigintHandler(int sig)
 {
     ROS_INFO("shutting down!");
@@ -72,7 +80,7 @@ private:
 
     //接受goal_pose的srv_server和srv
     ros::ServiceClient _goal_pose_client;
-    behaviour_state_machine::GoalPose _goal_pose_srv;
+    behaviour_state_machine_truck::GoalPose _goal_pose_srv;
 
     ros::Subscriber _sub_costmap;
     ros::Subscriber _sub_goal_pose;
@@ -82,9 +90,19 @@ private:
     ros::Subscriber _sub_scenario_mode;
     ros::Subscriber _sub_task_status;
 
-    ros::Timer _timer_tf;
+    //发送mpc路径的发布者
+    ros::Publisher _pub_mpc_lane;
+    //发送可视化mpc路径的发布者
+    ros::Publisher _pub_vis_mpc_lane;
+    //发送可视化车辆碰撞框的发布者
+    ros::Publisher _pub_vis_car_path;
+    //发送和底层通信话题的发布者
+    ros::Publisher _pub_task_control;
 
-    double loop_rate;
+    ros::Timer _timer_tf;
+    ros::Timer _timer_static_exec;
+
+    double loop_rate; // ros参数
 
 private:
     /*---------------------回调函数相关---------------------*/
@@ -112,17 +130,17 @@ private:
     // srv返回的mpc路径
     mpc_msgs::Lane _mpc_lane;
 
-    //发送mpc路径的发布者
-    ros::Publisher _pub_mpc_lane;
-    //发送可视化mpc路径的发布者
-    ros::Publisher _pub_vis_mpc_lane;
-
     int id = 0;
     int pre_id = 0;
     int dynamic_id = 4; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
     int dynamic_complex_id = 1;
 
-    double waypoints_velocity; // ros参数
+    double prev_waypoints_velocity; //保存最初的速度值
+    double prev_start_waypoints_velocity;
+    double waypoints_velocity;       // ros参数
+    double start_waypoints_velocity; // ros参数
+    double max_velo_ratio;
+    double start_velo_ratio;
 
     //发送mpclane的线程
     void threadPublishMpcLane();
@@ -130,7 +148,7 @@ private:
     bool is_complex_lane = false;
 
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
-    void processMpcLane(mpc_msgs::Lane &cur_lane, int start, int end, bool is_stop);
+    void processMpcLane(mpc_msgs::Lane &cur_lane, int start, int end, bool is_stop, int closest_idx);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
@@ -148,22 +166,17 @@ private:
 
 private:
     /*---------------------障碍物避碰相关---------------------*/
-    double vehicle_length;  // ros参数
-    double vehicle_width;   // ros参数
-    double vehicle_cg2back; // ros参数
-
+    double vehicle_length;     // ros参数
+    double vehicle_width;      // ros参数
+    double vehicle_cg2back;    // ros参数
     double lookahead_distance; // ros参数
 
     // debug 可视化车辆轮廓
     nav_msgs::Path vis_car_path;
-    ros::Publisher _pub_vis_car_path;
 
     //代价地图
     nav_msgs::OccupancyGridConstPtr _cost_map_ptr;
     bool is_get_costmap = false;
-
-    //保存最后一次在前探距离上发生碰撞时车体在路径上的位置索引
-    static int last_collision_car_index;
 
     void getClosestIndex(const mpc_msgs::Lane &temp_lane, int &closest_index);
     void getCollisionPoseVec(int closest_index,
@@ -179,7 +192,6 @@ private:
     geometry_msgs::Pose local2global(const nav_msgs::OccupancyGrid &costmap, const geometry_msgs::Pose &pose_local);
 
 private:
-    ros::Timer _timer_static_exec;
     void callbackTimerStaticExec(const ros::TimerEvent &e);
 
     /*---------------------模式切换相关---------------------*/
@@ -196,24 +208,35 @@ private:
     double first_horizontal_distance;   // ros参数
     double second_vertical_distance;    // ros参数
     double third_nearby_distance;       // ros参数
+    std::string follow_file_path;       // ros 参数
 
     void threadMultiTrajPlanning();
 
     /*---------------------后场相关---------------------*/
-    double stop_distance; // ros参数
-    double stop_theta;    // ros参数
+    double stop_distance;        // ros参数
+    double stop_theta;           // ros参数
+    int stop_time;               // ros参数
+    std::string fixed_traj_path; // ros参数
+    bool is_show_debug;          // ros参数
+    int back_waypoints_num;      // ros参数
+    int front_waypoints_num;     // ros参数
+    int start_waypoints_num;     // ros参数
+    bool stop_flag;
+    int last_stop_collision_car_index = 0;
 
     void threadPathTracingAndStop();
 
-    //解析后场路径中速度为0的点，提取出对应的坐标
     void praseTrajFile(const mpc_msgs::Lane &in_lane, std::vector<geometry_msgs::Pose> &stop_points);
 
     bool isStopPointNearby(const geometry_msgs::Pose &stop_pose);
 
+    void reshapeLane(const mpc_msgs::Lane &in_lane, mpc_msgs::Lane &out_lane, int closest_index);
+
+    void visualMpcLane(const mpc_msgs::Lane &send_lane);
+
 private:
     /*---------------------读写路径相关---------------------*/
-    std::string follow_file_path; // ros 参数
-    std::string save_file_path;   // ros 参数
+    std::string save_file_path; // ros 参数
 
     void readTrajFile(mpc_msgs::Lane &send_lane, std::string file_path);
 
@@ -226,7 +249,6 @@ private:
     /*---------------------底层通信相关---------------------*/
     //跟底层通信状态切换的消息
     mpc_msgs::TaskControl task_control;
-    ros::Publisher _pub_task_control;
     void threadSendStatusTopic();
 
 private:

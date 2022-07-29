@@ -235,6 +235,8 @@ vector
 -
 string
 -
+thread
+-
 ros/ros.h
 -
 tf/transform_listener.h

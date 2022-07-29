@@ -705,7 +705,8 @@ autoware_build_flags_DIR:PATH=/home/ros/autoware.ai/install/autoware_build_flags
 //Value Computed by CMake
 behaviour_state_machine_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/behaviour_state_machine
 
-behaviour_state_machine_DIR:PATH=
+//The directory containing a CMake configuration file for behaviour_state_machine.
+behaviour_state_machine_DIR:PATH=/home/ros/fantasyplus/xtcar/devel/share/behaviour_state_machine/cmake
 
 //Value Computed by CMake
 behaviour_state_machine_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/behaviour_state_machine
