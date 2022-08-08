@@ -12,6 +12,7 @@ behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck.dir/src/b
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/VehicleStatus.h
  /home/ros/fantasyplus/xtcar/devel/include/mpc_msgs/Waypoint.h
  /home/ros/fantasyplus/xtcar/src/behaviour_state_machine_truck/include/behaviour_state_machine_truck_node.h
+ /home/ros/fantasyplus/xtcar/src/behaviour_state_machine_truck/include/timer.h
  /home/ros/fantasyplus/xtcar/src/behaviour_state_machine_truck/src/behaviour_state_machine_truck_node.cpp
  /opt/ros/melodic/include/geometry_msgs/Point.h
  /opt/ros/melodic/include/geometry_msgs/PointStamped.h

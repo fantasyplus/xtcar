@@ -103,7 +103,7 @@ CATKIN_SKIP_TESTING:BOOL=OFF
 CATKIN_SYMLINK_INSTALL:BOOL=OFF
 
 //List of ';' separated packages to build
-CATKIN_WHITELIST_PACKAGES:STRING=behaviour_state_machine_truck
+CATKIN_WHITELIST_PACKAGES:STRING=behaviour_state_machine
 
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
@@ -705,8 +705,7 @@ autoware_build_flags_DIR:PATH=/home/ros/autoware.ai/install/autoware_build_flags
 //Value Computed by CMake
 behaviour_state_machine_BINARY_DIR:STATIC=/home/ros/fantasyplus/xtcar/build/behaviour_state_machine
 
-//The directory containing a CMake configuration file for behaviour_state_machine.
-behaviour_state_machine_DIR:PATH=/home/ros/fantasyplus/xtcar/devel/share/behaviour_state_machine/cmake
+behaviour_state_machine_DIR:PATH=
 
 //Value Computed by CMake
 behaviour_state_machine_SOURCE_DIR:STATIC=/home/ros/fantasyplus/xtcar/src/behaviour_state_machine

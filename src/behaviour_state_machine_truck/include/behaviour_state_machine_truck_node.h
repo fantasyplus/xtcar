@@ -10,6 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <fstream>
+#include <functional>
 
 // ros
 #include <ros/ros.h>
@@ -34,6 +35,7 @@
 #include "mpc_msgs/VehicleStatus.h"
 #include "mpc_msgs/TaskControl.h"
 #include "mpc_msgs/TaskStatus.h"
+#include "timer.h"
 
 enum class Direction
 {
@@ -56,10 +58,12 @@ enum class ScenarioStatus
 
 enum class SpecialPoseStatus
 {
-    Nothing,
-    StopPosition,
-    ClimbEnd,
-    DownslopeStart
+    Drive,
+    EnterWeightPound,
+    BeforeLoading,
+    Loading,
+    AfterLoading,
+    OutWeightPound
 };
 
 void MySigintHandler(int sig)
@@ -139,8 +143,6 @@ private:
     double prev_start_waypoints_velocity;
     double waypoints_velocity;       // ros参数
     double start_waypoints_velocity; // ros参数
-    double max_velo_ratio;
-    double start_velo_ratio;
 
     //发送mpclane的线程
     void threadPublishMpcLane();
@@ -148,7 +150,8 @@ private:
     bool is_complex_lane = false;
 
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
-    void processMpcLane(mpc_msgs::Lane &cur_lane, int start, int end, bool is_stop, int closest_idx);
+    // void processMpcLane(mpc_msgs::Lane &cur_lane, int start, int end, bool is_stop, int closest_idx);
+    void processMpcLane(mpc_msgs::Lane &cur_lane, int closest_idx, bool is_collision);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
@@ -179,7 +182,7 @@ private:
     bool is_get_costmap = false;
 
     void getClosestIndex(const mpc_msgs::Lane &temp_lane, int &closest_index);
-    void getCollisionPoseVec(int closest_index,
+    void getCollisionPoseVec(const int closest_index,
                              const mpc_msgs::Lane &temp_lane,
                              std::vector<std::pair<geometry_msgs::Pose, double>> &base_pose_vec);
     void computeCollisionIndexVec(const geometry_msgs::Pose &base_pose,
@@ -213,26 +216,44 @@ private:
     void threadMultiTrajPlanning();
 
     /*---------------------后场相关---------------------*/
-    double stop_distance;        // ros参数
-    double stop_theta;           // ros参数
-    int stop_time;               // ros参数
-    std::string fixed_traj_path; // ros参数
-    bool is_show_debug;          // ros参数
-    int back_waypoints_num;      // ros参数
-    int front_waypoints_num;     // ros参数
-    int start_waypoints_num;     // ros参数
-    bool stop_flag;
+    double stop_distance;                      // ros参数
+    double stop_theta;                         // ros参数
+    int stop_time;                             // ros参数
+    std::string fixed_traj_path;               // ros参数
+    bool is_show_debug;                        // ros参数
+    int back_waypoints_num;                    // ros参数
+    int front_waypoints_num;                   // ros参数
+    int start_waypoints_num;                   // ros参数
+    double enter_weight_pound_velo_ratio;      // ros参数
+    double enter_weight_pound_init_velo_ratio; // ros参数
+    double climb_end_velo_ratio;               // ros参数
+    double climb_end_init_velo_ratio;          // ros参数
+    double before_loading_velo_ratio;          // ros参数
+    double before_loading_init_velo_ratio;     // ros参数
+    double loading_end_velo_ratio;             // ros参数
+    double loading_end_init_velo_ratio;        // ros参数
+    double after_loading_velo_ratio;           // ros参数
+    double after_loading_init_velo_ratio;      // ros参数
+    double down_slope_velo_ratio;              // ros参数
+    double down_slope_init_velo_ratio;         // ros参数
+    double out_weight_pound_velo_ratio;        // ros参数
+    double out_weight_pound_init_velo_ratio;   // ros参数
+    int start_index;                           // ros参数
+
+    SpecialPoseStatus special_pose_status = SpecialPoseStatus::Drive;
     int last_stop_collision_car_index = 0;
 
     void threadPathTracingAndStop();
 
-    void praseTrajFile(const mpc_msgs::Lane &in_lane, std::vector<geometry_msgs::Pose> &stop_points);
+    void praseTrajFile(const mpc_msgs::Lane &in_lane, std::vector<geometry_msgs::Pose> &special_points);
 
-    bool isStopPointNearby(const geometry_msgs::Pose &stop_pose);
+    bool isSpecialPointNearby(const geometry_msgs::Pose &target_pose);
 
     void reshapeLane(const mpc_msgs::Lane &in_lane, mpc_msgs::Lane &out_lane, int closest_index);
 
     void visualMpcLane(const mpc_msgs::Lane &send_lane);
+
+    void handleSpecialPose(int index);
 
 private:
     /*---------------------读写路径相关---------------------*/

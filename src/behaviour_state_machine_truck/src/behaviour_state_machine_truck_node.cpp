@@ -8,8 +8,6 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<std::string>("save_file_path", save_file_path, "/home/ros/fantasyplus/xtcar/src/mpc/traj/mpc_traj.txt");
     _private_nh.param<double>("waypoints_velocity", waypoints_velocity, 2.0);
     _private_nh.param<double>("start_waypoints_velocity", start_waypoints_velocity, 0.5);
-    _private_nh.param<double>("max_velo_ratio", max_velo_ratio, 2.0);
-    _private_nh.param<double>("start_velo_ratio", start_velo_ratio, 1.6);
     _private_nh.param<int>("mode", mode, 2);
     _private_nh.param<double>("loop_rate", loop_rate, 100);
 
@@ -27,13 +25,28 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     _private_nh.param<double>("lookahead_distance", lookahead_distance, 5.0);
 
     /*---------------------后场参数---------------------*/
-    _private_nh.param<double>("stop_distance", stop_distance, 5.0);
+    _private_nh.param<double>("stop_distance", stop_distance, 500.0);
     _private_nh.param<double>("stop_theta", stop_theta, 5.0);
     _private_nh.param<bool>("is_show_debug", is_show_debug, true);
     _private_nh.param<int>("stop_time", stop_time, 5.0);
     _private_nh.param<int>("back_waypoints_num", back_waypoints_num, 10);
     _private_nh.param<int>("front_waypoints_num", front_waypoints_num, 50);
     _private_nh.param<int>("start_waypoints_num", start_waypoints_num, 10);
+    _private_nh.param<double>("enter_weight_pound_velo_ratio", enter_weight_pound_velo_ratio, 2.0);
+    _private_nh.param<double>("enter_weight_pound_init_velo_ratio", enter_weight_pound_init_velo_ratio, 1.6);
+    _private_nh.param<double>("climb_end_velo_ratio", climb_end_velo_ratio, 2.1);
+    _private_nh.param<double>("climb_end_init_velo_ratio", climb_end_init_velo_ratio, 1.7);
+    _private_nh.param<double>("before_loading_velo_ratio", before_loading_velo_ratio, 2.2);
+    _private_nh.param<double>("before_loading_init_velo_ratio", before_loading_init_velo_ratio, 1.9);
+    _private_nh.param<double>("loading_end_velo_ratio", loading_end_velo_ratio, 2.3);
+    _private_nh.param<double>("loading_end_init_velo_ratio", loading_end_init_velo_ratio, 1.9);
+    _private_nh.param<double>("after_loading_velo_ratio", after_loading_velo_ratio, 2.4);
+    _private_nh.param<double>("after_loading_init_velo_ratio", after_loading_init_velo_ratio, 2.0);
+    _private_nh.param<double>("down_slope_velo_ratio", down_slope_velo_ratio, 2.5);
+    _private_nh.param<double>("down_slope_init_velo_ratio", down_slope_init_velo_ratio, 2.1);
+    _private_nh.param<double>("out_weight_pound_velo_ratio", out_weight_pound_velo_ratio, 2.6);
+    _private_nh.param<double>("out_weight_pound_init_velo_ratio", out_weight_pound_init_velo_ratio, 2.2);
+    _private_nh.param<int>("start_index", start_index, 0);
 
     _private_nh.param<std::string>("fixed_traj_path", fixed_traj_path, "/home/ros/fantasyplus/xtcar/src/mpc/traj/hc_mpc_traj.txt");
 
@@ -216,7 +229,7 @@ void BehaviourStateMachine::getClosestIndex(const mpc_msgs::Lane &temp_lane, int
     }
 }
 
-void BehaviourStateMachine::getCollisionPoseVec(int closest_index,
+void BehaviourStateMachine::getCollisionPoseVec(const int closest_index,
                                                 const mpc_msgs::Lane &temp_lane,
                                                 std::vector<std::pair<geometry_msgs::Pose, double>> &base_pose_vec)
 {
@@ -305,43 +318,78 @@ void BehaviourStateMachine::computeCollisionIndexVec(const geometry_msgs::Pose &
     }
 }
 
-void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &cur_lane, int start, int end, bool is_stop, int closest_idx)
+void BehaviourStateMachine::processMpcLane(mpc_msgs::Lane &cur_lane, int closest_idx, bool is_collision)
 {
-    //到这里的cur_lane应该都是单段轨迹，即只前进或只后退
-
-    if (!is_stop) //无障碍物
+    auto stop_car = [this](mpc_msgs::Lane &cur_lane, int closest_idx)
     {
-        //最近点之前的全部赋0
-        for (int i = 0; i < closest_idx; i++)
-        {
-            cur_lane.waypoints[i].twist.twist.linear.x = 0.0;
-        }
-
-        //最近点往后start_waypoints_num个路径点速度为start_waypoints_velocity
-        int start_end = std::min(start_waypoints_num + closest_idx, end);
-        for (int i = closest_idx; i < start_end; i++)
-        {
-            cur_lane.waypoints[i].twist.twist.linear.x = start_waypoints_velocity;
-        }
-
-        //到start之前的点速度为waypoints_velocity
-        for (int i = start_end; i < start; i++)
-        {
-            cur_lane.waypoints[i].twist.twist.linear.x = waypoints_velocity;
-        }
-
-        //再把start到end的点赋为0
-        for (int i = start; i < end; i++)
-        {
-            cur_lane.waypoints[i].twist.twist.linear.x = 0.0;
-        }
-    }
-    else if (is_stop) //有障碍物
-    {
-        //整条路径全部赋0
+        //停车
         for (auto &wp : cur_lane.waypoints)
         {
             wp.twist.twist.linear.x = 0.0;
+        }
+
+        last_stop_collision_car_index = closest_idx;
+    };
+
+    if (is_collision)
+    {
+        stop_car(cur_lane, closest_idx);
+    }
+    else
+    {
+        switch (special_pose_status)
+        {
+        case SpecialPoseStatus::Drive:
+        {
+            int end_start = cur_lane.waypoints.size() - 3;
+            int end = cur_lane.waypoints.size();
+
+            //最近点之前的全部赋0
+            for (int i = 0; i < last_stop_collision_car_index; i++)
+            {
+                cur_lane.waypoints[i].twist.twist.linear.x = 0.0;
+            }
+
+            //最近点往后start_waypoints_num个路径点速度为start_waypoints_velocity
+            int start_end = std::min(start_waypoints_num + last_stop_collision_car_index, end);
+            for (int i = last_stop_collision_car_index; i < start_end; i++)
+            {
+                cur_lane.waypoints[i].twist.twist.linear.x = start_waypoints_velocity;
+            }
+
+            //到end_start之前的点速度为waypoints_velocity
+            for (int i = start_end; i < end_start; i++)
+            {
+                cur_lane.waypoints[i].twist.twist.linear.x = waypoints_velocity;
+            }
+
+            //再把end_start到end的点赋为0
+            for (int i = end_start; i < end; i++)
+            {
+                cur_lane.waypoints[i].twist.twist.linear.x = 0.0;
+            }
+            break;
+        }
+        case SpecialPoseStatus::EnterWeightPound:
+        {
+            stop_car(cur_lane, closest_idx);
+            break;
+        }
+        case SpecialPoseStatus::Loading:
+        {
+            stop_car(cur_lane, closest_idx);
+            break;
+        }
+        case SpecialPoseStatus::OutWeightPound:
+        {
+            stop_car(cur_lane, closest_idx);
+            break;
+        }
+        default:
+        {
+            ROS_INFO("invalid SpecialPoseStatus!");
+            break;
+        }
         }
     }
 }
@@ -380,10 +428,10 @@ void BehaviourStateMachine::checkCollision(bool &is_collision, double &collision
             bool is_out_of_range = isOutOfRange(coll_x_index, coll_y_index);
             if (is_out_of_range)
             {
-                //如果越界了，放弃判断碰撞
-                // ROS_INFO("out of occupancygrid range!");
+                //如果越界了，判断碰撞
+                ROS_INFO("out of occupancygrid range!");
 
-                is_collision = false;
+                is_collision = true;
                 break;
             }
 
@@ -409,6 +457,7 @@ void BehaviourStateMachine::checkCollision(bool &is_collision, double &collision
         }
         if (is_collision)
         {
+            // ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
             break;
         }
     }
@@ -482,23 +531,8 @@ void BehaviourStateMachine::threadPublishMpcLane()
         checkCollision(is_collision, collision_length_to_cur_pose, base_pose_vec);
 
         /*-----对mpclane进行处理,并发送真实路径-----*/
+        processMpcLane(cur_lane, closest_index, is_collision);
 
-        if (is_collision || stop_flag) //有碰撞或者要停车
-        {
-            // ROS_INFO("collision at length_to_cur_pose:%f[m]", collision_length_to_cur_pose);
-            //整条路径速度全部赋0
-            processMpcLane(cur_lane, 0, cur_lane.waypoints.size(), true, 0);
-
-            //更新这一次碰撞或者停车时的最近点信息
-            last_stop_collision_car_index = closest_index;
-        }
-        else //无碰撞或不停车
-        {
-            //起步路径处理
-            //若从头到尾都没有碰撞或停车，则从last_stop_collision_car_index在后场处理线程中初始的最近点开始
-            //若发生了碰撞或停车，则从last_stop_collision_car_index更新的地方开始
-            processMpcLane(cur_lane, cur_lane.waypoints.size() - 3, cur_lane.waypoints.size(), false, last_stop_collision_car_index);
-        }
         //保存当前路径作为文件
         if (dynamic_id != 4) //三段轨迹规划完之后就不用保存了
             saveTrajFile(cur_lane);
@@ -509,7 +543,8 @@ void BehaviourStateMachine::threadPublishMpcLane()
 
         if (is_show_debug)
         {
-            for (auto wp : send_lane.waypoints)
+            std::cout << "cur_lane:";
+            for (auto wp : cur_lane.waypoints)
             {
                 std::cout << wp.twist.twist.linear.x << " ";
             }
@@ -528,7 +563,7 @@ void BehaviourStateMachine::threadPublishMpcLane()
         visualMpcLane(send_lane);
 
         //控制帧率
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
@@ -1266,28 +1301,29 @@ void BehaviourStateMachine::threadSendLastTraj()
     }
 }
 
-void BehaviourStateMachine::praseTrajFile(const mpc_msgs::Lane &in_lane, std::vector<geometry_msgs::Pose> &stop_points)
+void BehaviourStateMachine::praseTrajFile(const mpc_msgs::Lane &in_lane, std::vector<geometry_msgs::Pose> &special_points)
 {
-    //解析后场路径中停止的点，提取出对应的坐标
+    //解析后场路径中特殊点，提取出对应的坐标
+    // 10 为特殊点
     for (auto wp : in_lane.waypoints)
     {
-        if (wp.direction == 10.0)
+        if (wp.direction >= 10 && wp.direction <= 12)
         {
             geometry_msgs::Pose point = wp.pose.pose;
 
-            stop_points.push_back(point);
+            special_points.push_back(point);
 
-            ROS_INFO("get zero pose:%f,%f", point.position.x, point.position.y);
+            ROS_INFO("get special pose:%f,%f", point.position.x, point.position.y);
         }
     }
 }
 
-bool BehaviourStateMachine::isStopPointNearby(const geometry_msgs::Pose &stop_pose)
+bool BehaviourStateMachine::isSpecialPointNearby(const geometry_msgs::Pose &target_pose)
 {
 
     //获取距离差值
-    double traj_x = stop_pose.position.x;
-    double traj_y = stop_pose.position.y;
+    double traj_x = target_pose.position.x;
+    double traj_y = target_pose.position.y;
     double cur_x = _current_pose_stamped.pose.position.x;
     double cur_y = _current_pose_stamped.pose.position.y;
 
@@ -1300,7 +1336,7 @@ bool BehaviourStateMachine::isStopPointNearby(const geometry_msgs::Pose &stop_po
 
     //获取角度差值
     double cur_theta = tf2::getYaw(_current_pose_stamped.pose.orientation) * 180.0 / M_PI;
-    double traj_theta = tf2::getYaw(stop_pose.orientation) * 180.0 / M_PI;
+    double traj_theta = tf2::getYaw(target_pose.orientation) * 180.0 / M_PI;
     double theta_error = std::fabs(cur_theta - traj_theta);
 
     if (is_show_debug)
@@ -1317,6 +1353,90 @@ bool BehaviourStateMachine::isStopPointNearby(const geometry_msgs::Pose &stop_po
     return false;
 }
 
+void BehaviourStateMachine::handleSpecialPose(int index)
+{
+    auto changeVeloAndStatusAndIndex = [this](const double &velo_ratio, const double &init_velo_ratio)
+    {
+        //修改速度
+        this->waypoints_velocity = prev_waypoints_velocity * velo_ratio;
+        this->start_waypoints_velocity = prev_start_waypoints_velocity * init_velo_ratio;
+
+        //回到起步路径处理状态
+        this->special_pose_status = SpecialPoseStatus::Drive;
+    };
+
+    switch (index)
+    {
+    case 0: //进大门过磅停车点
+    {
+        special_pose_status = SpecialPoseStatus::EnterWeightPound;
+
+        //休眠一定时间，等待重卡上称结束
+        ROS_INFO("------enter weight pound ,sleep %d second------", stop_time);
+        std::this_thread::sleep_for(std::chrono::seconds(stop_time));
+
+        changeVeloAndStatusAndIndex(enter_weight_pound_velo_ratio, enter_weight_pound_init_velo_ratio);
+        break;
+    }
+    case 1: //上坡结束减速点
+    {
+        ROS_INFO("------climb end------");
+
+        changeVeloAndStatusAndIndex(climb_end_velo_ratio, climb_end_init_velo_ratio);
+        break;
+    }
+    case 2: //装料前
+    {
+        ROS_INFO("------before loading speed change------");
+
+        changeVeloAndStatusAndIndex(before_loading_velo_ratio, before_loading_init_velo_ratio);
+        break;
+    }
+    case 3: //装料停车点
+    {
+        special_pose_status = SpecialPoseStatus::Loading;
+
+        //休眠一定时间，等待装料
+        ROS_INFO("------loading ,sleep %d second------", stop_time);
+        std::this_thread::sleep_for(std::chrono::seconds(stop_time));
+
+        changeVeloAndStatusAndIndex(loading_end_velo_ratio, loading_end_init_velo_ratio);
+        break;
+    }
+    case 4: //装料后
+    {
+        ROS_INFO("------after loading speed change------");
+
+        changeVeloAndStatusAndIndex(after_loading_velo_ratio, after_loading_init_velo_ratio);
+        break;
+    }
+    case 5: //开始下坡减速点
+    {
+        ROS_INFO("------downslope start------");
+
+        changeVeloAndStatusAndIndex(down_slope_velo_ratio, down_slope_init_velo_ratio);
+        break;
+    }
+    case 6: //出大门过磅停车点
+    {
+        special_pose_status = SpecialPoseStatus::OutWeightPound;
+
+        //休眠一定时间，等待重卡上称结束
+        ROS_INFO("------out weight pound ,sleep %d second------", stop_time);
+        std::this_thread::sleep_for(std::chrono::seconds(stop_time));
+
+        changeVeloAndStatusAndIndex(out_weight_pound_velo_ratio, out_weight_pound_init_velo_ratio);
+
+        break;
+    }
+    default:
+    {
+        ROS_INFO("invalid special pose index!");
+        break;
+    }
+    }
+}
+
 void BehaviourStateMachine::threadPathTracingAndStop()
 {
     while (true)
@@ -1325,37 +1445,49 @@ void BehaviourStateMachine::threadPathTracingAndStop()
         {
             continue;
         }
+        //接受到定位信息才继续
+        if (!_current_pose_flag)
+        {
+            ROS_INFO("wait for getting current pose");
+            continue;
+        }
 
         //从文件中获取固定轨迹
         mpc_msgs::Lane fixed_lane;
         std::string fixed_lane_file_path = fixed_traj_path;
         readTrajFile(fixed_lane, fixed_lane_file_path);
 
-        //解析固定轨迹，得到停止点数组
-        std::vector<geometry_msgs::Pose> stop_points;
-        praseTrajFile(fixed_lane, stop_points);
-        ROS_INFO("get %d stop point", (int)stop_points.size());
+        //解析固定轨迹，得到特殊点数组
+        std::vector<geometry_msgs::Pose> special_points;
+        praseTrajFile(fixed_lane, special_points);
+        ROS_INFO("get %d special point", (int)special_points.size());
 
-        //不停车
-        stop_flag = false;
+        //等待车辆彻底停止
+        while (_vehicle_status.speed != 0.0 || _vehicle_status.gear != 0)
+        {
+            ROS_INFO("wait car init successfull......");
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        //更新当前位置距离路径的最近点
+        int closest_index = -1;
+        getClosestIndex(fixed_lane, closest_index);
+        last_stop_collision_car_index = closest_index;
+
+        //正常前进
+        special_pose_status = SpecialPoseStatus::Drive;
         //发送_mpc_lane
         _mpc_lane = fixed_lane;
 
-        //从当前位置距离路径的最近点开始处理
-        int closest_index = -1;
-        getClosestIndex(fixed_lane, closest_index);
-
-        last_stop_collision_car_index = closest_index;
-
-        std::size_t index = 0;
+        std::size_t index = start_index;
         while (true)
         {
             //控制帧率
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-            if (index == stop_points.size())
+            if (index == special_points.size())
             {
-                ROS_INFO("enter last stop position,exit1");
+                ROS_INFO("enter last special position,exit1");
                 break;
             }
 
@@ -1365,36 +1497,19 @@ void BehaviourStateMachine::threadPathTracingAndStop()
                 ROS_INFO("wait for getting current pose");
                 continue;
             }
-            //判断当前车体坐标是否到达停止点附近
-            bool is_nearby = isStopPointNearby(stop_points[index]);
+            //判断当前车体坐标是否到达特殊点附近
+            // ROS_INFO("car driving......");
+            // std::this_thread::sleep_for(std::chrono::seconds(stop_time));
+
+            bool is_nearby = isSpecialPointNearby(special_points[index]);
 
             if (is_nearby)
             {
-                ROS_INFO("-----------------enter No.%d stop pose-----------------", (int)(index + 1));
+                ROS_INFO("-----------------enter No.%d special pose-----------------", (int)(index + 1));
 
-                //停车
-                stop_flag = true;
+                handleSpecialPose(index);
 
-                //休眠一定时间，等待重卡上称结束
-                ROS_INFO("sleep %d second", stop_time);
-                std::this_thread::sleep_for(std::chrono::seconds(stop_time));
-
-                if (index == 0)
-                {
-                    //如果是第一个停止点，之后速度加快
-                    waypoints_velocity = prev_waypoints_velocity * max_velo_ratio;
-                    start_waypoints_velocity = prev_start_waypoints_velocity * start_velo_ratio;
-                }
-                //不停车
-                stop_flag = false;
-
-                //防止车在只有一个停止点的时候陷入循环（因为index会变成0重来）
-                int wait_time = 5;
-                ROS_INFO("wait for car driver out of stop position in %d second", wait_time);
-                std::this_thread::sleep_for(std::chrono::seconds(5));
-                ROS_INFO("wait end");
-
-                //指向下一个停止点
+                //指向下一个点
                 index++;
             }
             else
@@ -1402,10 +1517,10 @@ void BehaviourStateMachine::threadPathTracingAndStop()
                 continue;
             }
         }
-        if (index == stop_points.size())
+        if (index == special_points.size())
         {
 
-            ROS_INFO("enter last stop position,exit2");
+            ROS_INFO("enter last special position,exit2");
             break;
         }
     }

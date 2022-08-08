@@ -136,7 +136,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/ros/fantasyplus/xtcar/build/gtest/cmake_install.cmake")
-  include("/home/ros/fantasyplus/xtcar/build/behaviour_state_machine_truck/cmake_install.cmake")
+  include("/home/ros/fantasyplus/xtcar/build/behaviour_state_machine/cmake_install.cmake")
 
 endif()
 
