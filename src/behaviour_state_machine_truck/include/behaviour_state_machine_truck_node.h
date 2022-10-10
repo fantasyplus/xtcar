@@ -139,8 +139,8 @@ private:
     int dynamic_id = 4; //用于动态地图中实时生成下一段轨迹的判断，每次接受到新的大目标点时赋值为0
     int dynamic_complex_id = 1;
 
-    double prev_waypoints_velocity; //保存最初的速度值
-    double prev_start_waypoints_velocity;
+    // double prev_waypoints_velocity; //保存最初的速度值
+    // double prev_start_waypoints_velocity;
     double waypoints_velocity;       // ros参数
     double start_waypoints_velocity; // ros参数
 
@@ -200,8 +200,9 @@ private:
     /*---------------------模式切换相关---------------------*/
 
     /*---------------------通用---------------------*/
-    bool use_gear; // ros参数（是否加入档位判断）
-    int mode;      // ros参数（模式选择）
+    bool use_gear;    // ros参数（是否加入档位判断）
+    bool use_costmap; // ros参数
+    int mode;         // ros参数（模式选择）
 
     void waitingCarChangeToParkingGear(bool is_use_gear);
 
@@ -216,29 +217,30 @@ private:
     void threadMultiTrajPlanning();
 
     /*---------------------后场相关---------------------*/
-    double stop_distance;                      // ros参数
-    double stop_theta;                         // ros参数
-    int stop_time;                             // ros参数
-    std::string fixed_traj_path;               // ros参数
-    bool is_show_debug;                        // ros参数
-    int back_waypoints_num;                    // ros参数
-    int front_waypoints_num;                   // ros参数
-    int start_waypoints_num;                   // ros参数
-    double enter_weight_pound_velo_ratio;      // ros参数
-    double enter_weight_pound_init_velo_ratio; // ros参数
-    double climb_end_velo_ratio;               // ros参数
-    double climb_end_init_velo_ratio;          // ros参数
-    double before_loading_velo_ratio;          // ros参数
-    double before_loading_init_velo_ratio;     // ros参数
-    double loading_end_velo_ratio;             // ros参数
-    double loading_end_init_velo_ratio;        // ros参数
-    double after_loading_velo_ratio;           // ros参数
-    double after_loading_init_velo_ratio;      // ros参数
-    double down_slope_velo_ratio;              // ros参数
-    double down_slope_init_velo_ratio;         // ros参数
-    double out_weight_pound_velo_ratio;        // ros参数
-    double out_weight_pound_init_velo_ratio;   // ros参数
-    int start_index;                           // ros参数
+    string pose_topic;                   // ros参数
+    double stop_distance;                // ros参数
+    double stop_theta;                   // ros参数
+    int stop_time;                       // ros参数
+    std::string fixed_traj_path;         // ros参数
+    bool is_show_debug;                  // ros参数
+    int back_waypoints_num;              // ros参数
+    int front_waypoints_num;             // ros参数
+    int start_waypoints_num;             // ros参数
+    double enter_weight_pound_velo;      // ros参数
+    double enter_weight_pound_init_velo; // ros参数
+    double climb_end_velo;               // ros参数
+    double climb_end_init_velo;          // ros参数
+    double before_loading_velo;          // ros参数
+    double before_loading_init_velo;     // ros参数
+    double loading_end_velo;             // ros参数
+    double loading_end_init_velo;        // ros参数
+    double after_loading_velo;           // ros参数
+    double after_loading_init_velo;      // ros参数
+    double down_slope_velo;              // ros参数
+    double down_slope_init_velo;         // ros参数
+    double out_weight_pound_velo;        // ros参数
+    double out_weight_pound_init_velo;   // ros参数
+    int start_index;                     // ros参数
 
     SpecialPoseStatus special_pose_status = SpecialPoseStatus::Drive;
     int last_stop_collision_car_index = 0;

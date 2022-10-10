@@ -1,2 +1,2 @@
 behaviour_state_machine:behaviour_state_machine_truck:car_simulator:car_tf_broadcaster:grid_map:high_performence_hybrid_astar:hybrid_astar_node:mpc/mpc_follower:mpc/mpc_msgs
--DCATKIN_WHITELIST_PACKAGES=behaviour_state_machine -DCATKIN_DEVEL_PREFIX=/home/ros/fantasyplus/xtcar/devel -DCMAKE_INSTALL_PREFIX=/home/ros/fantasyplus/xtcar/install -G Unix Makefiles
+-DCATKIN_WHITELIST_PACKAGES=behaviour_state_machine_truck -DCATKIN_DEVEL_PREFIX=/home/ros/fantasyplus/xtcar/devel -DCMAKE_INSTALL_PREFIX=/home/ros/fantasyplus/xtcar/install -G Unix Makefiles

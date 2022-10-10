@@ -114,9 +114,10 @@
 
     <!-- 上层控制节点 -->
     <!-- 通用 -->    
-    <arg name="waypoints_velocity_behav" default="1.5" doc="车辆最大速度(m/s)"/>
-    <arg name="start_waypoints_velocity" default="0.5" doc="车辆起步速度(m/s)"/>
+    <arg name="waypoints_velocity_behav" default="4" doc="车辆最大速度(km/h)"/>
+    <arg name="start_waypoints_velocity" default="2" doc="车辆起步速度(km/h)"/>
     <arg name="use_gear" default="false" doc="是否加入到达目标点时的档位判断"/>
+    <arg name="use_costmap" default="true" doc="是否使用栅格地图避障"/>
     <arg name="mode" default="2" doc="1为前场,2为后场"/>
     <arg name="loop_rate" default="100.0" doc="话题接受频率"/>
 
@@ -136,35 +137,36 @@
     <arg name="lookahead_distance" default="20.0" doc="碰撞前探距离"/>
 
     <!-- 后场参数 -->
+    <arg name="pose_topic_behav" default="gnss_pose" doc="接受的定位topic"/>
     <arg name="stop_distance" default="500" doc="和停止点的距离偏差"/>
-    <arg name="stop_theta" default="20.0" doc="和停止点的角度偏差"/>
-    <arg name="is_show_debug" default="true"/>
+    <arg name="stop_theta" default="200.0" doc="和停止点的角度偏差"/>
+    <arg name="is_show_debug" default="false"/>
     <arg name="stop_time" default="5" doc="停车时间"/>
     <arg name="fixed_traj_path" default="/home/ros/fantasyplus/xtcar/src/mpc/traj/hc_mpc_traj.txt" doc="后场跟随路径文件"/>
     <arg name="back_waypoints_num" default="10" doc="最近点之前裁剪的路径点个数"/>
     <arg name="front_waypoints_num" default="50" doc="最近点之后裁剪的路径点个数"/>
     <arg name="start_waypoints_num" default="10" doc="速度为起步速度的路径点个数"/>
-    <!-- 速度比例 -->
-    <arg name="enter_weight_pound_velo_ratio" default="2.0"/>
-    <arg name="enter_weight_pound_init_velo_ratio" default="1.6"/>
+    <!-- 特殊点速度分配(km/h) -->
+    <arg name="enter_weight_pound_velo" default="5.0"/>
+    <arg name="enter_weight_pound_init_velo" default="3.0"/>
 
-    <arg name="climb_end_velo_ratio" default="2.1"/>
-    <arg name="climb_end_init_velo_ratio" default="1.7"/>
+    <arg name="climb_end_velo" default="2.0"/>
+    <arg name="climb_end_init_velo" default="2.0"/>
 
-    <arg name="before_loading_velo_ratio" default="2.2"/>
-    <arg name="before_loading_init_velo_ratio" default="1.8"/>
+    <arg name="before_loading_velo" default="2.0"/>
+    <arg name="before_loading_init_velo" default="2.0"/>
 
-    <arg name="loading_end_velo_ratio" default="2.3"/>
-    <arg name="loading_end_init_velo_ratio" default="1.9"/>
+    <arg name="loading_end_velo" default="2.0"/>
+    <arg name="loading_end_init_velo" default="2.0"/>
 
-    <arg name="after_loading_velo_ratio" default="2.4"/>
-    <arg name="after_loading_init_velo_ratio" default="2.0"/>
+    <arg name="after_loading_velo" default="2.0"/>
+    <arg name="after_loading_init_velo" default="2.0"/>
 
-    <arg name="down_slope_velo_ratio" default="2.5"/>
-    <arg name="down_slope_init_velo_ratio" default="2.1"/>
+    <arg name="down_slope_velo" default="3.0"/>
+    <arg name="down_slope_init_velo" default="3.0"/>
 
-    <arg name="out_weight_pound_velo_ratio" default="2.6"/>
-    <arg name="out_weight_pound_init_velo_ratio" default="2.2"/>
+    <arg name="out_weight_pound_velo" default="2.0"/>
+    <arg name="out_weight_pound_init_velo" default="4.0"/>
 
     <arg name="start_index" default="0"/>
 
@@ -185,6 +187,7 @@
         <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
         <param name="follow_file_path" type="string" value="$(arg follow_file_path)"/>
         <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
+        <param name="pose_topic" type="string" value="$(arg pose_topic_behav)"/>
         <param name="stop_distance" type="double" value="$(arg stop_distance)"/>
         <param name="stop_theta" type="double" value="$(arg stop_theta)"/>
         <param name="is_show_debug" type="bool" value="$(arg is_show_debug)"/>
@@ -192,20 +195,20 @@
         <param name="back_waypoints_num" type="int" value="$(arg back_waypoints_num)"/>
         <param name="front_waypoints_num" type="int" value="$(arg front_waypoints_num)"/>
         <param name="start_waypoints_num" type="int" value="$(arg start_waypoints_num)"/>
-        <param name="enter_weight_pound_velo_ratio" type="double" value="$(arg enter_weight_pound_velo_ratio)"/>
-        <param name="enter_weight_pound_init_velo_ratio" type="double" value="$(arg enter_weight_pound_init_velo_ratio)"/>
-        <param name="climb_end_velo_ratio" type="double" value="$(arg climb_end_velo_ratio)"/>
-        <param name="climb_end_init_velo_ratio" type="double" value="$(arg climb_end_init_velo_ratio)"/>
-        <param name="before_loading_velo_ratio" type="double" value="$(arg before_loading_velo_ratio)"/>
-        <param name="before_loading_init_velo_ratio" type="double" value="$(arg before_loading_init_velo_ratio)"/>
-        <param name="loading_end_velo_ratio" type="double" value="$(arg loading_end_velo_ratio)"/>
-        <param name="loading_end_init_velo_ratio" type="double" value="$(arg loading_end_init_velo_ratio)"/>
-        <param name="after_loading_velo_ratio" type="double" value="$(arg after_loading_velo_ratio)"/>
-        <param name="after_loading_init_velo_ratio" type="double" value="$(arg after_loading_init_velo_ratio)"/>
-        <param name="down_slope_velo_ratio" type="double" value="$(arg down_slope_velo_ratio)"/>
-        <param name="down_slope_init_velo_ratio" type="double" value="$(arg down_slope_init_velo_ratio)"/>
-        <param name="out_weight_pound_velo_ratio" type="double" value="$(arg out_weight_pound_velo_ratio)"/>
-        <param name="out_weight_pound_init_velo_ratio" type="double" value="$(arg out_weight_pound_init_velo_ratio)"/>
+        <param name="enter_weight_pound_velo" type="double" value="$(arg enter_weight_pound_velo)"/>
+        <param name="enter_weight_pound_init_velo" type="double" value="$(arg enter_weight_pound_init_velo)"/>
+        <param name="climb_end_velo" type="double" value="$(arg climb_end_velo)"/>
+        <param name="climb_end_init_velo" type="double" value="$(arg climb_end_init_velo)"/>
+        <param name="before_loading_velo" type="double" value="$(arg before_loading_velo)"/>
+        <param name="before_loading_init_velo" type="double" value="$(arg before_loading_init_velo)"/>
+        <param name="loading_end_velo" type="double" value="$(arg loading_end_velo)"/>
+        <param name="loading_end_init_velo" type="double" value="$(arg loading_end_init_velo)"/>
+        <param name="after_loading_velo" type="double" value="$(arg after_loading_velo)"/>
+        <param name="after_loading_init_velo" type="double" value="$(arg after_loading_init_velo)"/>
+        <param name="down_slope_velo" type="double" value="$(arg down_slope_velo)"/>
+        <param name="down_slope_init_velo" type="double" value="$(arg down_slope_init_velo)"/>
+        <param name="out_weight_pound_velo" type="double" value="$(arg out_weight_pound_velo)"/>
+        <param name="out_weight_pound_init_velo" type="double" value="$(arg out_weight_pound_init_velo)"/>
         <param name="fixed_traj_path" type="string" value="$(arg fixed_traj_path)"/>
         <param name="start_index" type="int" value="$(arg start_index)"/>
 

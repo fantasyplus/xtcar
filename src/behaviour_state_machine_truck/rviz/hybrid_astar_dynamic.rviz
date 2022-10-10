@@ -9,7 +9,7 @@ Panels:
         - //global_cost_map1/Position1
         - //global_cost_map1/Orientation1
       Splitter Ratio: 0.6764705777168274
-    Tree Height: 462
+    Tree Height: 363
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -331,7 +331,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 121.92522430419922
+      Distance: 93.05925750732422
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -367,5 +367,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1389
-  X: 531
-  Y: 136
+  X: 201
+  Y: 190

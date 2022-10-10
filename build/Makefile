@@ -304,95 +304,95 @@ gtest/fast:
 .PHONY : gtest/fast
 
 #=============================================================================
-# Target rules for targets named scenario_selector
+# Target rules for targets named scenario_selector_truck
 
 # Build rule for target.
-scenario_selector: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 scenario_selector
-.PHONY : scenario_selector
+scenario_selector_truck: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 scenario_selector_truck
+.PHONY : scenario_selector_truck
 
 # fast build rule for target.
-scenario_selector/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/scenario_selector.dir/build.make behaviour_state_machine/CMakeFiles/scenario_selector.dir/build
-.PHONY : scenario_selector/fast
+scenario_selector_truck/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/scenario_selector_truck.dir/build.make behaviour_state_machine_truck/CMakeFiles/scenario_selector_truck.dir/build
+.PHONY : scenario_selector_truck/fast
 
 #=============================================================================
-# Target rules for targets named behaviour_state_machine
+# Target rules for targets named behaviour_state_machine_truck
 
 # Build rule for target.
-behaviour_state_machine: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine
-.PHONY : behaviour_state_machine
+behaviour_state_machine_truck: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck
+.PHONY : behaviour_state_machine_truck
 
 # fast build rule for target.
-behaviour_state_machine/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine.dir/build
-.PHONY : behaviour_state_machine/fast
+behaviour_state_machine_truck/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck.dir/build
+.PHONY : behaviour_state_machine_truck/fast
 
 #=============================================================================
-# Target rules for targets named behaviour_state_machine_gennodejs
+# Target rules for targets named behaviour_state_machine_truck_genlisp
 
 # Build rule for target.
-behaviour_state_machine_gennodejs: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_gennodejs
-.PHONY : behaviour_state_machine_gennodejs
+behaviour_state_machine_truck_genlisp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_genlisp
+.PHONY : behaviour_state_machine_truck_genlisp
 
 # fast build rule for target.
-behaviour_state_machine_gennodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_gennodejs.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_gennodejs.dir/build
-.PHONY : behaviour_state_machine_gennodejs/fast
+behaviour_state_machine_truck_genlisp/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_genlisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_genlisp.dir/build
+.PHONY : behaviour_state_machine_truck_genlisp/fast
 
 #=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages_nodejs
+# Target rules for targets named behaviour_state_machine_truck_geneus
 
 # Build rule for target.
-behaviour_state_machine_generate_messages_nodejs: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages_nodejs
-.PHONY : behaviour_state_machine_generate_messages_nodejs
+behaviour_state_machine_truck_geneus: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_geneus
+.PHONY : behaviour_state_machine_truck_geneus
 
 # fast build rule for target.
-behaviour_state_machine_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_nodejs.dir/build
-.PHONY : behaviour_state_machine_generate_messages_nodejs/fast
+behaviour_state_machine_truck_geneus/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_geneus.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_geneus.dir/build
+.PHONY : behaviour_state_machine_truck_geneus/fast
 
 #=============================================================================
-# Target rules for targets named behaviour_state_machine_genlisp
+# Target rules for targets named behaviour_state_machine_truck_gencpp
 
 # Build rule for target.
-behaviour_state_machine_genlisp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_genlisp
-.PHONY : behaviour_state_machine_genlisp
+behaviour_state_machine_truck_gencpp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_gencpp
+.PHONY : behaviour_state_machine_truck_gencpp
 
 # fast build rule for target.
-behaviour_state_machine_genlisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_genlisp.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_genlisp.dir/build
-.PHONY : behaviour_state_machine_genlisp/fast
+behaviour_state_machine_truck_gencpp/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_gencpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_gencpp.dir/build
+.PHONY : behaviour_state_machine_truck_gencpp/fast
 
 #=============================================================================
-# Target rules for targets named behaviour_state_machine_geneus
+# Target rules for targets named behaviour_state_machine_truck_generate_messages_cpp
 
 # Build rule for target.
-behaviour_state_machine_geneus: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_geneus
-.PHONY : behaviour_state_machine_geneus
+behaviour_state_machine_truck_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages_cpp
+.PHONY : behaviour_state_machine_truck_generate_messages_cpp
 
 # fast build rule for target.
-behaviour_state_machine_geneus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_geneus.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_geneus.dir/build
-.PHONY : behaviour_state_machine_geneus/fast
+behaviour_state_machine_truck_generate_messages_cpp/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_cpp.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages_cpp/fast
 
 #=============================================================================
-# Target rules for targets named _behaviour_state_machine_generate_messages_check_deps_GoalPose
+# Target rules for targets named behaviour_state_machine_truck_generate_messages
 
 # Build rule for target.
-_behaviour_state_machine_generate_messages_check_deps_GoalPose: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _behaviour_state_machine_generate_messages_check_deps_GoalPose
-.PHONY : _behaviour_state_machine_generate_messages_check_deps_GoalPose
+behaviour_state_machine_truck_generate_messages: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages
+.PHONY : behaviour_state_machine_truck_generate_messages
 
 # fast build rule for target.
-_behaviour_state_machine_generate_messages_check_deps_GoalPose/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose.dir/build.make behaviour_state_machine/CMakeFiles/_behaviour_state_machine_generate_messages_check_deps_GoalPose.dir/build
-.PHONY : _behaviour_state_machine_generate_messages_check_deps_GoalPose/fast
+behaviour_state_machine_truck_generate_messages/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages/fast
 
 #=============================================================================
 # Target rules for targets named tf2_msgs_generate_messages_nodejs
@@ -404,7 +404,7 @@ tf2_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 tf2_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build
 .PHONY : tf2_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -417,34 +417,8 @@ tf2_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 tf2_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build
 .PHONY : tf2_msgs_generate_messages_lisp/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages_py
-
-# Build rule for target.
-behaviour_state_machine_generate_messages_py: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages_py
-.PHONY : behaviour_state_machine_generate_messages_py
-
-# fast build rule for target.
-behaviour_state_machine_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_py.dir/build
-.PHONY : behaviour_state_machine_generate_messages_py/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages
-
-# Build rule for target.
-behaviour_state_machine_generate_messages: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages
-.PHONY : behaviour_state_machine_generate_messages
-
-# fast build rule for target.
-behaviour_state_machine_generate_messages/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages.dir/build
-.PHONY : behaviour_state_machine_generate_messages/fast
 
 #=============================================================================
 # Target rules for targets named tf2_msgs_generate_messages_eus
@@ -456,7 +430,7 @@ tf2_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 tf2_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_eus.dir/build
 .PHONY : tf2_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -469,7 +443,7 @@ actionlib_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_py.dir/build
 .PHONY : actionlib_msgs_generate_messages_py/fast
 
 #=============================================================================
@@ -482,8 +456,21 @@ roscpp_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 roscpp_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/roscpp_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/roscpp_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_cpp.dir/build
 .PHONY : roscpp_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_gennodejs
+
+# Build rule for target.
+behaviour_state_machine_truck_gennodejs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_gennodejs
+.PHONY : behaviour_state_machine_truck_gennodejs
+
+# fast build rule for target.
+behaviour_state_machine_truck_gennodejs/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_gennodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_gennodejs.dir/build
+.PHONY : behaviour_state_machine_truck_gennodejs/fast
 
 #=============================================================================
 # Target rules for targets named geometry_msgs_generate_messages_eus
@@ -495,7 +482,7 @@ geometry_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 geometry_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -508,7 +495,7 @@ nav_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 nav_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build
 .PHONY : nav_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -521,7 +508,7 @@ actionlib_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_py.dir/build
 .PHONY : actionlib_generate_messages_py/fast
 
 #=============================================================================
@@ -534,7 +521,7 @@ nav_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 nav_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_lisp.dir/build
 .PHONY : nav_msgs_generate_messages_lisp/fast
 
 #=============================================================================
@@ -547,7 +534,7 @@ roscpp_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 roscpp_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/roscpp_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/roscpp_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_eus.dir/build
 .PHONY : roscpp_generate_messages_eus/fast
 
 #=============================================================================
@@ -560,7 +547,7 @@ nav_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 nav_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build
 .PHONY : nav_msgs_generate_messages_cpp/fast
 
 #=============================================================================
@@ -573,7 +560,7 @@ rosgraph_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 rosgraph_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/build
 .PHONY : rosgraph_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -586,21 +573,8 @@ geometry_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 geometry_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build
 .PHONY : geometry_msgs_generate_messages_cpp/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_genpy
-
-# Build rule for target.
-behaviour_state_machine_genpy: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_genpy
-.PHONY : behaviour_state_machine_genpy
-
-# fast build rule for target.
-behaviour_state_machine_genpy/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_genpy.dir/build
-.PHONY : behaviour_state_machine_genpy/fast
 
 #=============================================================================
 # Target rules for targets named sensor_msgs_generate_messages_nodejs
@@ -612,7 +586,7 @@ sensor_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 sensor_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build
 .PHONY : sensor_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -625,7 +599,7 @@ rosgraph_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 rosgraph_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
 
 #=============================================================================
@@ -638,7 +612,7 @@ tf2_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 tf2_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/build
 .PHONY : tf2_msgs_generate_messages_cpp/fast
 
 #=============================================================================
@@ -651,8 +625,21 @@ geometry_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 geometry_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build
 .PHONY : geometry_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_genpy
+
+# Build rule for target.
+behaviour_state_machine_truck_genpy: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_genpy
+.PHONY : behaviour_state_machine_truck_genpy
+
+# fast build rule for target.
+behaviour_state_machine_truck_genpy/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_genpy.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_genpy.dir/build
+.PHONY : behaviour_state_machine_truck_genpy/fast
 
 #=============================================================================
 # Target rules for targets named std_msgs_generate_messages_lisp
@@ -664,7 +651,7 @@ std_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 std_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_lisp.dir/build
 .PHONY : std_msgs_generate_messages_lisp/fast
 
 #=============================================================================
@@ -677,7 +664,7 @@ geometry_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 geometry_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build
 .PHONY : geometry_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -690,7 +677,7 @@ nav_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 nav_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_py.dir/build
 .PHONY : nav_msgs_generate_messages_py/fast
 
 #=============================================================================
@@ -703,34 +690,8 @@ std_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 std_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_py.dir/build
 .PHONY : std_msgs_generate_messages_py/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages_eus
-
-# Build rule for target.
-behaviour_state_machine_generate_messages_eus: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages_eus
-.PHONY : behaviour_state_machine_generate_messages_eus
-
-# fast build rule for target.
-behaviour_state_machine_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_eus.dir/build
-.PHONY : behaviour_state_machine_generate_messages_eus/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages_cpp
-
-# Build rule for target.
-behaviour_state_machine_generate_messages_cpp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages_cpp
-.PHONY : behaviour_state_machine_generate_messages_cpp
-
-# fast build rule for target.
-behaviour_state_machine_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_cpp.dir/build
-.PHONY : behaviour_state_machine_generate_messages_cpp/fast
 
 #=============================================================================
 # Target rules for targets named nav_msgs_generate_messages_eus
@@ -742,7 +703,7 @@ nav_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 nav_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/nav_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/nav_msgs_generate_messages_eus.dir/build
 .PHONY : nav_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -755,7 +716,7 @@ tf2_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 tf2_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/tf2_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf2_msgs_generate_messages_py.dir/build
 .PHONY : tf2_msgs_generate_messages_py/fast
 
 #=============================================================================
@@ -768,7 +729,7 @@ actionlib_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/build
 .PHONY : actionlib_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -781,7 +742,7 @@ std_msgs_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 std_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build
 .PHONY : std_msgs_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -794,7 +755,7 @@ geometry_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 geometry_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
 .PHONY : geometry_msgs_generate_messages_py/fast
 
 #=============================================================================
@@ -807,7 +768,7 @@ std_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 std_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_eus.dir/build
 .PHONY : std_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -820,21 +781,8 @@ roscpp_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 roscpp_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/roscpp_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/roscpp_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_lisp.dir/build
 .PHONY : roscpp_generate_messages_lisp/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_generate_messages_lisp
-
-# Build rule for target.
-behaviour_state_machine_generate_messages_lisp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_generate_messages_lisp
-.PHONY : behaviour_state_machine_generate_messages_lisp
-
-# fast build rule for target.
-behaviour_state_machine_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_generate_messages_lisp.dir/build
-.PHONY : behaviour_state_machine_generate_messages_lisp/fast
 
 #=============================================================================
 # Target rules for targets named actionlib_msgs_generate_messages_lisp
@@ -846,7 +794,7 @@ actionlib_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/build
 .PHONY : actionlib_msgs_generate_messages_lisp/fast
 
 #=============================================================================
@@ -859,7 +807,7 @@ roscpp_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 roscpp_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/roscpp_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/roscpp_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_nodejs.dir/build
 .PHONY : roscpp_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -872,8 +820,21 @@ rosgraph_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 rosgraph_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/build
 .PHONY : rosgraph_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named _behaviour_state_machine_truck_generate_messages_check_deps_GoalPose
+
+# Build rule for target.
+_behaviour_state_machine_truck_generate_messages_check_deps_GoalPose: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _behaviour_state_machine_truck_generate_messages_check_deps_GoalPose
+.PHONY : _behaviour_state_machine_truck_generate_messages_check_deps_GoalPose
+
+# fast build rule for target.
+_behaviour_state_machine_truck_generate_messages_check_deps_GoalPose/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/_behaviour_state_machine_truck_generate_messages_check_deps_GoalPose.dir/build.make behaviour_state_machine_truck/CMakeFiles/_behaviour_state_machine_truck_generate_messages_check_deps_GoalPose.dir/build
+.PHONY : _behaviour_state_machine_truck_generate_messages_check_deps_GoalPose/fast
 
 #=============================================================================
 # Target rules for targets named tf_generate_messages_eus
@@ -885,7 +846,7 @@ tf_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 tf_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/tf_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_eus.dir/build
 .PHONY : tf_generate_messages_eus/fast
 
 #=============================================================================
@@ -898,8 +859,21 @@ tf_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 tf_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/tf_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_cpp.dir/build
 .PHONY : tf_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_generate_messages_py
+
+# Build rule for target.
+behaviour_state_machine_truck_generate_messages_py: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages_py
+.PHONY : behaviour_state_machine_truck_generate_messages_py
+
+# fast build rule for target.
+behaviour_state_machine_truck_generate_messages_py/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_py.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages_py/fast
 
 #=============================================================================
 # Target rules for targets named actionlib_generate_messages_eus
@@ -911,7 +885,7 @@ actionlib_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_eus.dir/build
 .PHONY : actionlib_generate_messages_eus/fast
 
 #=============================================================================
@@ -924,7 +898,7 @@ rosgraph_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 rosgraph_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/build
 .PHONY : rosgraph_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -937,7 +911,7 @@ rosgraph_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 rosgraph_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/build
 .PHONY : rosgraph_msgs_generate_messages_py/fast
 
 #=============================================================================
@@ -950,7 +924,7 @@ tf_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 tf_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/tf_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_lisp.dir/build
 .PHONY : tf_generate_messages_lisp/fast
 
 #=============================================================================
@@ -963,7 +937,7 @@ roscpp_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 roscpp_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/roscpp_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/roscpp_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/roscpp_generate_messages_py.dir/build
 .PHONY : roscpp_generate_messages_py/fast
 
 #=============================================================================
@@ -976,7 +950,7 @@ tf_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 tf_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/tf_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_nodejs.dir/build
 .PHONY : tf_generate_messages_nodejs/fast
 
 #=============================================================================
@@ -989,8 +963,21 @@ tf_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 tf_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/tf_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/tf_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/tf_generate_messages_py.dir/build
 .PHONY : tf_generate_messages_py/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_generate_messages_eus
+
+# Build rule for target.
+behaviour_state_machine_truck_generate_messages_eus: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages_eus
+.PHONY : behaviour_state_machine_truck_generate_messages_eus
+
+# fast build rule for target.
+behaviour_state_machine_truck_generate_messages_eus/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_eus.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages_eus/fast
 
 #=============================================================================
 # Target rules for targets named sensor_msgs_generate_messages_cpp
@@ -1002,8 +989,21 @@ sensor_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 sensor_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/build
 .PHONY : sensor_msgs_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_generate_messages_lisp
+
+# Build rule for target.
+behaviour_state_machine_truck_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages_lisp
+.PHONY : behaviour_state_machine_truck_generate_messages_lisp
+
+# fast build rule for target.
+behaviour_state_machine_truck_generate_messages_lisp/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_lisp.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages_lisp/fast
 
 #=============================================================================
 # Target rules for targets named sensor_msgs_generate_messages_lisp
@@ -1015,8 +1015,21 @@ sensor_msgs_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 sensor_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
 .PHONY : sensor_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named behaviour_state_machine_truck_generate_messages_nodejs
+
+# Build rule for target.
+behaviour_state_machine_truck_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_truck_generate_messages_nodejs
+.PHONY : behaviour_state_machine_truck_generate_messages_nodejs
+
+# fast build rule for target.
+behaviour_state_machine_truck_generate_messages_nodejs/fast:
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/behaviour_state_machine_truck_generate_messages_nodejs.dir/build
+.PHONY : behaviour_state_machine_truck_generate_messages_nodejs/fast
 
 #=============================================================================
 # Target rules for targets named actionlib_generate_messages_cpp
@@ -1028,7 +1041,7 @@ actionlib_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_cpp.dir/build
 .PHONY : actionlib_generate_messages_cpp/fast
 
 #=============================================================================
@@ -1041,21 +1054,8 @@ sensor_msgs_generate_messages_py: cmake_check_build_system
 
 # fast build rule for target.
 sensor_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_py.dir/build.make behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_py.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_py.dir/build.make behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_py.dir/build
 .PHONY : sensor_msgs_generate_messages_py/fast
-
-#=============================================================================
-# Target rules for targets named behaviour_state_machine_gencpp
-
-# Build rule for target.
-behaviour_state_machine_gencpp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 behaviour_state_machine_gencpp
-.PHONY : behaviour_state_machine_gencpp
-
-# fast build rule for target.
-behaviour_state_machine_gencpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/behaviour_state_machine_gencpp.dir/build.make behaviour_state_machine/CMakeFiles/behaviour_state_machine_gencpp.dir/build
-.PHONY : behaviour_state_machine_gencpp/fast
 
 #=============================================================================
 # Target rules for targets named actionlib_msgs_generate_messages_eus
@@ -1067,7 +1067,7 @@ actionlib_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/build
 .PHONY : actionlib_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -1080,7 +1080,7 @@ actionlib_generate_messages_lisp: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_generate_messages_lisp.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_generate_messages_lisp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_lisp.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_lisp.dir/build
 .PHONY : actionlib_generate_messages_lisp/fast
 
 #=============================================================================
@@ -1093,7 +1093,7 @@ actionlib_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/build
 .PHONY : actionlib_msgs_generate_messages_cpp/fast
 
 #=============================================================================
@@ -1106,7 +1106,7 @@ std_msgs_generate_messages_cpp: cmake_check_build_system
 
 # fast build rule for target.
 std_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_cpp.dir/build.make behaviour_state_machine_truck/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
 .PHONY : std_msgs_generate_messages_cpp/fast
 
 #=============================================================================
@@ -1119,7 +1119,7 @@ sensor_msgs_generate_messages_eus: cmake_check_build_system
 
 # fast build rule for target.
 sensor_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_eus.dir/build.make behaviour_state_machine/CMakeFiles/sensor_msgs_generate_messages_eus.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_eus.dir/build.make behaviour_state_machine_truck/CMakeFiles/sensor_msgs_generate_messages_eus.dir/build
 .PHONY : sensor_msgs_generate_messages_eus/fast
 
 #=============================================================================
@@ -1132,7 +1132,7 @@ actionlib_generate_messages_nodejs: cmake_check_build_system
 
 # fast build rule for target.
 actionlib_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f behaviour_state_machine/CMakeFiles/actionlib_generate_messages_nodejs.dir/build.make behaviour_state_machine/CMakeFiles/actionlib_generate_messages_nodejs.dir/build
+	$(MAKE) $(MAKESILENT) -f behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_nodejs.dir/build.make behaviour_state_machine_truck/CMakeFiles/actionlib_generate_messages_nodejs.dir/build
 .PHONY : actionlib_generate_messages_nodejs/fast
 
 # Help Target
@@ -1148,7 +1148,7 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
-	@echo "... _behaviour_state_machine_generate_messages_check_deps_GoalPose"
+	@echo "... _behaviour_state_machine_truck_generate_messages_check_deps_GoalPose"
 	@echo "... actionlib_generate_messages_cpp"
 	@echo "... actionlib_generate_messages_eus"
 	@echo "... actionlib_generate_messages_lisp"
@@ -1159,17 +1159,17 @@ help:
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... actionlib_msgs_generate_messages_py"
-	@echo "... behaviour_state_machine_gencpp"
-	@echo "... behaviour_state_machine_generate_messages"
-	@echo "... behaviour_state_machine_generate_messages_cpp"
-	@echo "... behaviour_state_machine_generate_messages_eus"
-	@echo "... behaviour_state_machine_generate_messages_lisp"
-	@echo "... behaviour_state_machine_generate_messages_nodejs"
-	@echo "... behaviour_state_machine_generate_messages_py"
-	@echo "... behaviour_state_machine_geneus"
-	@echo "... behaviour_state_machine_genlisp"
-	@echo "... behaviour_state_machine_gennodejs"
-	@echo "... behaviour_state_machine_genpy"
+	@echo "... behaviour_state_machine_truck_gencpp"
+	@echo "... behaviour_state_machine_truck_generate_messages"
+	@echo "... behaviour_state_machine_truck_generate_messages_cpp"
+	@echo "... behaviour_state_machine_truck_generate_messages_eus"
+	@echo "... behaviour_state_machine_truck_generate_messages_lisp"
+	@echo "... behaviour_state_machine_truck_generate_messages_nodejs"
+	@echo "... behaviour_state_machine_truck_generate_messages_py"
+	@echo "... behaviour_state_machine_truck_geneus"
+	@echo "... behaviour_state_machine_truck_genlisp"
+	@echo "... behaviour_state_machine_truck_gennodejs"
+	@echo "... behaviour_state_machine_truck_genpy"
 	@echo "... clean_test_results"
 	@echo "... download_extra_data"
 	@echo "... doxygen"
@@ -1215,12 +1215,12 @@ help:
 	@echo "... tf_generate_messages_lisp"
 	@echo "... tf_generate_messages_nodejs"
 	@echo "... tf_generate_messages_py"
-	@echo "... behaviour_state_machine"
+	@echo "... behaviour_state_machine_truck"
 	@echo "... gmock"
 	@echo "... gmock_main"
 	@echo "... gtest"
 	@echo "... gtest_main"
-	@echo "... scenario_selector"
+	@echo "... scenario_selector_truck"
 .PHONY : help
 
 
