@@ -7,7 +7,7 @@
 
     <!-- 回放雷达数据包 -->
     <node name="lidar_data_replay" pkg="rosbag" type="play" 
-          args="/home/ros/fantasyplus/rosbag/suv/costmap_xt_4_26.bag --loop --clock --topics /points_no_ground /gnss_pose -s 10" 
+          args="/home/nvidia/static.bag --loop --clock --topics /points_no_ground /gnss_pose -s 10" 
           output="log"/>
 
     <!-- costmap生成 --> 
@@ -65,13 +65,13 @@
     <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 20" respawn="true" output="log" />
 
     <!-- car_tf node -->
-    <arg name="lidar_trans_x" default="4.34" doc="4.34"/>
-    <arg name="lidar_trans_y" default="-0.58" doc="-0.58"/>
-    <arg name="lidar_trans_z" default="0.0" />
+    <arg name="lidar_trans_x" default="8.685"/>
+    <arg name="lidar_trans_y" default="-1.15"/>
+    <arg name="lidar_trans_z" default="-0.05" />
 
     <arg name="lidar_rotation_roll" default="0.0" />
     <arg name="lidar_rotation_pitch" default="0.0" />
-    <arg name="lidar_rotation_yaw" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="-0.7854" />
 
     <arg name="base_link_trans_x" default="0.0"/>
     <arg name="base_link_trans_y" default="0.0"/>
@@ -113,30 +113,34 @@
     </node>
 
     <!-- 上层控制节点 -->
-    <!-- 通用 -->
+    <!-- 通用 -->    
+    <arg name="waypoints_velocity_behav" default="1.5" doc="车辆速度"/>
     <arg name="use_gear" default="false" doc="是否加入到达目标点时的档位判断"/>
-    <arg name="follow_file_path" default="/home/ros/fantasyplus/xtcar/src/mpc/traj/mpc_traj.txt"/>
-    <arg name="save_file_path" default="/home/ros/fantasyplus/xtcar/src/mpc/traj/mpc_traj.txt"/>
-    <arg name="waypoints_velocity_behav" default="1.0"/>
-    <arg name="mode" default="2"/>
-    <arg name="loop_rate" default="100.0"/>
+    <arg name="mode" default="2" doc="1为前场,2为后场"/>
+    <arg name="loop_rate" default="100.0" doc="话题接受频率"/>
 
     <!-- 前场参数 -->
-    <arg name="sub_goal_tolerance_distance" default="30" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="sub_goal_tolerance_distance" default="30" doc="距离终点的最小容忍值"/>
     <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
     <arg name="first_horizontal_distance" default="2.0" doc="第一个子目标点（横向距离）"/>
     <arg name="second_vertical_distance" default="5.0" doc="第二个子目标点（纵向距离）"/>
     <arg name="third_nearby_distance" default="5.0" doc="第三个子目标点（纵向距离）"/>
+    <arg name="follow_file_path" default="/home/nvidia/tra/sim_mpc_traj.txt" doc="前场两车跟随路径文件"/>
+    <arg name="save_file_path" default="/home/nvidia/tra/mpc_traj.txt" doc="前场三段轨迹保存地址"/>
 
     <!-- 避障参数 -->
-    <arg name="vehicle_length_coll" default="4.788"/>
-    <arg name="vehicle_width_coll" default="2.198"/>
-    <arg name="vehicle_cg2back_coll" default="1.367"/>
-    <arg name="lookahead_distance" default="20.0"/>
+    <arg name="vehicle_length_coll" default="9.835" doc="车辆长度"/>
+    <arg name="vehicle_width_coll" default="2.550" doc="车辆宽度"/>
+    <arg name="vehicle_cg2back_coll" default="1.367" doc="车辆后轴到车尾距离"/>
+    <arg name="lookahead_distance" default="20.0" doc="碰撞前探距离"/>
 
     <!-- 后场参数 -->
-    <arg name="stop_distance" default="50.0"/>
-    <arg name="stop_theta" default="180.0"/>
+    <arg name="stop_distance" default="500" doc="和停止点的距离偏差"/>
+    <arg name="stop_theta" default="120.0" doc="和停止点的角度偏差"/>
+    <arg name="stop_time" default="5" doc="停车时间"/>
+    <arg name="fixed_traj_path" default="/home/nvidia/tra/hc_mpc_traj.txt" doc="后场跟随路径文件"/>
+    <arg name="back_waypoints_num" default="10" doc="最近点之前的路径点个数"/>
+    <arg name="front_waypoints_num" default="50" doc="最近点之后的路径点个数"/>
 
     <node name="behaviour_state_machine_truck" pkg="behaviour_state_machine_truck" type="behaviour_state_machine_truck" output="screen" respawn="true">
         <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
@@ -156,6 +160,10 @@
         <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
         <param name="stop_distance" type="double" value="$(arg stop_distance)"/>
         <param name="stop_theta" type="double" value="$(arg stop_theta)"/>
+        <param name="stop_time" type="int" value="$(arg stop_time)"/>
+        <param name="back_waypoints_num" type="int" value="$(arg back_waypoints_num)"/>
+        <param name="front_waypoints_num" type="int" value="$(arg front_waypoints_num)"/>
+        <param name="fixed_traj_path" type="string" value="$(arg fixed_traj_path)"/>
 
     </node>
 

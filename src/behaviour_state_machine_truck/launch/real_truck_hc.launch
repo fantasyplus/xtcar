@@ -1,0 +1,482 @@
+<launch>
+    <!-- 打印时显示节点 -->
+    <env name="ROSCONSOLE_FORMAT" value="[${node}]: ${message}"/>
+
+    <!-- costmap生成 -->
+    <arg name="input_point_topic" default="points_no_ground" />  
+    <arg name="base_frame" default="rslidar" />  
+    <arg name="grid_topic" default="global_cost_map" />
+
+    <arg name="min_x" default="-2000.0" />
+    <arg name="max_x" default="6000.0" />
+    <arg name="min_y" default="-2000.0" />
+    <arg name="max_y" default="2000.0" />
+    <arg name="min_z" default="-200.0" />
+    <arg name="max_z" default="100.0" />
+
+    <arg name="grid_size_x" default="320" />
+    <arg name="grid_size_y" default="160" />
+    <arg name="resolution_x" default="25" />
+    <arg name="resolution_y" default="25" />
+    <arg name="offset_x" default="80" />
+    <arg name="offset_y" default="80" />
+
+    <arg name="hang_z_gap" default="80.0" />
+    <arg name="hd_threshold" default="15.0" />
+    <arg name="rough_threshold" default="20.0" />
+    
+
+    <node pkg="grid_map" type="grid_map_node" name="grid_map_node_main" output="log">
+        <param name="input_point_topic" value="$(arg input_point_topic)" />
+        <param name="base_frame" value="$(arg base_frame)" />
+        <param name="grid_topic" value="$(arg grid_topic)" />
+
+        <param name="min_x" value="$(arg min_x)" />
+        <param name="max_x" value="$(arg max_x)" />
+        <param name="min_y" value="$(arg min_y)" />
+        <param name="max_y" value="$(arg max_y)" />
+        <param name="max_z" value="$(arg max_z)" />
+
+        <param name="grid_size_x" value="$(arg grid_size_x)" />
+        <param name="grid_size_y" value="$(arg grid_size_y)" />
+        <param name="resolution_x" value="$(arg resolution_x)" />
+        <param name="resolution_y" value="$(arg resolution_y)" />
+        <param name="offset_x" value="$(arg offset_x)" />
+        <param name="offset_y" value="$(arg offset_y)" />
+
+        <param name="hang_z_gap" value="$(arg hang_z_gap)" />
+        <param name="hd_threshold" value="$(arg hd_threshold)" />
+        <param name="rough_threshold" value="$(arg rough_threshold)" />
+
+    </node>
+
+    <!-- run rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find behaviour_state_machine_truck)/rviz/hybrid_astar_dynamic.rviz" required="true"/>
+
+    <!-- run tf-->
+    <!-- <node name="world_to_map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /world /map 50" respawn="true" output="log" /> -->
+
+    <!-- gps node -->
+    <!-- <arg name="gnss_port_name" default="/dev/ttyTHS0" />
+    <arg name="gnss_baud_rate" default="230400" />
+    <arg name="gnss_nmea_head" default="GPCHC" />
+    <arg name="gnss_org_lat" default="32.0242100" />
+    <arg name="gnss_org_lon" default="118.89928833" />
+    <arg name="gnss_is_pub_sentence" default="true" />
+    <arg name="gnss_is_pub_pose" default="true" />
+    <arg name="gnss_is_broadcast_tf" default="false" />
+    <arg name="gnss_sentence_topic" default="nmea_sentence" />
+    <arg name="gnss_pose_topic" default="gnss_pose" />
+    <node name="hc_nmea_driver" pkg="nmea_driver" type="nmea_driver" respawn="true" output="screen">
+        <param name="port_name" type="string" value="$(arg gnss_port_name)" />
+        <param name="baud_rate" type="int" value="$(arg gnss_baud_rate)" />
+        <param name="nmea_head" type="string" value="$(arg gnss_nmea_head)" />
+        <param name="org_lat" type="double" value="$(arg gnss_org_lat)" />
+        <param name="org_lon" type="double" value="$(arg gnss_org_lon)" />
+        <param name="is_pub_sentence" type="bool" value="$(arg gnss_is_pub_sentence)" />
+        <param name="is_pub_pose" type="bool" value="$(arg gnss_is_pub_pose)" />
+        <param name="is_broadcast_tf" type="bool" value="$(arg gnss_is_broadcast_tf)" />
+        <param name="sentence_topic" type="string" value="$(arg gnss_sentence_topic)" />
+        <param name="pose_topic" type="string" value="$(arg gnss_pose_topic)" />
+    </node> -->
+
+    <!-- car_tf node -->
+    <!-- left to mid 115 -->
+    <!-- lidar high 50 -->
+    <!-- base link 55 -->
+    <!-- cg2back 110 -->
+    <arg name="lidar_trans_x" default="8.685"/>
+    <arg name="lidar_trans_y" default="-1.15"/>
+    <arg name="lidar_trans_z" default="-0.05" />
+
+    <arg name="lidar_rotation_roll" default="0.0" />
+    <arg name="lidar_rotation_pitch" default="0.0" />
+    <arg name="lidar_rotation_yaw" default="-0.7854" />
+
+    <arg name="base_link_trans_x" default="0.0"/>
+    <arg name="base_link_trans_y" default="0.0"/>
+    <arg name="base_link_trans_z" default="0.0" />
+
+    <arg name="base_link_rotation_roll" default="0.0" />
+    <arg name="base_link_rotation_pitch" default="0.0" />
+    <arg name="base_link_rotation_yaw" default="0.0" />
+
+    <arg name="map_frame" default="map" />
+    <arg name="base_link_frame" default="base_link" />
+    <arg name="lidar_frame_id" default="rslidar" />
+
+    <arg name="use_rviz_start_cartf" default="false" />
+
+    <node name="car_tf" pkg="car_tf_broadcaster" type="car_tf_broadcaster" output="screen">
+        <param name="lidar_trans_x" type="double" value="$(arg lidar_trans_x)" />
+        <param name="lidar_trans_y" type="double" value="$(arg lidar_trans_y)" />
+        <param name="lidar_trans_z" type="double" value="$(arg lidar_trans_z)" />
+
+        <param name="lidar_rotation_roll" type="double" value="$(arg lidar_rotation_roll)" />
+        <param name="lidar_rotation_pitch" type="double" value="$(arg lidar_rotation_pitch)" />
+        <param name="lidar_rotation_yaw" type="double" value="$(arg lidar_rotation_yaw)" />
+        
+        <param name="base_link_trans_x" type="double" value="$(arg base_link_trans_x)" />
+        <param name="base_link_trans_y" type="double" value="$(arg base_link_trans_y)" />
+        <param name="base_link_trans_z" type="double" value="$(arg base_link_trans_z)" />
+
+        <param name="base_link_rotation_roll" type="double" value="$(arg base_link_rotation_roll)" />
+        <param name="base_link_rotation_pitch" type="double" value="$(arg base_link_rotation_pitch)" />
+        <param name="base_link_rotation_yaw" type="double" value="$(arg base_link_rotation_yaw)" />
+
+        <param name="map_frame" type="string" value="$(arg map_frame)" />
+        <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
+        <param name="lidar_frame_id" type="string" value="$(arg lidar_frame_id)" />
+
+        <param name="use_rviz_start" type="bool" value="$(arg use_rviz_start_cartf)" />
+
+    </node>
+
+    <!-- 上层控制节点 -->
+    <!-- 通用 -->
+    <arg name="waypoints_velocity_behav" default="4" doc="车辆最大速度(km/h)"/>
+    <arg name="start_waypoints_velocity" default="2" doc="车辆起步速度(km/h)"/>
+    <arg name="use_gear" default="false" doc="是否加入到达目标点时的档位判断"/>
+    <arg name="use_costmap" default="true" doc="是否使用栅格地图避障"/>
+    <arg name="mode" default="2" doc="1为前场,2为后场"/>
+    <arg name="loop_rate" default="100.0" doc="话题接受频率"/>
+
+    <!-- 前场参数 -->
+    <arg name="sub_goal_tolerance_distance" default="1.0" doc="距离终点的最小容忍值，对静态地图没有用"/>
+    <arg name="use_complex_lane" default="true" doc="是否对既有前进又有后退的路径处理"/>
+    <arg name="first_horizontal_distance" default="2.5" doc="第一个子目标点（横向距离）"/>
+    <arg name="second_vertical_distance" default="30.0" doc="第二个子目标点（纵向距离）"/>
+    <arg name="third_nearby_distance" default="20.0" doc="第三个子目标点（纵向距离）"/>
+    <arg name="follow_file_path" default="/home/nvidia/tra/sim_mpc_traj.txt" doc="前场两车跟随路径文件"/>
+    <arg name="save_file_path" default="/home/nvidia/tra/sim_mpc_traj.txt" doc="前场三段轨迹保存地址"/>
+
+    <!-- 避障参数 -->
+    <arg name="vehicle_length_coll" default="9.835" doc="车辆长度"/>
+    <arg name="vehicle_width_coll" default="2.550" doc="车辆宽度"/>
+    <arg name="vehicle_cg2back_coll" default="1.367" doc="车辆后轴到车尾距离"/>
+    <arg name="lookahead_distance" default="1.0" doc="碰撞前探距离"/>
+
+    <!-- 后场参数 -->
+    <arg name="pose_topic_behav" default="uwb_pose" doc="接受的定位topic"/>
+    <arg name="stop_distance" default="1.0" doc="和停止点的距离偏差"/>
+    <arg name="stop_theta" default="20.0" doc="和停止点的角度偏差"/>
+    <arg name="is_show_debug" default="true"/>
+    <arg name="stop_time" default="15" doc="停车时间"/>
+    <arg name="fixed_traj_path" default="/home/nvidia/tra_mpc/mpc_traj.txt" doc="后场跟随路径文件"/>
+    <arg name="back_waypoints_num" default="10" doc="最近点之前裁剪的路径点个数"/>
+    <arg name="front_waypoints_num" default="50" doc="最近点之后裁剪的路径点个数"/>
+    <arg name="start_waypoints_num" default="15" doc="速度为起步速度的路径点个数"/>
+    <!-- 特殊点速度分配(km/h) -->
+    <arg name="enter_weight_pound_velo" default="5.0"/>
+    <arg name="enter_weight_pound_init_velo" default="3.0"/>
+
+    <arg name="climb_end_velo" default="2.0"/>
+    <arg name="climb_end_init_velo" default="2.0"/>
+
+    <arg name="before_loading_velo" default="2.0"/>
+    <arg name="before_loading_init_velo" default="2.0"/>
+
+    <arg name="loading_end_velo" default="2.0"/>
+    <arg name="loading_end_init_velo" default="2.0"/>
+
+    <arg name="after_loading_velo" default="2.0"/>
+    <arg name="after_loading_init_velo" default="2.0"/>
+
+    <arg name="down_slope_velo" default="3.0"/>
+    <arg name="down_slope_init_velo" default="3.0"/>
+
+    <arg name="out_weight_pound_velo" default="2.0"/>
+    <arg name="out_weight_pound_init_velo" default="4.0"/>
+
+    <arg name="start_index" default="0"/>
+
+    <node name="behaviour_state_machine_truck" pkg="behaviour_state_machine_truck" type="behaviour_state_machine_truck" output="screen" respawn="true">
+        <param name="sub_goal_tolerance_distance" type="double" value="$(arg sub_goal_tolerance_distance)"/>
+        <param name="use_complex_lane" type="bool" value="$(arg use_complex_lane)"/>
+        <param name="use_gear" type="bool" value="$(arg use_gear)"/>
+        <param name="first_horizontal_distance" type="double" value="$(arg first_horizontal_distance)"/>
+        <param name="second_vertical_distance" type="double" value="$(arg second_vertical_distance)"/>
+        <param name="third_nearby_distance" type="double" value="$(arg third_nearby_distance)"/>
+        <param name="vehicle_length" type="double" value="$(arg vehicle_length_coll)"/>
+        <param name="vehicle_width" type="double" value="$(arg vehicle_width_coll)"/>
+        <param name="vehicle_cg2back" type="double" value="$(arg vehicle_cg2back_coll)"/>
+        <param name="lookahead_distance" type="double" value="$(arg lookahead_distance)"/>
+        <param name="waypoints_velocity" type="double" value="$(arg waypoints_velocity_behav)"/>
+        <param name="start_waypoints_velocity" type="double" value="$(arg start_waypoints_velocity)"/>
+        <param name="mode" type="int" value="$(arg mode)"/>
+        <param name="loop_rate" type="double" value="$(arg loop_rate)"/>
+        <param name="follow_file_path" type="string" value="$(arg follow_file_path)"/>
+        <param name="save_file_path" type="string" value="$(arg save_file_path)"/>
+        <param name="pose_topic" type="string" value="$(arg pose_topic_behav)"/>
+        <param name="stop_distance" type="double" value="$(arg stop_distance)"/>
+        <param name="stop_theta" type="double" value="$(arg stop_theta)"/>
+        <param name="is_show_debug" type="bool" value="$(arg is_show_debug)"/>
+        <param name="stop_time" type="int" value="$(arg stop_time)"/>
+        <param name="back_waypoints_num" type="int" value="$(arg back_waypoints_num)"/>
+        <param name="front_waypoints_num" type="int" value="$(arg front_waypoints_num)"/>
+        <param name="start_waypoints_num" type="int" value="$(arg start_waypoints_num)"/>
+        <param name="enter_weight_pound_velo" type="double" value="$(arg enter_weight_pound_velo)"/>
+        <param name="enter_weight_pound_init_velo" type="double" value="$(arg enter_weight_pound_init_velo)"/>
+        <param name="climb_end_velo" type="double" value="$(arg climb_end_velo)"/>
+        <param name="climb_end_init_velo" type="double" value="$(arg climb_end_init_velo)"/>
+        <param name="before_loading_velo" type="double" value="$(arg before_loading_velo)"/>
+        <param name="before_loading_init_velo" type="double" value="$(arg before_loading_init_velo)"/>
+        <param name="loading_end_velo" type="double" value="$(arg loading_end_velo)"/>
+        <param name="loading_end_init_velo" type="double" value="$(arg loading_end_init_velo)"/>
+        <param name="after_loading_velo" type="double" value="$(arg after_loading_velo)"/>
+        <param name="after_loading_init_velo" type="double" value="$(arg after_loading_init_velo)"/>
+        <param name="down_slope_velo" type="double" value="$(arg down_slope_velo)"/>
+        <param name="down_slope_init_velo" type="double" value="$(arg down_slope_init_velo)"/>
+        <param name="out_weight_pound_velo" type="double" value="$(arg out_weight_pound_velo)"/>
+        <param name="out_weight_pound_init_velo" type="double" value="$(arg out_weight_pound_init_velo)"/>
+        <param name="fixed_traj_path" type="string" value="$(arg fixed_traj_path)"/>
+        <param name="start_index" type="int" value="$(arg start_index)"/>
+
+    </node>
+
+    
+    <!-- Hybrid A* node -->
+    <!-- common configurations -->
+    <arg name="costmap_topic" default="global_cost_map" />
+    <arg name="pose_topic" default="gnss_pose" />
+    
+    <arg name="waypoints_velocity" default="1.0" />
+    <arg name="update_rate" default="10" />
+    
+    <arg name="is_visual" default="true" />
+    <arg name="use_rviz_start" default="false" />
+
+    <!-- Hybrid A* search configurations -->
+    <arg name="time_limit" default="10000.0" />
+
+    <arg name="vehicle_length" default="9.835" />
+    <arg name="vehicle_width" default="2.550" />
+    <arg name="vehicle_cg2back" default="1.367" />
+
+    <arg name="max_turning_radius" default="30.0" />
+    <arg name="min_turning_radius" default="10.0" />
+    <arg name="turning_radius_size" default="1" />
+    <arg name="theta_size" default="48" />
+
+    <arg name="reverse_weight" default="10.0" />
+    <arg name="turning_weight" default="2.0" />
+
+    <arg name="goal_lateral_tolerance" default="1.0" />
+    <arg name="goal_longitudinal_tolerance" default="1.0" />
+    <arg name="goal_angular_tolerance" default="0.015708" />
+    <arg name="obstacle_threshold" default="100" />
+
+    <arg name="use_back" default="true" />
+    <arg name="use_reeds_shepp" default="true" />
+    <arg name="use_obstacle_heuristic" default="false" />
+    <arg name="use_smoother" default="false" />
+    <arg name="use_analytic_expansion" default="true" />
+
+    <arg name="alpha" default="0.1" />
+    <arg name="obstacle_weight" default="0.5" />
+    <arg name="curvature_weight" default="0.0" />
+    <arg name="smoothness_weight" default="0.0" />
+    <arg name="obstacle_distance_max" default="1.0" />
+
+    <arg name="analytic_expansion_ratio" default="3.5" />
+    <arg name="analytic_expansion_max_length" default="30" />
+
+
+    <node pkg="hybrid_astar_node" type="hybrid_astar_node" name="hybrid_astar_node" output="screen" required="true">
+
+      <param name="costmap_topic" value="$(arg costmap_topic)"/>
+      <param name="pose_topic" value="$(arg pose_topic)"/>
+      <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
+      <param name="update_rate" value="$(arg update_rate)" />
+      <param name="is_visual" value="$(arg is_visual)" />
+      <param name="use_rviz_start" value="$(arg use_rviz_start)" />
+      
+
+      <param name="time_limit" value="$(arg time_limit)" />
+
+      <param name="vehicle_length" value="$(arg vehicle_length)" />
+      <param name="vehicle_width" value="$(arg vehicle_width)" />
+      <param name="vehicle_cg2back" value="$(arg vehicle_cg2back)" />
+
+      <param name="max_turning_radius" value="$(arg max_turning_radius)" />
+      <param name="min_turning_radius" value="$(arg min_turning_radius)" />
+      <param name="turning_radius_size" value="$(arg turning_radius_size)" />
+      <param name="theta_size" value="$(arg theta_size)" />
+
+      <param name="reverse_weight" value="$(arg reverse_weight)" />
+      <param name="turning_weight" value="$(arg turning_weight)" />
+      <param name="goal_lateral_tolerance" value="$(arg goal_lateral_tolerance)" />
+      <param name="goal_longitudinal_tolerance" value="$(arg goal_longitudinal_tolerance)" />
+      <param name="goal_angular_tolerance" value="$(arg goal_angular_tolerance)" />
+      <param name="obstacle_threshold" value="$(arg obstacle_threshold)" />
+
+      <param name="use_back" value="$(arg use_back)" />
+      <param name="use_reeds_shepp" value="$(arg use_reeds_shepp)" />
+      <param name="use_obstacle_heuristic" value="$(arg use_obstacle_heuristic)" />
+      <param name="use_smoother" value="$(arg use_smoother)" />
+      <param name="use_analytic_expansion" value="$(arg use_analytic_expansion)" />
+
+
+      <param name="alpha" value="$(arg alpha)" />
+      <param name="obstacle_weight" value="$(arg obstacle_weight)" />
+      <param name="curvature_weight" value="$(arg curvature_weight)" />
+      <param name="smoothness_weight" value="$(arg smoothness_weight)" />
+      <param name="obstacle_distance_max" value="$(arg obstacle_distance_max)" />
+
+      <param name="analytic_expansion_ratio" value="$(arg analytic_expansion_ratio)" />
+      <param name="analytic_expansion_max_length" value="$(arg analytic_expansion_max_length)" />
+
+
+    </node>
+
+    <!-- 激光雷达驱动包 -->
+    <arg name="input_topic" default="/rslidar_points_recover" />
+    <arg name="no_ground_point_topic" default="/points_no_ground"/>
+    <arg name="ground_point_topic" default="/points_ground"/>
+    <arg name="all_points_topic" default="/all_points"/>
+
+    <!-- clip the points above sensor_height+clip_height -->
+    <arg name="clip_height" default="4.0"/>
+    <!-- the height of lidar position  -->
+    <arg name="sensor_height" default="1.77"/>
+    <!-- the min distance to be remove -->
+    <arg name="min_distance" default="4.0"/>
+    <!-- the max distance to be remove -->
+    <arg name="max_distance" default="75.0"/>
+    <!-- we use 32 lidar -->
+    <arg name="sensor_model" default="32"/>
+    <!-- Num of Iteration -->
+    <arg name="num_iter" default="3"/>
+    <!-- Num of LPR -->
+    <arg name="num_lpr" default="20"/>
+    <!-- Seeds Threshold -->
+    <arg name="th_seeds" default="1.2"/>
+    <!-- Distance Threshold -->
+    <arg name="th_dist" default="0.3"/>
+
+    <!-- rslidar 驱动 -->
+    <node pkg="rslidar_sdk" name="rslidar_sdk_node" type="rslidar_sdk_node" output="screen">
+         <param name="config_path" value=""/>
+    </node>
+
+    <node pkg="multi_sensor_calib" type="multi_sensor_calib_node" name="multi_sensor_calib_node" output="screen"/>
+
+    <!-- 1.启动 nodelet manager（管理器） -->
+    <node pkg="nodelet" type="nodelet" args="manager" name="rslidar_pre" output="log" respawn="true"/>
+    <!-- 2.添加节点voxel_filter -->
+    <node pkg="nodelet" type="nodelet" args="load voxel_filter/VoxelFilter rslidar_pre" name="voxel_filter" output="log" respawn="true">
+        <!-- <param name="value" value="100"/> -->
+    </node>
+    <!-- 3.添加节点ray_ground_filter xiaowang的输出是ergou的输入 -->
+    <node pkg="nodelet" type="nodelet" args="load plane_ground_filter/PlaneGround rslidar_pre" name="plane_ground_filter" output="log" respawn="true">
+        <!-- <param name="value" value="-50"/> -->
+        <param name="input_topic" value="$(arg input_topic)"/>
+        <param name="no_ground_point_topic" value="$(arg no_ground_point_topic)"/>
+        <param name="ground_point_topic" value="$(arg ground_point_topic)"/>
+        <param name="all_points_topic" value="$(arg all_points_topic)"/>
+
+        <param name="sensor_height" value="$(arg sensor_height)" />
+        <param name="clip_height" value="$(arg clip_height)" />
+        <param name="min_distance" value="$(arg min_distance)" />
+        <param name="max_distance" value="$(arg max_distance)" />
+        <param name="sensor_model" value="$(arg sensor_model)" />
+        <param name="num_iter" value="$(arg num_iter)" />
+        <param name="num_lpr" value="$(arg num_lpr)" />
+        <param name="th_seeds" value="$(arg th_seeds)" />
+        <param name="th_dist" value="$(arg th_dist)" />
+
+        <remap from="/plane_ground_filter/filtered_points" to="/voxel_filter/filtered_points" />
+    </node>
+
+    <!-- mpc控制器 -->
+    <!-- <arg name="ns" default="/"/>
+    <arg name="show_debug_info" default="false" doc="flag to display debug info" />
+    <arg name="ctrl_period" default="0.03" doc="control period [s]"/>
+    <arg name="traj_resample_dist" default="0.1" doc="ath resampling interval [m]"/>
+    <arg name="enable_yaw_recalculation" default="true" doc="flag for recalculation of yaw angle after resampling"/>
+    <arg name="admisible_position_error" default="5.0" doc="stop mpc calculation when error is larger than the following value"/>
+    <arg name="admisible_yaw_error_deg" default="90.0" doc="stop mpc calculation when error is larger than the following value"/>
+    <arg name="enable_path_smoothing" default="true" doc="flag for path smoothing"/>
+    <arg name="path_smoothing_times" default="1" doc="number of times of applying path smoothing filter"/>
+    <arg name="path_filter_moving_ave_num" default="35" doc="param of moving average filter for path smoothing "/>
+    <arg name="curvature_smoothing_num" default="35" doc="point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)"/>
+    <arg name="steering_lpf_cutoff_hz" default="3.0" doc="cutoff frequency of lowpass filter for steering command [Hz]"/>
+    <arg name="qp_solver_type" default="unconstraint_fast" doc="optimization solver type. option is unconstraint_fast, unconstraint, and qpoases_hotstart"/>
+    <arg name="qpoases_max_iter" default="500" doc="max iteration number for quadratic programming"/>
+    <arg name="vehicle_model_type" default="kinematics" doc="vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics"/>
+
+    <arg name="mpc_prediction_horizon" default="70" doc="prediction horizon step"/>
+    <arg name="mpc_prediction_sampling_time" default="0.1" doc="prediction horizon period [s]"/>
+    <arg name="mpc_weight_lat_error" default="180.0" doc="lateral error weight in matrix Q"/>
+    <arg name="mpc_weight_heading_error" default="9.0" doc="heading error weight in matrix Q"/>
+    <arg name="mpc_weight_heading_error_squared_vel_coeff" default="1.0" doc="heading error * velocity weight in matrix Q"/>
+    <arg name="mpc_weight_steering_input" default="2.5" doc="steering error weight in matrix R"/>
+    <arg name="mpc_weight_steering_input_squared_vel_coeff" default="0.01" doc="steering error * velocity weight in matrix R"/>
+    <arg name="mpc_weight_lat_jerk" default="0.1" doc="lateral jerk weight in matrix R"/>
+    <arg name="mpc_weight_terminal_lat_error" default="15.0" doc="terminal lateral error weight in matrix Q to improve mpc stability"/>
+    <arg name="mpc_weight_terminal_heading_error" default="1.0" doc="heading error weight in matrix Q to improve mpc stability"/>
+    <arg name="mpc_zero_ff_steer_deg" default="2.0" doc="threshold that feed-forward angle becomes zero"/>
+    <arg name="delay_compensation_time" default="0.0" doc="steering input delay time for delay compensation"/>
+
+    <arg name="vehicle_model_steer_tau" default="0.3" doc="steering dynamics time constant (1d approzimation) [s]"/>
+
+    <arg name="vehicle_model_wheelbase" default="5.5" doc="wheel base length [m]"/>
+
+    <arg name="steer_lim_deg" default="900" doc="steering angle limit [deg]"/>
+
+    <arg name="steering_gear_ratio" default="23.0" doc="steering gear ratio"/>
+
+    <group ns="$(arg ns)">
+
+      <node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="screen">
+
+        <param name="ctrl_cmd_interface" value="all"/>
+        <param name="in_waypoints_name" value="/mpc_waypoints"/>
+        <param name="in_vehicle_status_name" value="/vehicle_status"/>
+        <param name="in_selfpose_name" value="/gnss_pose"/>
+        <param name="out_twist_name" value="/twist_raw"/>
+        <param name="out_vehicle_cmd_name" value="/ctrl_raw"/>
+
+        <param name="ctrl_period" value="$(arg ctrl_period)"/>
+        <param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
+        <param name="admisible_position_error" value="$(arg admisible_position_error)"/>
+        <param name="admisible_yaw_error_deg" value="$(arg admisible_yaw_error_deg)"/>
+        <param name="path_smoothing_times" value="$(arg path_smoothing_times)"/>
+        <param name="show_debug_info" value="$(arg show_debug_info)"/>
+        <param name="enable_yaw_recalculation" value="$(arg enable_yaw_recalculation)"/>
+        <param name="enable_path_smoothing" value="$(arg enable_path_smoothing)"/>
+        <param name="path_filter_moving_ave_num" value="$(arg path_filter_moving_ave_num)"/>
+        <param name="curvature_smoothing_num" value="$(arg curvature_smoothing_num)"/>
+        <param name="steering_lpf_cutoff_hz" value="$(arg steering_lpf_cutoff_hz)"/>
+        <param name="qp_solver_type" value="$(arg qp_solver_type)"/>
+        <param name="qpoases_max_iter" value="$(arg qpoases_max_iter)"/>
+        <param name="vehicle_model_type" value="$(arg vehicle_model_type)"/>
+        <param name="mpc_prediction_horizon" value="$(arg mpc_prediction_horizon)"/>
+        <param name="mpc_prediction_sampling_time" value="$(arg mpc_prediction_sampling_time)"/>
+        <param name="mpc_weight_lat_error" value="$(arg mpc_weight_lat_error)"/>
+        <param name="mpc_weight_heading_error" value="$(arg mpc_weight_heading_error)"/>
+        <param name="mpc_weight_heading_error_squared_vel_coeff" value="$(arg mpc_weight_heading_error_squared_vel_coeff)"/>
+        <param name="mpc_weight_steering_input" value="$(arg mpc_weight_steering_input)"/>
+        <param name="mpc_weight_steering_input_squared_vel_coeff" value="$(arg mpc_weight_steering_input_squared_vel_coeff)"/>
+        <param name="mpc_weight_lat_jerk" value="$(arg mpc_weight_lat_jerk)"/>
+        <param name="mpc_weight_terminal_lat_error" value="$(arg mpc_weight_terminal_lat_error)"/>
+        <param name="mpc_weight_terminal_heading_error" value="$(arg mpc_weight_terminal_heading_error)"/>
+        <param name="mpc_zero_ff_steer_deg" value="$(arg mpc_zero_ff_steer_deg)"/>
+        <param name="delay_compensation_time" value="$(arg delay_compensation_time)"/>
+        <param name="vehicle_model_steer_tau" value="$(arg vehicle_model_steer_tau)"/>
+        <param name="vehicle_model_wheelbase" value="$(arg vehicle_model_wheelbase)"/>
+        <param name="steer_lim_deg" value="$(arg steer_lim_deg)"/>
+        <param name="steering_gear_ratio" value="$(arg steering_gear_ratio)"/>
+      </node>
+
+    </group> -->
+
+    <!-- run chasis send & recv control message via can0(STM32 can2) -->
+    <!-- <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="socketcan_to_topic_node" output="log"/>
+    <node pkg="chasis_driver" type="chasis_status_node" name="chasis_status_node" output="log" /> 
+    <node pkg="chasis_driver" type="chasis_control_node" name="chasis_control_node" output="log" /> 
+    <node pkg="socketcan_bridge" type="topic_to_socketcan_node" name="topic_to_socketcan_node" output="log"/>
+     -->
+
+
+</launch>

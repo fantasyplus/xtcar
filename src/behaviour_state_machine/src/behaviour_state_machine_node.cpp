@@ -1,6 +1,5 @@
 #include "behaviour_state_machine_node.h"
 
-
 BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
 {
     _private_nh.param<double>("sub_goal_tolerance_distance", _sub_goal_tolerance_distance, 30.0);
@@ -59,10 +58,6 @@ BehaviourStateMachine::BehaviourStateMachine() : _nh(""), _private_nh("~")
     //发布mpclane的线程,包括障碍物检测和指定点停车
     std::thread publish_mpc_lane = std::thread(std::bind(&BehaviourStateMachine::threadPublishMpcLane, this));
     publish_mpc_lane.detach();
-
-    //跟随固定轨迹的线程(后场)
-    std::thread path_tracing = std::thread(std::bind(&BehaviourStateMachine::threadPathTracing, this));
-    path_tracing.detach();
 }
 
 geometry_msgs::Pose BehaviourStateMachine::transformPose(const geometry_msgs::Pose &pose,
@@ -652,27 +647,27 @@ void BehaviourStateMachine::callbackTimerStaticExec(const ros::TimerEvent &e)
 
         //保留点 ratio=0.9 4057ms opennode:6346
         //不加thetacost 7256ms opennode:6833
-        geometry_msgs::PoseWithCovarianceStamped temp_start;
-        temp_start.header.stamp = ros::Time::now();
-        temp_start.header.frame_id = "map";
-        temp_start.pose.pose.position.x = 46.2528533936;
-        temp_start.pose.pose.position.y = 43.434928894;
-        temp_start.pose.pose.position.z = 0.0;
-        temp_start.pose.pose.orientation.x = 0.0;
-        temp_start.pose.pose.orientation.y = 0.0;
-        temp_start.pose.pose.orientation.z = -0.714587677837;
-        temp_start.pose.pose.orientation.w = 0.699545888904;
-        _pub_rviz_start_pose.publish(temp_start);
+        // geometry_msgs::PoseWithCovarianceStamped temp_start;
+        // temp_start.header.stamp = ros::Time::now();
+        // temp_start.header.frame_id = "map";
+        // temp_start.pose.pose.position.x = 46.2528533936;
+        // temp_start.pose.pose.position.y = 43.434928894;
+        // temp_start.pose.pose.position.z = 0.0;
+        // temp_start.pose.pose.orientation.x = 0.0;
+        // temp_start.pose.pose.orientation.y = 0.0;
+        // temp_start.pose.pose.orientation.z = -0.714587677837;
+        // temp_start.pose.pose.orientation.w = 0.699545888904;
+        // _pub_rviz_start_pose.publish(temp_start);
 
-        _goal_pose_stamped.header.stamp = ros::Time::now();
-        _goal_pose_stamped.header.frame_id = "map";
-        _goal_pose_stamped.pose.position.x = 79.6534118652;
-        _goal_pose_stamped.pose.position.y = 74.056060791;
-        _goal_pose_stamped.pose.position.z = 0.0;
-        _goal_pose_stamped.pose.orientation.x = 0.0;
-        _goal_pose_stamped.pose.orientation.y = 0.0;
-        _goal_pose_stamped.pose.orientation.z = 0.707106796641;
-        _goal_pose_stamped.pose.orientation.w = 0.707106765732;
+        // _goal_pose_stamped.header.stamp = ros::Time::now();
+        // _goal_pose_stamped.header.frame_id = "map";
+        // _goal_pose_stamped.pose.position.x = 79.6534118652;
+        // _goal_pose_stamped.pose.position.y = 74.056060791;
+        // _goal_pose_stamped.pose.position.z = 0.0;
+        // _goal_pose_stamped.pose.orientation.x = 0.0;
+        // _goal_pose_stamped.pose.orientation.y = 0.0;
+        // _goal_pose_stamped.pose.orientation.z = 0.707106796641;
+        // _goal_pose_stamped.pose.orientation.w = 0.707106765732;
 
         sendGoalSrv(_goal_pose_stamped);
     }
@@ -1133,25 +1128,6 @@ void BehaviourStateMachine::threadSendLastTraj()
             }
 
             return;
-        }
-    }
-}
-
-void BehaviourStateMachine::threadPathTracing()
-{
-    while (true)
-    {
-        if (mode != (int)ScenarioStatus::PathTracing)
-        {
-            continue;
-        }
-
-        mpc_msgs::Lane send_lane;
-        readTrajFile(send_lane);
-        if (send_lane.waypoints.empty())
-        {
-            ROS_ERROR("can't open traj_file in callbackTImerPathTracing()");
-            continue;
         }
     }
 }

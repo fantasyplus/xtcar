@@ -10,7 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <fstream>
- 
+
 // ros
 #include <ros/ros.h>
 #include <std_msgs/Int8.h>
@@ -34,6 +34,7 @@
 #include "mpc_msgs/VehicleStatus.h"
 #include "mpc_msgs/TaskControl.h"
 #include "mpc_msgs/TaskStatus.h"
+#include "timer.h"
 
 enum class Direction
 {
@@ -81,6 +82,8 @@ private:
     ros::Subscriber _sub_vehicle_status;
     ros::Subscriber _sub_scenario_mode;
     ros::Subscriber _sub_task_status;
+
+    ros::Publisher _pub_rviz_start_pose;
 
     ros::Timer _timer_tf;
 
@@ -135,7 +138,7 @@ private:
     bool use_complex_lane; // ros参数
 
     void checkIsComplexLaneAndPrase(mpc_msgs::Lane &temp_lane, std::vector<mpc_msgs::Lane> &sub_lane_vec);
-    void processMpcLane(mpc_msgs::Lane &mpc_lane, int start, int end, int zero_vel_segment, bool is_coll);
+    void processMpcLane(mpc_msgs::Lane &mpc_lane, bool is_coll);
 
     void sendGoalSrv(geometry_msgs::PoseStamped &pose);
     bool sendGoalSrv(geometry_msgs::PoseStamped &pose, mpc_msgs::Lane &lane);
